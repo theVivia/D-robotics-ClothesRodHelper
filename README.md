@@ -15,6 +15,7 @@
 2. 📱 **交互演示**：双击 [`app/index.html`](app/index.html)（离线可用，手机竖屏也行）
 3. 📄 **一页纸方案**：[docs/00-执行摘要.md](docs/00-执行摘要.md)
 4. 🖨️ **展台卡**：[deck/衣序-展台卡-A4.pdf](deck/衣序-展台卡-A4.pdf)（A4 打印，放在展台）
+5. 📚 **完整方案书**：[deck/衣序-完整方案书.pdf](deck/衣序-完整方案书.pdf)（142 页，README + 全部文档合并，可打印/提交）
 
 ---
 
@@ -107,6 +108,8 @@
 | AI 怎么用的（赛中必交） | [docs/16-AI辅助开发与过程证据.md](docs/16-AI辅助开发与过程证据.md) |
 | **RDK 平台与开发环境** | [docs/17-RDK平台与开发环境.md](docs/17-RDK平台与开发环境.md) |
 | 路演 PPT（10 页 / PDF） | [deck/](deck) · [衣序-HangFlow-DDC2026.pdf](deck/衣序-HangFlow-DDC2026.pdf) |
+| 完整方案书（142 页 PDF） | [deck/衣序-完整方案书.pdf](deck/衣序-完整方案书.pdf) · 源文件 [deck/book.html](deck/book.html) |
+| 展台卡（A4） | [deck/衣序-展台卡-A4.pdf](deck/衣序-展台卡-A4.pdf) |
 | 固件（ESP32-C3） | [firmware/esp32-module](firmware/esp32-module) |
 | 中枢软件 / 无硬件 mock | [software/hub](software/hub) |
 | 图片与图表 | [assets/diagrams](assets/diagrams) · [docs/figures](docs/figures) |
