@@ -1,0 +1,187 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1280 880" width="1280" height="880" role="img" aria-label="衣序 HangFlow 系统分层架构图">
+  <title>衣序 HangFlow · 系统分层架构</title>
+  <desc>五层架构：L4 交互层、L3 智能层（RDK X5）、L2 通信层、L1 执行层（4 个 ESP32-C3 套挂单元）、L0 物理层。指令下行，状态上行。</desc>
+
+  <defs>
+    <linearGradient id="cardGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#151A22"/>
+      <stop offset="1" stop-color="#10151B"/>
+    </linearGradient>
+    <marker id="arrowGold" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#D4A24C"/>
+    </marker>
+    <marker id="arrowMuted" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#6B7480"/>
+    </marker>
+  </defs>
+
+  <style>
+    .t { fill: #E8EAED; font-family: 'Microsoft YaHei', 'PingFang SC', 'Noto Sans SC', sans-serif; }
+    .m { fill: #9AA3AF; font-family: 'Microsoft YaHei', 'PingFang SC', 'Noto Sans SC', sans-serif; }
+    .d { fill: #6B7480; font-family: 'Microsoft YaHei', 'PingFang SC', 'Noto Sans SC', sans-serif; }
+    .g { fill: #D4A24C; font-family: 'Microsoft YaHei', 'PingFang SC', 'Noto Sans SC', sans-serif; }
+    .card { fill: url(#cardGrad); stroke: #232A33; stroke-width: 1.2; }
+    .cardG { fill: #13181F; stroke: #D4A24C; stroke-width: 1.6; }
+    .soft { fill: #10151B; stroke: #1F262F; stroke-width: 1; }
+    .chip { fill: #171D25; stroke: #2A313B; stroke-width: 1; }
+    .tag { fill: #171D25; stroke: #2A313B; stroke-width: 1; }
+  </style>
+
+  <rect width="1280" height="880" fill="#0B0D10"/>
+
+  <!-- 顶部标题 -->
+  <rect x="56" y="50" width="5" height="30" rx="2.5" fill="#D4A24C"/>
+  <text class="t" x="74" y="74" font-size="27" font-weight="bold">衣序 HangFlow · 系统分层架构</text>
+  <text class="m" x="74" y="101" font-size="13">中枢 + 分布式套挂单元 ｜ 指令下行，状态上行 ｜ 端到端 &lt; 150 ms</text>
+  <rect x="1052" y="52" width="172" height="34" rx="17" fill="#12161C" stroke="#2F3742"/>
+  <text class="g" x="1138" y="74" font-size="12.5" text-anchor="middle" font-weight="bold">DDC2026 · RDK X5</text>
+
+  <!-- ================= L4 交互层 ================= -->
+  <rect x="56" y="126" width="52" height="110" rx="10" class="card"/>
+  <text class="g" x="82" y="175" font-size="16" font-weight="bold" text-anchor="middle">L4</text>
+  <text class="m" x="82" y="196" font-size="10" text-anchor="middle">交互层</text>
+
+  <rect x="126" y="126" width="1098" height="110" rx="14" class="soft"/>
+  <text class="t" x="150" y="156" font-size="13.5" font-weight="bold">交互层 · 评委和用户真正看到的一层</text>
+  <rect class="card" x="150" y="170" width="344" height="54" rx="10"/>
+  <text class="t" x="168" y="193" font-size="14" font-weight="bold">手机网页（扫码即用）</text>
+  <text class="m" x="168" y="212" font-size="11.5">手动拖 / 一键等距 / 智能分配 / 收衣</text>
+  <rect class="card" x="510" y="170" width="316" height="54" rx="10"/>
+  <text class="t" x="528" y="193" font-size="14" font-weight="bold">模块按键 + WS2812 LED</text>
+  <text class="m" x="528" y="212" font-size="11.5">断网也能本地操作、状态可见</text>
+  <rect class="card" x="842" y="170" width="358" height="54" rx="10"/>
+  <text class="t" x="860" y="193" font-size="14" font-weight="bold">语音控制（P2）</text>
+  <text class="m" x="860" y="212" font-size="11.5">锦上添花，不进 P0；48 小时不冒险</text>
+
+  <!-- 指令 / 状态 图例（第一个层间隙） -->
+  <line x1="744" y1="238" x2="744" y2="258" stroke="#D4A24C" stroke-width="2" marker-end="url(#arrowGold)"/>
+  <text class="g" x="734" y="252" font-size="10.5" text-anchor="end">指令 ↓</text>
+  <line x1="900" y1="258" x2="900" y2="238" stroke="#6B7480" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#arrowMuted)"/>
+  <text class="m" x="912" y="252" font-size="10.5" text-anchor="start">状态 ↑</text>
+
+  <!-- ================= L3 智能层 ================= -->
+  <rect x="56" y="260" width="52" height="146" rx="10" class="card"/>
+  <text class="g" x="82" y="326" font-size="16" font-weight="bold" text-anchor="middle">L3</text>
+  <text class="m" x="82" y="347" font-size="10" text-anchor="middle">智能层</text>
+
+  <rect x="126" y="260" width="1098" height="146" rx="14" class="soft"/>
+  <text class="t" x="150" y="287" font-size="13.5" font-weight="bold">智能层 · RDK X5 一颗板全包</text>
+
+  <rect x="150" y="298" width="850" height="94" rx="12" class="cardG"/>
+  <text class="t" x="170" y="322" font-size="14.5" font-weight="bold">RDK X5 · 视觉中枢</text>
+  <text class="d" x="330" y="322" font-size="11">Ubuntu 22.04 ｜ 8×A55 ｜ 10 TOPS BPU（留给 P2）</text>
+
+  <rect class="chip" x="170" y="332" width="180" height="34" rx="8"/>
+  <text class="t" x="260" y="354" font-size="12" text-anchor="middle">相机采集 720p/30</text>
+  <line x1="356" y1="349" x2="374" y2="349" stroke="#D4A24C" stroke-width="1.6" marker-end="url(#arrowGold)"/>
+  <rect class="chip" x="380" y="332" width="180" height="34" rx="8"/>
+  <text class="t" x="470" y="354" font-size="12" text-anchor="middle">视觉定位 ArUco+PnP</text>
+  <line x1="566" y1="349" x2="584" y2="349" stroke="#D4A24C" stroke-width="1.6" marker-end="url(#arrowGold)"/>
+  <rect class="chip" x="590" y="332" width="160" height="34" rx="8"/>
+  <text class="t" x="670" y="354" font-size="12" text-anchor="middle">间距规划（闭式解）</text>
+  <line x1="756" y1="349" x2="774" y2="349" stroke="#D4A24C" stroke-width="1.6" marker-end="url(#arrowGold)"/>
+  <rect class="chip" x="780" y="332" width="200" height="34" rx="8"/>
+  <text class="t" x="880" y="354" font-size="12" text-anchor="middle">任务调度 + 异常监控</text>
+
+  <text class="m" x="170" y="384" font-size="11">FastAPI + WebSocket（网页/接口） ｜ MQTT Broker ｜ 日志与回放 ｜ 单进程多线程</text>
+
+  <rect class="card" x="1016" y="298" width="178" height="42" rx="10"/>
+  <text class="t" x="1032" y="316" font-size="12.5" font-weight="bold">USB 相机</text>
+  <text class="m" x="1032" y="333" font-size="10">720p · 距杆 1.5 m</text>
+  <rect class="card" x="1016" y="350" width="178" height="42" rx="10"/>
+  <text class="t" x="1032" y="368" font-size="12.5" font-weight="bold">5 V / 5 A 供电</text>
+  <text class="m" x="1032" y="385" font-size="10">65 W PD 充电宝</text>
+
+  <!-- 层间隙箭头 -->
+  <line x1="744" y1="410" x2="744" y2="426" stroke="#D4A24C" stroke-width="2" marker-end="url(#arrowGold)"/>
+  <line x1="900" y1="426" x2="900" y2="410" stroke="#6B7480" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#arrowMuted)"/>
+
+  <!-- ================= L2 通信层 ================= -->
+  <rect x="56" y="430" width="52" height="92" rx="10" class="card"/>
+  <text class="g" x="82" y="471" font-size="16" font-weight="bold" text-anchor="middle">L2</text>
+  <text class="m" x="82" y="492" font-size="10" text-anchor="middle">通信层</text>
+
+  <rect x="126" y="430" width="1098" height="92" rx="14" class="soft"/>
+  <text class="t" x="150" y="456" font-size="13.5" font-weight="bold">通信层 · 现场几十个队同频，也要连得上</text>
+  <rect class="card" x="150" y="468" width="252" height="40" rx="9"/>
+  <text class="t" x="166" y="484" font-size="12.5" font-weight="bold">Wi-Fi 2.4G（RDK 热点）</text>
+  <text class="m" x="166" y="500" font-size="10">不依赖现场网络</text>
+  <rect class="card" x="422" y="468" width="252" height="40" rx="9"/>
+  <text class="t" x="438" y="484" font-size="12.5" font-weight="bold">MQTT QoS1</text>
+  <text class="m" x="438" y="500" font-size="10">retain 保留最后状态</text>
+  <rect class="card" x="694" y="468" width="252" height="40" rx="9"/>
+  <text class="t" x="710" y="484" font-size="12.5" font-weight="bold">JSON 协议 + seq</text>
+  <text class="m" x="710" y="500" font-size="10">指令去重、可回放</text>
+  <rect class="card" x="966" y="468" width="234" height="40" rx="9"/>
+  <text class="t" x="982" y="484" font-size="12.5" font-weight="bold">心跳 / 自动重连</text>
+  <text class="m" x="982" y="500" font-size="10">丢包 500 ms 内就地停</text>
+
+  <!-- 层间隙箭头 -->
+  <line x1="744" y1="526" x2="744" y2="542" stroke="#D4A24C" stroke-width="2" marker-end="url(#arrowGold)"/>
+  <line x1="900" y1="542" x2="900" y2="526" stroke="#6B7480" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#arrowMuted)"/>
+
+  <!-- ================= L1 执行层 ================= -->
+  <rect x="56" y="546" width="52" height="140" rx="10" class="card"/>
+  <text class="g" x="82" y="610" font-size="16" font-weight="bold" text-anchor="middle">L1</text>
+  <text class="m" x="82" y="631" font-size="10" text-anchor="middle">执行层</text>
+
+  <rect x="126" y="546" width="1098" height="140" rx="14" class="soft"/>
+  <text class="t" x="150" y="572" font-size="13.5" font-weight="bold">执行层 · 每个单元自己闭环，坏一个不影响别的</text>
+
+  <g>
+    <rect class="card" x="150" y="584" width="255" height="88" rx="10"/>
+    <text class="g" x="164" y="607" font-size="12" font-weight="bold">unit-01</text>
+    <text class="t" x="164" y="629" font-size="11.5">ESP32-C3 · N20 + 编码器</text>
+    <text class="m" x="164" y="650" font-size="11">ToF 防撞 · 堵转判据</text>
+    <text class="d" x="164" y="666" font-size="9.5">18650 · 摩擦轮自走</text>
+  </g>
+  <g>
+    <rect class="card" x="421" y="584" width="255" height="88" rx="10"/>
+    <text class="g" x="435" y="607" font-size="12" font-weight="bold">unit-02</text>
+    <text class="t" x="435" y="629" font-size="11.5">速度环 + 位置环</text>
+    <text class="m" x="435" y="650" font-size="11">手动/档位 · 急停</text>
+    <text class="d" x="435" y="666" font-size="9.5">50 Hz 控制周期</text>
+  </g>
+  <g>
+    <rect class="card" x="692" y="584" width="255" height="88" rx="10"/>
+    <text class="g" x="706" y="607" font-size="12" font-weight="bold">unit-03</text>
+    <text class="t" x="706" y="629" font-size="11.5">VL53L1X 邻距</text>
+    <text class="m" x="706" y="650" font-size="11">&lt; 60 mm 自动退回</text>
+    <text class="d" x="706" y="666" font-size="9.5">串行让位防互撞</text>
+  </g>
+  <g>
+    <rect class="card" x="963" y="584" width="237" height="88" rx="10"/>
+    <text class="g" x="977" y="607" font-size="12" font-weight="bold">unit-04</text>
+    <text class="t" x="977" y="629" font-size="11.5">断线就停</text>
+    <text class="m" x="977" y="650" font-size="11">心跳丢失 500 ms</text>
+    <text class="d" x="977" y="666" font-size="9.5">断电短时保持</text>
+  </g>
+
+  <!-- 层间隙箭头 -->
+  <line x1="744" y1="690" x2="744" y2="706" stroke="#D4A24C" stroke-width="2" marker-end="url(#arrowGold)"/>
+  <line x1="900" y1="706" x2="900" y2="690" stroke="#6B7480" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#arrowMuted)"/>
+
+  <!-- ================= L0 物理层 ================= -->
+  <rect x="56" y="710" width="52" height="118" rx="10" class="card"/>
+  <text class="g" x="82" y="765" font-size="16" font-weight="bold" text-anchor="middle">L0</text>
+  <text class="m" x="82" y="786" font-size="10" text-anchor="middle">物理层</text>
+
+  <rect x="126" y="710" width="1098" height="118" rx="14" class="soft"/>
+  <text class="t" x="150" y="736" font-size="13.5" font-weight="bold">物理层 · 不动杆、不装修、不换晾衣架</text>
+  <rect class="card" x="150" y="748" width="255" height="60" rx="10"/>
+  <text class="t" x="166" y="771" font-size="12.5" font-weight="bold">套挂单元 ×4</text>
+  <text class="m" x="166" y="790" font-size="10.5">C 形夹爪 · 硅胶摩擦轮 · 挂衣钩</text>
+  <rect class="card" x="421" y="748" width="255" height="60" rx="10"/>
+  <text class="t" x="437" y="771" font-size="12.5" font-weight="bold">1.2 m 演示杆</text>
+  <text class="m" x="437" y="790" font-size="10.5">20–35 mm 圆杆 · 左端挡块归零</text>
+  <rect class="card" x="692" y="748" width="255" height="60" rx="10"/>
+  <text class="t" x="708" y="771" font-size="12.5" font-weight="bold">USB 相机</text>
+  <text class="m" x="708" y="790" font-size="10.5">三脚架 · 距杆 1.5 m · 正对杆</text>
+  <rect class="card" x="963" y="748" width="237" height="60" rx="10"/>
+  <text class="t" x="979" y="771" font-size="12.5" font-weight="bold">供电</text>
+  <text class="m" x="979" y="790" font-size="10.5">65 W PD 充电宝 · 单元 18650</text>
+
+  <!-- 底部注脚 -->
+  <text class="m" x="56" y="856" font-size="11">定位 ±5 mm（编码器）/ ±3 mm（视觉校正） ｜ 单模块承重 5 kg ｜ 五层安全，任何一层挂了默认动作是「停」</text>
+  <text class="d" x="1224" y="856" font-size="10" text-anchor="end">设计目标，非实测</text>
+</svg>

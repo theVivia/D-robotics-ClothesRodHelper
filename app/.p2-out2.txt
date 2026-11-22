@@ -1,0 +1,2285 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="UTF-8"><title>P2 harness</title>
+<style>html,body{margin:0;background:#1a1d24;color:#dfe6f0;font:12px/1.5 monospace}iframe{width:390px;height:844px;border:0;display:block;background:#000}#result{white-space:pre-wrap;padding:12px;max-width:900px}</style>
+</head>
+<body>
+<iframe id="frame" srcdoc="&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;&lt;script&gt;window.requestAnimationFrame=function(fn){return setTimeout(function(){fn(performance.now())},16)};window.cancelAnimationFrame=function(id){clearTimeout(id)};&lt;/script&gt;
+&lt;meta charset=&quot;UTF-8&quot;&gt;
+&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1, viewport-fit=cover&quot;&gt;
+&lt;meta name=&quot;color-scheme&quot; content=&quot;dark&quot;&gt;
+&lt;meta name=&quot;theme-color&quot; content=&quot;#06080b&quot;&gt;
+&lt;title&gt;衣序 HangFlow · 交互演示&lt;/title&gt;
+&lt;link rel=&quot;icon&quot; href=&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230a0d13'/%3E%3Cpath d='M6 12h20' stroke='%23d6b173' stroke-width='2' stroke-linecap='round'/%3E%3Cpath d='M11 12v4l-3 4h6l-3-4' fill='none' stroke='%23d6b173' stroke-width='1.6' stroke-linejoin='round'/%3E%3Ccircle cx='21' cy='17' r='2.4' fill='none' stroke='%23d6b173' stroke-width='1.6'/%3E%3C/svg%3E&quot;&gt;
+&lt;style&gt;
+/* ==========================================================================
+   衣序 HangFlow · 交互演示页
+   单文件 / 无 CDN / 无联网。深色机器人控制台风格 + 少量香槟金点缀。
+   结构：顶栏 → 杆视图（可拖拽单元）→ 风道读数 → 控制台 → 运行日志
+   ========================================================================== */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+:root {
+  color-scheme: dark;
+  --bg: #06080b;
+  --panel: rgba(255,255,255,.022);
+  --line: rgba(255,255,255,.075);
+  --line-soft: rgba(255,255,255,.045);
+  --txt: #eef2f8;
+  --txt-2: #98a4b5;
+  --txt-3: #5b6779;
+  --gold: #d6b173;
+  --gold-hi: #f1d69a;
+  --gold-dim: rgba(214,177,115,.14);
+  --gold-line: rgba(214,177,115,.38);
+  --teal: #5fd6b4;
+  --amber: #e6bd63;
+  --coral: #f07a63;
+  --font: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;Microsoft YaHei&quot;, &quot;PingFang SC&quot;, sans-serif;
+  --mono: ui-monospace, &quot;SF Mono&quot;, &quot;Cascadia Mono&quot;, Consolas, &quot;Microsoft YaHei&quot;, monospace;
+}
+
+html { background: var(--bg); }
+html, body { margin: 0; }
+
+body {
+  min-height: 100vh;
+  color: var(--txt);
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  background:
+    radial-gradient(900px 520px at 10% -10%, rgba(214,177,115,.10), transparent 62%),
+    radial-gradient(760px 480px at 102% 0%, rgba(95,214,180,.065), transparent 60%),
+    radial-gradient(1100px 720px at 50% 118%, rgba(64,105,150,.13), transparent 64%),
+    var(--bg);
+}
+
+button, input { font-family: inherit; }
+button { -webkit-tap-highlight-color: transparent; }
+:focus-visible { outline: 1px solid var(--gold); outline-offset: 2px; }
+
+.shell {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 22px clamp(12px, 2.6vw, 30px) 28px;
+}
+
+/* ============================ 顶栏 ============================ */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--line-soft);
+}
+.brand { display: flex; align-items: center; gap: 14px; min-width: 0; }
+.logo {
+  width: 42px; height: 42px; flex: none;
+  display: grid; place-items: center;
+  border-radius: 12px;
+  border: 1px solid var(--gold-line);
+  color: var(--gold-hi);
+  background: linear-gradient(160deg, rgba(214,177,115,.18), rgba(214,177,115,.03));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.1), 0 8px 24px -12px rgba(214,177,115,.55);
+}
+.logo svg { width: 23px; height: 23px; }
+.brand-text { min-width: 0; }
+.brand-title {
+  display: flex; align-items: baseline; gap: 8px;
+  font-size: 19px; font-weight: 650; letter-spacing: .02em; line-height: 1.15;
+}
+.brand-title .en {
+  font-family: var(--mono); font-size: 10.5px; font-weight: 500;
+  letter-spacing: .16em; color: var(--gold);
+}
+.brand-sub {
+  margin-top: 1px; font-size: 12px; color: var(--txt-2); letter-spacing: .02em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.telemetry { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.tel-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 28px; padding: 0 10px;
+  border: 1px solid var(--line); border-radius: 999px;
+  background: rgba(255,255,255,.025);
+  font-size: 11px; color: var(--txt-2); white-space: nowrap;
+}
+.tel-chip em {
+  font-style: normal; font-family: var(--mono);
+  font-size: 11px; color: var(--txt);
+}
+.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--teal); box-shadow: 0 0 8px rgba(95,214,180,.8); }
+.dot.pulse { animation: pulse 2.4s ease-in-out infinite; }
+
+/* ============================ 布局 ============================ */
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 368px;
+  grid-template-areas: &quot;stage panel&quot; &quot;log panel&quot;;
+  gap: 18px;
+  margin-top: 20px;
+  align-items: start;
+}
+.stage-card { grid-area: stage; }
+.panel { grid-area: panel; position: sticky; top: 16px; }
+.log-card { grid-area: log; }
+
+.card {
+  position: relative;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.028), rgba(255,255,255,.008) 42%, rgba(255,255,255,.004));
+  box-shadow: 0 26px 60px -34px rgba(0,0,0,.9), inset 0 1px 0 rgba(255,255,255,.05);
+  overflow: hidden;
+}
+.card::before {
+  content: &quot;&quot;; position: absolute; left: 14%; right: 14%; top: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(214,177,115,.5), transparent);
+  opacity: .6; pointer-events: none;
+}
+
+/* ============================ 杆视图 ============================ */
+.stage-card { padding: 16px 16px 14px; }
+.stage-head {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 14px; flex-wrap: wrap; margin-bottom: 14px;
+}
+.eyebrow {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .18em;
+  text-transform: uppercase; color: var(--txt-3);
+}
+.stage-title {
+  margin-top: 4px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  font-size: 15px; font-weight: 600; letter-spacing: .02em; color: var(--txt);
+}
+.stage-title .sep { width: 3px; height: 3px; border-radius: 50%; background: var(--txt-3); }
+.stage-title .meta { font-size: 12px; font-weight: 400; color: var(--txt-2); }
+.stage-stats { display: flex; gap: 16px; flex-wrap: wrap; }
+.stat { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; min-width: 56px; }
+.stat-label {
+  font-family: var(--mono); font-size: 8.5px; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--txt-3); white-space: nowrap;
+}
+.stat-value {
+  font-family: var(--mono); font-size: 17px; font-weight: 600;
+  color: var(--txt); font-variant-numeric: tabular-nums; letter-spacing: -.01em;
+}
+.stat-value em { font-style: normal; font-size: 10px; color: var(--txt-3); margin-left: 2px; }
+.stat-value.ok { color: var(--teal); }
+.stat-value.warn { color: var(--coral); }
+.stat-value.gold { color: var(--gold-hi); }
+
+.stage {
+  --rod-pad: 24px;
+  --clip-top: calc(40% - 28px);
+  --garment-top: calc(40% + 38px);
+  --garment-h: 98px;
+  position: relative;
+  height: 322px;
+  border-radius: 13px;
+  border: 1px solid rgba(255,255,255,.06);
+  overflow: hidden;
+  isolation: isolate;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  background:
+    radial-gradient(120% 90% at 50% -10%, rgba(214,177,115,.07), transparent 55%),
+    radial-gradient(80% 70% at 50% 120%, rgba(74,120,170,.12), transparent 65%),
+    linear-gradient(180deg, #090c11 0%, #070a0f 60%, #05070a 100%);
+}
+.stage::before {
+  content: &quot;&quot;; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+  background-size: 48px 48px;
+  -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,.65), transparent 84%);
+  mask-image: linear-gradient(180deg, rgba(0,0,0,.65), transparent 84%);
+}
+.hud { position: absolute; inset: 10px; z-index: 1; pointer-events: none; }
+.hud::before, .hud::after {
+  content: &quot;&quot;; position: absolute; width: 13px; height: 13px;
+  border-color: rgba(214,177,115,.42); border-style: solid; border-width: 0;
+}
+.hud::before { left: 0; top: 0; border-left-width: 1px; border-top-width: 1px; }
+.hud::after { right: 0; bottom: 0; border-right-width: 1px; border-bottom-width: 1px; }
+.stage-hint {
+  position: absolute; left: 18px; top: 13px; z-index: 5;
+  font-family: var(--mono); font-size: 8.5px; letter-spacing: .14em;
+  color: var(--txt-3); pointer-events: none; text-transform: uppercase;
+}
+.floor {
+  position: absolute; left: 6%; right: 6%; top: calc(40% + 54px); height: 74px;
+  z-index: 1; pointer-events: none;
+  background: radial-gradient(ellipse at center top, rgba(0,0,0,.6), transparent 72%);
+  filter: blur(5px);
+}
+
+/* 晾衣杆：俯视圆柱 + 轻微金属高光 */
+.rod {
+  position: absolute; left: var(--rod-pad); right: var(--rod-pad);
+  top: 40%; height: 13px; transform: translateY(-50%);
+  z-index: 3; border-radius: 999px;
+  background: linear-gradient(180deg, #4a5364 0%, #242b37 30%, #0d1219 62%, #1d242f 100%);
+  box-shadow:
+    0 14px 26px -10px rgba(0,0,0,.95),
+    inset 0 1px 0 rgba(255,255,255,.08),
+    0 0 0 1px rgba(255,255,255,.055);
+}
+.rod::after {
+  content: &quot;&quot;; position: absolute; left: 2%; right: 2%; top: 1px; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(241,214,154,.75), rgba(241,214,154,.2) 68%, transparent);
+  opacity: .5;
+}
+.ruler {
+  position: absolute; left: var(--rod-pad); right: var(--rod-pad);
+  bottom: 18px; height: 26px; z-index: 3; pointer-events: none;
+}
+.ruler::before {
+  content: &quot;&quot;; position: absolute; left: 0; right: 0; bottom: 15px; height: 1px;
+  background: linear-gradient(90deg, rgba(255,255,255,.03), rgba(255,255,255,.18), rgba(255,255,255,.03));
+}
+.tick {
+  position: absolute; bottom: 11px; width: 1px; height: 5px;
+  background: rgba(255,255,255,.16); transform: translateX(-50%);
+}
+.tick.major { height: 9px; background: rgba(214,177,115,.5); }
+.ruler-label {
+  position: absolute; top: 2px; transform: translateX(-50%);
+  font-family: var(--mono); font-size: 8.5px; color: var(--txt-3); letter-spacing: .03em;
+}
+.ruler-label.edge-l { transform: translateX(0); }
+.ruler-label.edge-r { transform: translateX(-100%); }
+
+/* 间距标注：净风道 cm */
+.dim {
+  position: absolute; top: calc(40% - 70px); height: 30px;
+  z-index: 4; pointer-events: none;
+  display: flex; align-items: flex-end; justify-content: center;
+  opacity: 1; transition: opacity .2s;
+}
+.dim-line {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
+  background: linear-gradient(90deg, rgba(214,177,115,.15), rgba(214,177,115,.7), rgba(214,177,115,.15));
+}
+.dim-line::before, .dim-line::after {
+  content: &quot;&quot;; position: absolute; bottom: -3px; width: 1px; height: 7px;
+  background: rgba(214,177,115,.6);
+}
+.dim-line::before { left: 0; }
+.dim-line::after { right: 0; }
+.dim-label {
+  position: relative; bottom: 5px; z-index: 2;
+  display: inline-flex; align-items: baseline; gap: 2px;
+  padding: 2px 6px; border-radius: 6px;
+  border: 1px solid rgba(214,177,115,.24);
+  background: rgba(8,11,16,.88);
+  font-family: var(--mono); font-size: 10px; color: var(--gold-hi); white-space: nowrap;
+}
+.dim-label b { font-weight: 600; font-variant-numeric: tabular-nums; }
+.dim-label span { font-size: 8px; color: var(--txt-3); }
+.dim[data-tone=&quot;warn&quot;] .dim-line {
+  background: linear-gradient(90deg, rgba(240,122,99,.12), rgba(240,122,99,.75), rgba(240,122,99,.12));
+}
+.dim[data-tone=&quot;warn&quot;] .dim-line::before,
+.dim[data-tone=&quot;warn&quot;] .dim-line::after { background: rgba(240,122,99,.65); }
+.dim[data-tone=&quot;warn&quot;] .dim-label { border-color: rgba(240,122,99,.4); color: #ffb3a4; }
+.dim[data-tone=&quot;good&quot;] .dim-line {
+  background: linear-gradient(90deg, rgba(95,214,180,.12), rgba(95,214,180,.7), rgba(95,214,180,.12));
+}
+.dim[data-tone=&quot;good&quot;] .dim-line::before,
+.dim[data-tone=&quot;good&quot;] .dim-line::after { background: rgba(95,214,180,.6); }
+.dim[data-tone=&quot;good&quot;] .dim-label { border-color: rgba(95,214,180,.35); color: #a9f0da; }
+
+/* 风道上升气流示意 */
+.flow {
+  position: absolute; top: var(--garment-top); height: var(--garment-h);
+  z-index: 2; pointer-events: none; opacity: .55;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(214,177,115,.26) 0 2px, transparent 2px 8px),
+    repeating-linear-gradient(90deg, rgba(214,177,115,.1) 0 1px, transparent 1px 7px);
+  animation: flowUp 1.7s linear infinite;
+  -webkit-mask-image: linear-gradient(180deg, transparent, rgba(0,0,0,.9) 18%, rgba(0,0,0,.85) 72%, transparent);
+  mask-image: linear-gradient(180deg, transparent, rgba(0,0,0,.9) 18%, rgba(0,0,0,.85) 72%, transparent);
+}
+
+/* 套挂单元（模块） */
+.unit {
+  position: absolute; top: 0; bottom: 0; width: 0;
+  z-index: 10; cursor: grab; touch-action: none;
+  will-change: left, transform;
+}
+.unit.dragging { cursor: grabbing; z-index: 40 !important; }
+.unit.reorder { z-index: 45 !important; }
+
+.clip {
+  position: absolute; left: 0; top: var(--clip-top); transform: translateX(-50%);
+  width: 36px; height: 56px; border-radius: 11px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  border: 1px solid rgba(255,255,255,.13);
+  background: linear-gradient(180deg, #1a212c 0%, #0d1219 55%, #090c11 100%);
+  box-shadow: 0 10px 20px -8px rgba(0,0,0,.9), inset 0 1px 0 rgba(255,255,255,.12);
+  transition: border-color .2s, box-shadow .2s;
+}
+.unit:hover .clip {
+  border-color: rgba(214,177,115,.55);
+  box-shadow: 0 10px 24px -8px rgba(0,0,0,.9), 0 0 0 1px rgba(214,177,115,.18), inset 0 1px 0 rgba(255,255,255,.14);
+}
+.unit.dragging .clip,
+.unit.reorder .clip {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 1px rgba(214,177,115,.38), 0 0 24px rgba(214,177,115,.28), inset 0 1px 0 rgba(255,255,255,.15);
+}
+.clip-no {
+  font-family: var(--mono); font-size: 12px; font-weight: 600;
+  color: var(--gold-hi); line-height: 1; letter-spacing: .04em;
+  font-variant-numeric: tabular-nums;
+}
+.clip-led { position: absolute; top: 7px; right: 7px; width: 5px; height: 5px; border-radius: 50%; }
+.clip-batt {
+  position: absolute; left: 8px; right: 8px; bottom: 7px; height: 3px;
+  border-radius: 2px; background: rgba(255,255,255,.09); overflow: hidden;
+}
+.clip-batt i {
+  display: block; height: 100%; border-radius: 2px;
+  background: linear-gradient(90deg, rgba(95,214,180,.55), var(--teal));
+  transition: width .45s ease;
+}
+
+/* 衣物占位：俯视厚度示意，颜色 = 湿度色标 */
+.garment {
+  position: absolute; left: 0; top: var(--garment-top); transform: translateX(-50%);
+  height: var(--garment-h);
+  min-width: 4px;
+  border-radius: 9px 9px 20px 20px;
+  border: 1px solid rgba(var(--hue, 214,177,115), .62);
+  background:
+    linear-gradient(180deg, rgba(var(--hue, 214,177,115), .32), rgba(var(--hue, 214,177,115), .06) 76%),
+    rgba(255,255,255,.012);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.1), 0 18px 30px -18px rgba(0,0,0,.9);
+  overflow: hidden;
+  transition: border-color .3s, background .3s;
+}
+.garment::before {
+  content: &quot;&quot;; position: absolute; left: 14%; right: 14%; top: 6px; height: 1px;
+  background: rgba(255,255,255,.16);
+}
+.garment::after {
+  content: &quot;&quot;; position: absolute; left: 50%; top: 0; width: 1px; height: 9px;
+  background: rgba(255,255,255,.2);
+}
+.unit.reorder .garment { border-style: dashed; border-color: rgba(214,177,115,.65); }
+.garment-fill {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(180deg, rgba(var(--hue, 214,177,115), .32), rgba(var(--hue, 214,177,115), .08));
+  transition: height .4s ease;
+}
+.garment-pct {
+  position: absolute; left: 50%; bottom: 6px; transform: translateX(-50%);
+  z-index: 2; font-family: var(--mono); font-size: 9px; color: rgba(255,255,255,.85);
+  text-shadow: 0 1px 3px rgba(0,0,0,.85); white-space: nowrap;
+}
+
+/* 急停遮罩 */
+.estop-mask {
+  position: absolute; inset: 0; z-index: 60; display: none; place-items: center;
+  background: radial-gradient(circle at 50% 45%, rgba(240,90,70,.16), rgba(6,8,12,.78) 66%);
+  -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px);
+}
+.stage.estop .estop-mask { display: grid; }
+.estop-card {
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  padding: 18px 26px; text-align: center;
+  border: 1px solid rgba(240,122,99,.5); border-radius: 14px;
+  background: rgba(22,9,8,.8);
+  box-shadow: 0 0 44px rgba(240,90,70,.23);
+}
+.estop-icon {
+  width: 34px; height: 34px; display: grid; place-items: center;
+  border-radius: 50%; border: 1px solid rgba(240,122,99,.6);
+  background: rgba(240,90,70,.12);
+  color: #ff8a72; font-weight: 700; font-size: 18px; line-height: 1;
+}
+.estop-card b {
+  font-family: var(--mono); font-size: 12px; letter-spacing: .16em; color: #ffb3a4;
+}
+.estop-card span { font-size: 11px; color: var(--txt-2); }
+.stage.estop .flow { animation-play-state: paused; opacity: .14; }
+.stage.estop .unit { cursor: not-allowed; }
+
+/* 顶部小提示（避让重排） */
+.toast {
+  position: absolute; left: 50%; top: 14px; z-index: 50;
+  transform: translate(-50%, -6px);
+  padding: 6px 14px; border-radius: 999px;
+  border: 1px solid var(--gold-line);
+  background: rgba(22,17,9,.92);
+  color: var(--gold-hi); font-size: 11px; letter-spacing: .05em; white-space: nowrap;
+  opacity: 0; pointer-events: none;
+  transition: opacity .25s, transform .25s;
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* ============================ 风道读数 ============================ */
+.channels-head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  gap: 10px; flex-wrap: wrap; margin: 14px 2px 8px;
+}
+.channels-note { font-size: 10px; color: var(--txt-3); }
+.channels { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.chan {
+  position: relative; padding: 9px 10px 8px;
+  border: 1px solid var(--line-soft); border-radius: 10px;
+  background: rgba(255,255,255,.018); overflow: hidden;
+}
+.chan::before {
+  content: &quot;&quot;; position: absolute; left: 0; top: 0; bottom: 0; width: 2px;
+  background: var(--chan-color, var(--gold)); opacity: .55;
+}
+.chan[data-tone=&quot;good&quot;] { --chan-color: var(--teal); }
+.chan[data-tone=&quot;ok&quot;] { --chan-color: var(--gold); }
+.chan[data-tone=&quot;warn&quot;] { --chan-color: var(--coral); }
+.chan-top { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; }
+.chan-pair { font-family: var(--mono); font-size: 9px; letter-spacing: .08em; color: var(--txt-3); }
+.chan-sub { font-family: var(--mono); font-size: 8.5px; color: var(--txt-3); white-space: nowrap; }
+.chan-val {
+  display: flex; align-items: baseline; gap: 2px; margin-top: 3px;
+  font-family: var(--mono); font-size: 18px; font-weight: 600;
+  color: var(--txt); font-variant-numeric: tabular-nums;
+}
+.chan-val em { font-style: normal; font-size: 9px; color: var(--txt-3); margin-left: 1px; }
+.chan[data-tone=&quot;good&quot;] .chan-val { color: var(--teal); }
+.chan[data-tone=&quot;ok&quot;] .chan-val { color: var(--gold-hi); }
+.chan[data-tone=&quot;warn&quot;] .chan-val { color: #ffb3a4; }
+
+/* ============================ 控制台 ============================ */
+.panel { padding: 18px; }
+.panel-section { padding: 14px 0; border-bottom: 1px solid var(--line-soft); }
+.panel-section:first-of-type { padding-top: 0; }
+.panel-section:last-of-type { border-bottom: 0; padding-bottom: 0; }
+.panel-head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  gap: 10px; margin-bottom: 10px;
+}
+.panel-title {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .15em;
+  text-transform: uppercase; color: var(--txt-2);
+}
+.panel-note { font-size: 10px; color: var(--txt-3); }
+
+.modes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.mode {
+  position: relative; overflow: hidden; text-align: left;
+  padding: 10px 12px; border-radius: 10px;
+  border: 1px solid var(--line); background: rgba(255,255,255,.02);
+  color: var(--txt-2); cursor: pointer;
+  transition: border-color .2s, background .2s, color .2s;
+}
+.mode:hover { border-color: rgba(255,255,255,.2); background: rgba(255,255,255,.04); }
+.mode:active { transform: translateY(1px); }
+.mode .mode-cn { display: block; font-size: 13px; font-weight: 600; letter-spacing: .03em; color: var(--txt); }
+.mode .mode-en {
+  display: block; margin-top: 2px;
+  font-family: var(--mono); font-size: 8.5px; letter-spacing: .14em; color: var(--txt-3);
+}
+.mode::after {
+  content: &quot;&quot;; position: absolute; left: 0; top: 0; bottom: 0; width: 2px;
+  background: transparent; transition: background .2s;
+}
+.mode[aria-pressed=&quot;true&quot;] {
+  border-color: rgba(214,177,115,.5);
+  background: linear-gradient(135deg, rgba(214,177,115,.16), rgba(214,177,115,.035));
+}
+.mode[aria-pressed=&quot;true&quot;] .mode-cn { color: var(--gold-hi); }
+.mode[aria-pressed=&quot;true&quot;] .mode-en { color: rgba(241,214,154,.62); }
+.mode[aria-pressed=&quot;true&quot;]::after { background: linear-gradient(180deg, transparent, var(--gold), transparent); }
+
+.field { display: block; margin-bottom: 15px; }
+.field:last-of-type { margin-bottom: 10px; }
+.field-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 7px; }
+.field-name { font-size: 12px; color: var(--txt-2); }
+.field-value {
+  font-family: var(--mono); font-size: 13px; font-weight: 600;
+  color: var(--gold-hi); font-variant-numeric: tabular-nums;
+}
+.field-value em { font-style: normal; font-size: 9px; color: var(--txt-3); margin-left: 2px; }
+.field-note { display: block; margin-top: 6px; font-size: 10px; line-height: 1.55; color: var(--txt-3); }
+.field-note b { color: var(--gold); font-weight: 500; }
+
+.smart-box {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 10px; padding: 9px 11px;
+  border: 1px dashed rgba(214,177,115,.28); border-radius: 9px;
+  background: rgba(214,177,115,.05);
+}
+.smart-box span { font-size: 10px; color: var(--txt-2); }
+.smart-box b {
+  font-family: var(--mono); font-size: 15px; font-weight: 600;
+  color: var(--gold-hi); font-variant-numeric: tabular-nums;
+}
+.smart-box b em { font-style: normal; font-size: 9px; color: var(--txt-3); margin-left: 2px; }
+
+/* P2 概念开关：默认关闭；开启后才演示&quot;抬升越障&quot;换序（真机 P0/P1 不具备） */
+.p2-row {
+  display: flex; align-items: flex-start; gap: 10px;
+  margin-top: 12px; padding: 9px 11px;
+  border: 1px solid var(--line-soft); border-radius: 9px;
+  background: rgba(255,255,255,.014);
+  cursor: pointer;
+  transition: border-color .2s, background .2s;
+}
+.p2-row.on { border-color: rgba(230,189,99,.38); background: rgba(230,189,99,.055); }
+.switch { position: relative; flex: none; width: 30px; height: 16px; margin-top: 2px; }
+.switch input {
+  position: absolute; inset: 0; width: 100%; height: 100%; margin: 0;
+  opacity: 0; cursor: pointer; z-index: 2;
+}
+.switch-ui {
+  position: absolute; inset: 0; border-radius: 999px;
+  border: 1px solid var(--line); background: rgba(255,255,255,.1);
+  transition: background .2s, border-color .2s;
+}
+.switch-ui::after {
+  content: &quot;&quot;; position: absolute; left: 2px; top: 2px; width: 10px; height: 10px;
+  border-radius: 50%; background: var(--txt-3);
+  transition: transform .2s, background .2s, box-shadow .2s;
+}
+.switch input:checked + .switch-ui {
+  background: rgba(230,189,99,.25); border-color: rgba(230,189,99,.55);
+}
+.switch input:checked + .switch-ui::after {
+  transform: translateX(14px); background: var(--amber);
+  box-shadow: 0 0 8px rgba(230,189,99,.6);
+}
+.switch input:focus-visible + .switch-ui { outline: 1px solid var(--gold); outline-offset: 3px; }
+.p2-text { min-width: 0; }
+.p2-title { display: block; font-size: 11px; color: var(--txt-2); }
+.p2-title b { color: var(--amber); font-weight: 600; }
+.p2-note { display: block; margin-top: 3px; font-size: 9.5px; line-height: 1.5; color: var(--txt-3); }
+
+/* 杆视图里的 P2 概念角标 */
+.p2-badge {
+  position: absolute; right: 14px; top: 11px; z-index: 46;
+  display: none; padding: 3px 8px; border-radius: 999px;
+  border: 1px solid rgba(230,189,99,.55);
+  background: rgba(36,27,10,.88);
+  color: var(--amber); font-family: var(--mono); font-size: 8.5px;
+  letter-spacing: .06em; white-space: nowrap;
+  box-shadow: 0 0 16px rgba(230,189,99,.18);
+  pointer-events: none;
+}
+.p2-badge.show { display: block; }
+
+/* 滑杆 */
+input[type=&quot;range&quot;] {
+  -webkit-appearance: none; appearance: none;
+  display: block; width: 100%; height: 18px; margin: 0;
+  background: transparent; cursor: pointer;
+}
+input[type=&quot;range&quot;]::-webkit-slider-runnable-track {
+  height: 4px; border-radius: 2px;
+  background: linear-gradient(90deg, var(--fill, var(--gold)) 0 var(--p, 50%), rgba(255,255,255,.1) var(--p, 50%) 100%);
+}
+input[type=&quot;range&quot;]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 15px; height: 15px; margin-top: -5.5px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fbe9c2, var(--gold) 66%, #9c7c45);
+  border: 1px solid rgba(0,0,0,.55);
+  box-shadow: 0 0 0 3px rgba(214,177,115,.12), 0 2px 6px rgba(0,0,0,.6);
+}
+input[type=&quot;range&quot;]::-moz-range-track { height: 4px; border-radius: 2px; background: rgba(255,255,255,.1); }
+input[type=&quot;range&quot;]::-moz-range-progress { height: 4px; border-radius: 2px; background: var(--fill, var(--gold)); }
+input[type=&quot;range&quot;]::-moz-range-thumb {
+  width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(0,0,0,.55);
+  background: var(--gold);
+}
+input[type=&quot;range&quot;]:focus-visible { outline: 1px solid rgba(214,177,115,.7); outline-offset: 4px; }
+
+/* 衣物列表 */
+.garments { display: flex; flex-direction: column; gap: 6px; }
+.garment-row {
+  display: grid; grid-template-columns: 24px minmax(0, 1fr) 48px;
+  gap: 10px; align-items: center;
+  padding: 8px 9px;
+  border: 1px solid var(--line-soft); border-radius: 9px;
+  background: rgba(255,255,255,.014);
+}
+.g-id { font-family: var(--mono); font-size: 11px; font-weight: 600; color: var(--gold); }
+.g-main { min-width: 0; }
+.g-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 4px; }
+.g-name {
+  font-size: 11.5px; color: var(--txt);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.g-state {
+  flex: none; padding: 1px 6px; border-radius: 999px; border: 1px solid;
+  font-family: var(--mono); font-size: 9px; letter-spacing: .03em; white-space: nowrap;
+}
+.g-state[data-state=&quot;dry&quot;] { color: var(--teal); border-color: rgba(95,214,180,.35); background: rgba(95,214,180,.08); }
+.g-state[data-state=&quot;damp&quot;] { color: var(--amber); border-color: rgba(230,189,99,.35); background: rgba(230,189,99,.08); }
+.g-state[data-state=&quot;wet&quot;] { color: var(--coral); border-color: rgba(240,122,99,.38); background: rgba(240,122,99,.09); }
+.g-batt { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.batt { width: 42px; height: 4px; border-radius: 2px; background: rgba(255,255,255,.09); overflow: hidden; }
+.batt i {
+  display: block; height: 100%; border-radius: 2px;
+  background: linear-gradient(90deg, rgba(95,214,180,.45), var(--teal));
+  transition: width .45s ease;
+}
+.g-batt span { font-family: var(--mono); font-size: 9px; color: var(--txt-3); }
+
+.range-mini { height: 14px; }
+.range-mini::-webkit-slider-runnable-track { height: 3px; }
+.range-mini::-webkit-slider-thumb { width: 11px; height: 11px; margin-top: -4px; }
+.range-mini::-moz-range-track { height: 3px; }
+.range-mini::-moz-range-progress { height: 3px; }
+.range-mini::-moz-range-thumb { width: 10px; height: 10px; }
+
+/* 动作按钮 */
+.actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.btn {
+  position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  height: 42px; padding: 0 12px;
+  border: 1px solid var(--line); border-radius: 10px;
+  background: rgba(255,255,255,.03); color: var(--txt);
+  font-size: 13px; font-weight: 600; letter-spacing: .03em; cursor: pointer;
+  transition: transform .15s, filter .2s, border-color .2s, background .2s;
+}
+.btn svg { width: 13px; height: 13px; flex: none; }
+.btn:hover { filter: brightness(1.08); }
+.btn:active { transform: translateY(1px); }
+.btn.primary {
+  border-color: rgba(241,214,154,.55);
+  background: linear-gradient(135deg, #f0d69b, #d6b173 56%, #b2915b);
+  color: #181206;
+  box-shadow: 0 10px 24px -12px rgba(214,177,115,.8), inset 0 1px 0 rgba(255,255,255,.45);
+}
+.btn.danger {
+  border-color: rgba(240,122,99,.45);
+  background: linear-gradient(180deg, rgba(240,122,99,.16), rgba(240,122,99,.05));
+  color: #ffa694;
+}
+.btn.danger:hover { background: linear-gradient(180deg, rgba(240,122,99,.24), rgba(240,122,99,.08)); }
+.btn.danger.is-active {
+  border-color: rgba(255,180,165,.6);
+  background: linear-gradient(135deg, #f07a63, #c94a36);
+  color: #1a0805;
+  box-shadow: 0 0 22px rgba(240,90,70,.45);
+}
+.btn.shake { animation: shake .32s ease; }
+
+.state-line {
+  display: flex; align-items: center; gap: 7px;
+  margin: 10px 0 0; font-size: 10.5px; color: var(--txt-3);
+}
+.state-line .dot { background: var(--txt-3); box-shadow: none; }
+.state-line[data-state=&quot;run&quot;] .dot { background: var(--teal); box-shadow: 0 0 8px rgba(95,214,180,.8); }
+.state-line[data-state=&quot;busy&quot;] .dot { background: var(--gold); box-shadow: 0 0 8px rgba(214,177,115,.8); animation: pulse 1s ease-in-out infinite; }
+.state-line[data-state=&quot;estop&quot;] { color: #ffa08e; }
+.state-line[data-state=&quot;estop&quot;] .dot { background: var(--coral); box-shadow: 0 0 8px rgba(240,122,99,.85); }
+
+/* ============================ 日志 ============================ */
+.log-card { padding: 14px 16px 12px; }
+.log-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 8px; }
+.log-clear {
+  padding: 2px 5px; border: 0; border-radius: 4px;
+  background: none; color: var(--txt-3); font-size: 10px; cursor: pointer;
+}
+.log-clear:hover { color: var(--gold); background: rgba(255,255,255,.045); }
+.log {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: 1px;
+  max-height: 196px; overflow-y: auto;
+  font-family: var(--mono); font-size: 10.5px; line-height: 1.6;
+  scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.15) transparent;
+}
+.log::-webkit-scrollbar { width: 6px; }
+.log::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 3px; }
+.log li {
+  display: grid; grid-template-columns: 56px 8px minmax(0, 1fr);
+  gap: 8px; align-items: baseline;
+  padding: 3px 2px; color: var(--txt-2);
+  animation: logIn .25s ease;
+}
+.log time { color: var(--txt-3); font-size: 9.5px; }
+.log .lvl {
+  width: 4px; height: 4px; border-radius: 50%;
+  background: var(--txt-3); align-self: center; justify-self: center;
+}
+.log li.ok .lvl { background: var(--teal); box-shadow: 0 0 6px rgba(95,214,180,.7); }
+.log li.warn .lvl { background: var(--amber); box-shadow: 0 0 6px rgba(230,189,99,.7); }
+.log li.err .lvl { background: var(--coral); box-shadow: 0 0 6px rgba(240,122,99,.8); }
+.log li.gold .lvl { background: var(--gold); box-shadow: 0 0 6px rgba(214,177,115,.8); }
+.log li.err .msg { color: #ffb3a4; }
+.log li.gold .msg { color: var(--gold-hi); }
+
+/* 布局防御：窄屏下允许 flex/grid 子项收缩，避免被长内容顶宽 */
+.layout &gt; *,
+.topbar &gt; *,
+.stage-head &gt; *,
+.stage-stats &gt; *,
+.channels &gt; *,
+.garment-row &gt; *,
+.foot &gt; *,
+.log li &gt; * { min-width: 0; }
+.brand-sub,
+.log .msg,
+.chan-sub { overflow-wrap: anywhere; }
+
+.foot {
+  display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+  margin-top: 20px; padding-top: 14px;
+  border-top: 1px solid var(--line-soft);
+  font-size: 10px; letter-spacing: .03em; color: var(--txt-3);
+}
+.foot .gold { color: rgba(214,177,115,.75); }
+
+/* ============================ 动效 ============================ */
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+@keyframes flowUp {
+  from { background-position: 0 0, 0 0; }
+  to { background-position: 0 -8px, 0 0; }
+}
+@keyframes logIn {
+  from { opacity: 0; transform: translateY(-3px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  50% { transform: translateX(3px); }
+  75% { transform: translateX(-2px); }
+}
+
+/* ============================ 响应式 ============================ */
+@media (max-width: 960px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: &quot;stage&quot; &quot;panel&quot; &quot;log&quot;;
+    gap: 14px;
+  }
+  .panel { position: static; }
+}
+
+@media (max-width: 640px) {
+  .shell { padding: 16px 12px 22px; }
+  .topbar { gap: 12px; padding-bottom: 14px; }
+  .logo { width: 36px; height: 36px; border-radius: 10px; }
+  .logo svg { width: 20px; height: 20px; }
+  .brand { gap: 11px; }
+  .brand-title { font-size: 17px; }
+  .brand-title .en { font-size: 9px; }
+  .brand-sub { font-size: 10.5px; white-space: normal; line-height: 1.35; }
+  .telemetry { gap: 6px; }
+  .tel-chip { height: 24px; padding: 0 8px; font-size: 9.5px; }
+  .tel-chip em { font-size: 9.5px; }
+  .tel-chip.hide-sm { display: none; }
+  .layout { margin-top: 14px; }
+  .stage-card { padding: 12px; }
+  .panel { padding: 14px; }
+  .stage {
+    --clip-top: calc(40% - 23px);
+    --garment-top: calc(40% + 30px);
+    --garment-h: 84px;
+    height: 282px;
+    --rod-pad: 14px;
+  }
+  .stage-head { margin-bottom: 11px; gap: 10px; }
+  .stage-title { font-size: 13.5px; }
+  .stage-title .meta { font-size: 10.5px; }
+  .stage-stats { gap: 12px; }
+  .stat { min-width: 48px; }
+  .stat-label { font-size: 8px; }
+  .stat-value { font-size: 14.5px; }
+  .stage-hint { left: 14px; top: 10px; font-size: 7.5px; }
+  .clip { width: 26px; height: 46px; border-radius: 9px; }
+  .clip-no { font-size: 10.5px; }
+  .clip-led { top: 5px; right: 5px; width: 4px; height: 4px; }
+  .clip-batt { left: 6px; right: 6px; bottom: 5px; }
+  .dim { top: calc(40% - 60px); height: 26px; }
+  .dim-label { font-size: 8.5px; padding: 2px 4px; }
+  .ruler { bottom: 10px; }
+  .channels-head { margin: 11px 2px 7px; }
+  .channels { gap: 6px; }
+  .chan { padding: 7px 8px 7px 9px; }
+  .chan-val { font-size: 15px; }
+  .chan-sub { font-size: 7.5px; }
+  .chan-pair { font-size: 8px; }
+  .channels-note { font-size: 9px; }
+  .modes { gap: 6px; }
+  .mode { padding: 8px 10px; }
+  .mode .mode-cn { font-size: 12px; }
+  .log { max-height: 158px; font-size: 10px; }
+  .log li { grid-template-columns: 48px 6px minmax(0, 1fr); gap: 6px; }
+  .log time { font-size: 9px; }
+  .foot { margin-top: 16px; }
+}
+
+@media (max-width: 480px) {
+  /* 竖屏小屏：顶栏/统计/风道卡片都可能溢出，逐块允许换行或降列 */
+  .topbar { flex-wrap: wrap; align-items: flex-start; }
+  .brand { min-width: 0; flex: 1 1 100%; }
+  .brand-sub { overflow-wrap: anywhere; }
+  .telemetry { flex-wrap: wrap; width: 100%; justify-content: flex-start; }
+  .stage-head { flex-wrap: wrap; }
+  .stage-stats { flex-wrap: wrap; gap: 6px 14px; justify-content: flex-start; }
+  .channels { grid-template-columns: 1fr 1fr; }
+  .channels .chan:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  .panel-head { flex-wrap: wrap; gap: 6px; }
+  .modes { grid-template-columns: 1fr 1fr; }
+  .shell { padding: 12px 10px 20px; }
+  .stage-card, .panel { padding: 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;div class=&quot;shell&quot;&gt;
+
+  &lt;!-- ======================= 顶栏 ======================= --&gt;
+  &lt;header class=&quot;topbar&quot;&gt;
+    &lt;div class=&quot;brand&quot;&gt;
+      &lt;div class=&quot;logo&quot; aria-hidden=&quot;true&quot;&gt;
+        &lt;svg viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.5&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;
+          &lt;path d=&quot;M2.5 6.2h19&quot;/&gt;
+          &lt;rect x=&quot;10.2&quot; y=&quot;3.2&quot; width=&quot;3.6&quot; height=&quot;6&quot; rx=&quot;1.2&quot;/&gt;
+          &lt;path d=&quot;M3.2 18.6c1.7-4.2 3.1-6.3 4.4-6.3s2.7 2.1 4.4 6.3&quot;/&gt;
+          &lt;path d=&quot;M13.2 18.6c1.2-3 2.3-4.5 3.3-4.5s2 1.5 3 4.5&quot;/&gt;
+        &lt;/svg&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;brand-text&quot;&gt;
+        &lt;div class=&quot;brand-title&quot;&gt;衣序 &lt;span class=&quot;en&quot;&gt;HANGFLOW&lt;/span&gt;&lt;/div&gt;
+        &lt;div class=&quot;brand-sub&quot;&gt;不换晾衣杆，让衣服自己让出风道&lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;telemetry&quot; aria-label=&quot;系统状态&quot;&gt;
+      &lt;span class=&quot;tel-chip&quot;&gt;&lt;i class=&quot;dot pulse&quot;&gt;&lt;/i&gt;MQTT 在线 &lt;em id=&quot;latency&quot;&gt;18ms&lt;/em&gt;&lt;/span&gt;
+      &lt;span class=&quot;tel-chip&quot;&gt;单元 &lt;em&gt;4/4&lt;/em&gt;&lt;/span&gt;
+      &lt;span class=&quot;tel-chip hide-sm&quot;&gt;环境 &lt;em id=&quot;envTel&quot;&gt;72%&lt;/em&gt; RH&lt;/span&gt;
+      &lt;span class=&quot;tel-chip hide-sm&quot;&gt;最低电量 &lt;em id=&quot;battTel&quot;&gt;64%&lt;/em&gt;&lt;/span&gt;
+    &lt;/div&gt;
+  &lt;/header&gt;
+
+  &lt;main class=&quot;layout&quot;&gt;
+
+    &lt;!-- ======================= 杆视图 ======================= --&gt;
+    &lt;section class=&quot;card stage-card&quot; aria-label=&quot;1.2 米晾衣杆俯视示意&quot;&gt;
+      &lt;div class=&quot;stage-head&quot;&gt;
+        &lt;div&gt;
+          &lt;div class=&quot;eyebrow&quot;&gt;Rod View · Top&lt;/div&gt;
+          &lt;div class=&quot;stage-title&quot;&gt;1.2 m 晾衣杆 &lt;span class=&quot;sep&quot;&gt;&lt;/span&gt;&lt;span class=&quot;meta&quot;&gt;4 个套挂单元&lt;/span&gt;&lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;stage-stats&quot;&gt;
+          &lt;div class=&quot;stat&quot;&gt;&lt;span class=&quot;stat-label&quot;&gt;平均净风道&lt;/span&gt;&lt;span class=&quot;stat-value&quot; id=&quot;statAvg&quot;&gt;0.0&lt;em&gt;cm&lt;/em&gt;&lt;/span&gt;&lt;/div&gt;
+          &lt;div class=&quot;stat&quot;&gt;&lt;span class=&quot;stat-label&quot;&gt;最小净风道&lt;/span&gt;&lt;span class=&quot;stat-value&quot; id=&quot;statMin&quot;&gt;0.0&lt;em&gt;cm&lt;/em&gt;&lt;/span&gt;&lt;/div&gt;
+          &lt;div class=&quot;stat&quot;&gt;&lt;span class=&quot;stat-label&quot;&gt;目标净风道&lt;/span&gt;&lt;span class=&quot;stat-value gold&quot; id=&quot;statTarget&quot;&gt;12.0&lt;em&gt;cm&lt;/em&gt;&lt;/span&gt;&lt;/div&gt;
+          &lt;div class=&quot;stat&quot;&gt;&lt;span class=&quot;stat-label&quot;&gt;风道达标&lt;/span&gt;&lt;span class=&quot;stat-value&quot; id=&quot;statOk&quot;&gt;0/3&lt;/span&gt;&lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+      &lt;div class=&quot;stage&quot; id=&quot;stage&quot; aria-label=&quot;晾衣杆俯视交互区：拖动模块调整位置&quot;&gt;
+        &lt;div class=&quot;hud&quot; aria-hidden=&quot;true&quot;&gt;&lt;/div&gt;
+        &lt;div class=&quot;stage-hint&quot; aria-hidden=&quot;true&quot;&gt;拖动模块 ↔ 调整位置&lt;/div&gt;
+        &lt;div class=&quot;p2-badge&quot; id=&quot;p2Badge&quot; role=&quot;status&quot;&gt;P2 概念 · 抬升越障&lt;/div&gt;
+        &lt;div class=&quot;floor&quot; aria-hidden=&quot;true&quot;&gt;&lt;/div&gt;
+        &lt;div class=&quot;rod&quot; aria-hidden=&quot;true&quot;&gt;&lt;/div&gt;
+        &lt;div class=&quot;ruler&quot; id=&quot;ruler&quot; aria-hidden=&quot;true&quot;&gt;&lt;/div&gt;
+        &lt;div class=&quot;estop-mask&quot;&gt;
+          &lt;div class=&quot;estop-card&quot;&gt;
+            &lt;span class=&quot;estop-icon&quot;&gt;!&lt;/span&gt;
+            &lt;b&gt;EMERGENCY STOP&lt;/b&gt;
+            &lt;span&gt;模块已锁定 · 点击「复位并启动」继续&lt;/span&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;toast&quot; id=&quot;stageToast&quot; role=&quot;status&quot; aria-live=&quot;polite&quot;&gt;&lt;/div&gt;
+      &lt;/div&gt;
+
+      &lt;div class=&quot;channels-head&quot;&gt;
+        &lt;span class=&quot;eyebrow&quot;&gt;风道读数 / Clearance&lt;/span&gt;
+        &lt;span class=&quot;channels-note&quot;&gt;净风道 = 衣物边缘间距 · 安全下限 3 cm（g_min）&lt;/span&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;channels&quot; id=&quot;channels&quot; aria-label=&quot;三段风道读数&quot;&gt;&lt;/div&gt;
+    &lt;/section&gt;
+
+    &lt;!-- ======================= 控制台 ======================= --&gt;
+    &lt;aside class=&quot;card panel&quot; aria-label=&quot;控制台&quot;&gt;
+      &lt;section class=&quot;panel-section&quot;&gt;
+        &lt;div class=&quot;panel-head&quot;&gt;
+          &lt;span class=&quot;panel-title&quot;&gt;运行模式 / Mode&lt;/span&gt;
+          &lt;span class=&quot;panel-note&quot;&gt;点击即执行&lt;/span&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;modes&quot; role=&quot;group&quot; aria-label=&quot;运行模式&quot;&gt;
+          &lt;button class=&quot;mode&quot; type=&quot;button&quot; data-mode=&quot;manual&quot; aria-pressed=&quot;true&quot;&gt;
+            &lt;span class=&quot;mode-cn&quot;&gt;手动&lt;/span&gt;&lt;span class=&quot;mode-en&quot;&gt;MANUAL&lt;/span&gt;
+          &lt;/button&gt;
+          &lt;button class=&quot;mode&quot; type=&quot;button&quot; data-mode=&quot;equal&quot; aria-pressed=&quot;false&quot;&gt;
+            &lt;span class=&quot;mode-cn&quot;&gt;一键等距&lt;/span&gt;&lt;span class=&quot;mode-en&quot;&gt;EQUALIZE&lt;/span&gt;
+          &lt;/button&gt;
+          &lt;button class=&quot;mode&quot; type=&quot;button&quot; data-mode=&quot;smart&quot; aria-pressed=&quot;false&quot;&gt;
+            &lt;span class=&quot;mode-cn&quot;&gt;智能分配&lt;/span&gt;&lt;span class=&quot;mode-en&quot;&gt;SMART&lt;/span&gt;
+          &lt;/button&gt;
+          &lt;button class=&quot;mode&quot; type=&quot;button&quot; data-mode=&quot;collect&quot; aria-pressed=&quot;false&quot;&gt;
+            &lt;span class=&quot;mode-cn&quot;&gt;收衣归拢&lt;/span&gt;&lt;span class=&quot;mode-en&quot;&gt;COLLECT&lt;/span&gt;
+          &lt;/button&gt;
+        &lt;/div&gt;
+      &lt;/section&gt;
+
+      &lt;section class=&quot;panel-section&quot;&gt;
+        &lt;label class=&quot;field&quot;&gt;
+          &lt;span class=&quot;field-head&quot;&gt;
+            &lt;span class=&quot;field-name&quot;&gt;目标净风道&lt;/span&gt;
+            &lt;span class=&quot;field-value&quot; id=&quot;gapVal&quot;&gt;12.0&lt;em&gt;cm&lt;/em&gt;&lt;/span&gt;
+          &lt;/span&gt;
+          &lt;input id=&quot;gapRange&quot; type=&quot;range&quot; min=&quot;3&quot; max=&quot;25&quot; step=&quot;0.5&quot; value=&quot;12&quot; aria-label=&quot;目标净风道，厘米&quot;&gt;
+          &lt;span class=&quot;field-note&quot;&gt;安全下限 3 cm · 演示口径 10—15 cm 为舒适风道&lt;/span&gt;
+        &lt;/label&gt;
+
+        &lt;label class=&quot;field&quot;&gt;
+          &lt;span class=&quot;field-head&quot;&gt;
+            &lt;span class=&quot;field-name&quot;&gt;环境湿度&lt;/span&gt;
+            &lt;span class=&quot;field-value&quot; id=&quot;envVal&quot;&gt;72&lt;em&gt;%&lt;/em&gt;&lt;/span&gt;
+          &lt;/span&gt;
+          &lt;input id=&quot;envRange&quot; type=&quot;range&quot; min=&quot;40&quot; max=&quot;95&quot; step=&quot;1&quot; value=&quot;72&quot; aria-label=&quot;环境湿度，百分比&quot;&gt;
+          &lt;span class=&quot;field-note&quot; id=&quot;envHint&quot;&gt;潮湿：智能分配自动加宽&lt;/span&gt;
+        &lt;/label&gt;
+
+        &lt;div class=&quot;smart-box&quot;&gt;
+          &lt;span&gt;智能基准间隙&lt;/span&gt;
+          &lt;b id=&quot;effBase&quot;&gt;17.6&lt;em&gt;cm&lt;/em&gt;&lt;/b&gt;
+        &lt;/div&gt;
+        &lt;span class=&quot;field-note&quot; id=&quot;effNote&quot;&gt;&lt;/span&gt;
+
+        &lt;label class=&quot;p2-row&quot; id=&quot;p2Row&quot;&gt;
+          &lt;span class=&quot;switch&quot;&gt;
+            &lt;input type=&quot;checkbox&quot; id=&quot;p2Toggle&quot; aria-label=&quot;P2 概念：抬升越障（默认关闭）&quot;&gt;
+            &lt;span class=&quot;switch-ui&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;
+          &lt;/span&gt;
+          &lt;span class=&quot;p2-text&quot;&gt;
+            &lt;span class=&quot;p2-title&quot;&gt;&lt;b&gt;P2 概念&lt;/b&gt; · 抬升越障&lt;/span&gt;
+            &lt;span class=&quot;p2-note&quot; id=&quot;p2Note&quot;&gt;默认关闭：智能分配不换序，与 P0/P1 真机一致。开启仅为概念演示，硬件需抬升机构。&lt;/span&gt;
+          &lt;/span&gt;
+        &lt;/label&gt;
+      &lt;/section&gt;
+
+      &lt;section class=&quot;panel-section&quot;&gt;
+        &lt;div class=&quot;panel-head&quot;&gt;
+          &lt;span class=&quot;panel-title&quot;&gt;衣物湿度 / Load&lt;/span&gt;
+          &lt;span class=&quot;panel-note&quot;&gt;湿的间隙更大&lt;/span&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;garments&quot; id=&quot;garmentList&quot;&gt;&lt;/div&gt;
+      &lt;/section&gt;
+
+      &lt;section class=&quot;panel-section&quot;&gt;
+        &lt;div class=&quot;actions&quot;&gt;
+          &lt;button class=&quot;btn primary&quot; type=&quot;button&quot; id=&quot;btnStart&quot;&gt;
+            &lt;svg viewBox=&quot;0 0 12 12&quot; fill=&quot;currentColor&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;M3 1.8v8.4L10.4 6z&quot;/&gt;&lt;/svg&gt;
+            &lt;span class=&quot;btn-label&quot;&gt;开始 / 执行&lt;/span&gt;
+          &lt;/button&gt;
+          &lt;button class=&quot;btn danger&quot; type=&quot;button&quot; id=&quot;btnEstop&quot;&gt;
+            &lt;svg viewBox=&quot;0 0 12 12&quot; fill=&quot;currentColor&quot; aria-hidden=&quot;true&quot;&gt;&lt;rect x=&quot;2.5&quot; y=&quot;2.5&quot; width=&quot;7&quot; height=&quot;7&quot; rx=&quot;1.2&quot;/&gt;&lt;/svg&gt;
+            &lt;span&gt;急停&lt;/span&gt;
+          &lt;/button&gt;
+        &lt;/div&gt;
+        &lt;p class=&quot;state-line&quot; id=&quot;statusLine&quot; data-state=&quot;idle&quot;&gt;
+          &lt;i class=&quot;dot&quot;&gt;&lt;/i&gt;&lt;span id=&quot;stateText&quot;&gt;待机 · 拖动模块或选择运行模式&lt;/span&gt;
+        &lt;/p&gt;
+      &lt;/section&gt;
+    &lt;/aside&gt;
+
+    &lt;!-- ======================= 日志 ======================= --&gt;
+    &lt;section class=&quot;card log-card&quot; aria-label=&quot;运行日志&quot;&gt;
+      &lt;div class=&quot;log-head&quot;&gt;
+        &lt;span class=&quot;panel-title&quot;&gt;运行日志 / Event Log&lt;/span&gt;
+        &lt;button class=&quot;log-clear&quot; type=&quot;button&quot; id=&quot;clearLog&quot;&gt;清空&lt;/button&gt;
+      &lt;/div&gt;
+      &lt;ol class=&quot;log&quot; id=&quot;log&quot; aria-live=&quot;polite&quot;&gt;&lt;/ol&gt;
+    &lt;/section&gt;
+  &lt;/main&gt;
+
+  &lt;footer class=&quot;foot&quot;&gt;
+    &lt;span&gt;DDC2026 · 地瓜机器人黑客松 · &lt;span class=&quot;gold&quot;&gt;衣序 HangFlow&lt;/span&gt;&lt;/span&gt;
+    &lt;span&gt;Web Demo v0.1 · 前端模拟，未连接硬件&lt;/span&gt;
+    &lt;span&gt;单文件 · 无外部依赖 · 需 Chrome / Edge / Safari 新版&lt;/span&gt;
+  &lt;/footer&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+(function () {
+  'use strict';
+
+  /* =========================================================================
+     1. 系统口径常量（与 docs/03-系统总体方案.md 保持一致）
+     ========================================================================= */
+  var ROD_CM = 120;        // 杆长 1.2 m
+  var EDGE_CM = 2;         // 杆两端安装余量
+  var MIN_CLEAR = 3;       // 最小安全净风道 30 mm（g_min，见 docs/03）
+  var MAX_CLEAR = 25;      // 目标间距滑杆上限
+  var CLEAR_TOL = 0.5;     // 达标判定容差（cm）
+  var ENV_MIN = 40;        // 环境湿度滑杆下限
+  var ENV_MAX = 95;        // 环境湿度滑杆上限
+  var LOG_LIMIT = 8;       // 日志最多保留条数
+  var REDUCED = window.matchMedia &amp;&amp; window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* =========================================================================
+     2. 模拟数据：4 个套挂单元（空间顺序 01 → 02 → 03 → 04）
+        bulk = 衣物在杆上占用的厚度（cm），用于算净风道
+        初始排布：01、03 两件高湿被 02（最干）夹在中间，且 01–02 风道偏窄，
+        正好用来演示&quot;智能分配 → 避让重排&quot;。
+     ========================================================================= */
+  var items = [
+    { id: 1, name: '速干 T 恤', bulk: 5.5, humidity: 84, battery: 86, pos: 30 },
+    { id: 2, name: '棉质衬衫', bulk: 6.0, humidity: 22, battery: 72, pos: 40 },
+    { id: 3, name: '抓绒卫衣', bulk: 8.5, humidity: 34, battery: 64, pos: 54 },
+    { id: 4, name: '真丝衬衫', bulk: 4.5, humidity: 78, battery: 91, pos: 67 }
+  ];
+
+  var MODE_NAME = {
+    manual: '手动模式',
+    equal: '一键等距',
+    smart: '智能分配',
+    collect: '收衣归拢'
+  };
+
+  var state = {
+    mode: 'manual',
+    targetGap: 12,
+    env: 72,
+    running: false,
+    estop: false,
+    p2Lift: false,    // P2 概念：抬升越障换序（默认关闭，真机 P0/P1 不具备）
+    motion: null,     // { from, to, t0, dur, arcIds, onDone }
+    arcIds: [],       // P2 概念重排中&quot;被抬起越过&quot;的单元
+    drag: null
+  };
+
+  /* =========================================================================
+     3. 通用工具
+     ========================================================================= */
+  function clamp(v, lo, hi) { return Math.min(hi, Math.max(lo, v)); }
+  function lerp(a, b, t) { return a + (b - a) * t; }
+  function fmt(v) { return Number(v).toFixed(1); }
+  function pad2(n) { return String(n).padStart(2, '0'); }
+  function tag(it) { return '#' + pad2(it.id); }
+  function easeInOutCubic(t) {
+    return t &lt; 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  }
+  function byPos() { return items.slice().sort(function (a, b) { return a.pos - b.pos; }); }
+
+  // 湿度状态：干 &lt;35% ≤ 潮 &lt;65% ≤ 湿
+  function humidityState(h) {
+    if (h &gt;= 65) return { key: 'wet', label: '湿' };
+    if (h &gt;= 35) return { key: 'damp', label: '潮' };
+    return { key: 'dry', label: '干' };
+  }
+
+  // 湿度色标：青绿（干）→ 琥珀（潮）→ 珊瑚（湿）
+  function humidityColor(h) {
+    var stops = [
+      { v: 0, c: [96, 216, 186] },
+      { v: 50, c: [232, 192, 96] },
+      { v: 100, c: [255, 102, 84] }
+    ];
+    var a = h &lt;= 50 ? stops[0] : stops[1];
+    var b = h &lt;= 50 ? stops[1] : stops[2];
+    var t = clamp((h - a.v) / (b.v - a.v), 0, 1);
+    var c = a.c.map(function (v, i) { return Math.round(lerp(v, b.c[i], t)); });
+    return { rgb: c.join(','), color: 'rgb(' + c.join(',') + ')' };
+  }
+
+  // 净风道分级：达到目标 / 高于安全下限 / 低于安全下限（&quot;达标&quot;始终相对目标值）
+  function clearTone(clear) {
+    if (clear &gt;= state.targetGap - CLEAR_TOL) return 'good';
+    if (clear &gt;= MIN_CLEAR) return 'ok';
+    return 'warn';
+  }
+
+  function humidityWeight(it) { return 1 + (it.humidity / 100) * 2; }
+
+  /* =========================================================================
+     4. DOM 引用与视图状态
+     ========================================================================= */
+  var stage = document.getElementById('stage');
+  var ruler = document.getElementById('ruler');
+  var channelsEl = document.getElementById('channels');
+  var listEl = document.getElementById('garmentList');
+  var logEl = document.getElementById('log');
+  var stageToast = document.getElementById('stageToast');
+  var statusLine = document.getElementById('statusLine');
+  var stateText = document.getElementById('stateText');
+  var btnStart = document.getElementById('btnStart');
+  var btnEstop = document.getElementById('btnEstop');
+  var gapRange = document.getElementById('gapRange');
+  var gapVal = document.getElementById('gapVal');
+  var envRange = document.getElementById('envRange');
+  var envVal = document.getElementById('envVal');
+  var envHint = document.getElementById('envHint');
+  var effBase = document.getElementById('effBase');
+  var effNote = document.getElementById('effNote');
+  var latencyEl = document.getElementById('latency');
+  var envTel = document.getElementById('envTel');
+  var battTel = document.getElementById('battTel');
+  var statAvg = document.getElementById('statAvg');
+  var statMin = document.getElementById('statMin');
+  var statTarget = document.getElementById('statTarget');
+  var statOk = document.getElementById('statOk');
+  var p2Toggle = document.getElementById('p2Toggle');
+  var p2Row = document.getElementById('p2Row');
+  var p2Note = document.getElementById('p2Note');
+  var p2Badge = document.getElementById('p2Badge');
+
+  var view = { w: 0, pad: 24, scale: 1 };
+  var els = new Map();      // id -&gt; 单元 DOM
+  var rows = new Map();     // id -&gt; 面板行 DOM
+  var dimEls = [];
+  var flowEls = [];
+  var chanEls = [];
+
+  function centerX(posCm) { return view.pad + posCm * view.scale; }
+  function garmentPx(bulk) { return Math.max(4, bulk * view.scale); }
+
+  /* =========================================================================
+     5. 构建界面（单元 / 标注 / 气流 / 读数 / 列表 / 标尺）
+     ========================================================================= */
+  function buildUnits() {
+    items.forEach(function (it) {
+      var root = document.createElement('div');
+      root.className = 'unit';
+      root.dataset.id = String(it.id);
+      root.title = tag(it) + ' ' + it.name + ' · 拖动调整位置';
+      root.innerHTML =
+        '&lt;div class=&quot;clip&quot;&gt;' +
+          '&lt;span class=&quot;clip-no&quot;&gt;' + pad2(it.id) + '&lt;/span&gt;' +
+          '&lt;span class=&quot;clip-led&quot;&gt;&lt;/span&gt;' +
+          '&lt;span class=&quot;clip-batt&quot;&gt;&lt;i&gt;&lt;/i&gt;&lt;/span&gt;' +
+        '&lt;/div&gt;' +
+        '&lt;div class=&quot;garment&quot;&gt;' +
+          '&lt;i class=&quot;garment-fill&quot;&gt;&lt;/i&gt;' +
+          '&lt;span class=&quot;garment-pct&quot;&gt;&lt;/span&gt;' +
+        '&lt;/div&gt;';
+      stage.appendChild(root);
+      els.set(it.id, {
+        root: root,
+        clip: root.querySelector('.clip'),
+        led: root.querySelector('.clip-led'),
+        battFill: root.querySelector('.clip-batt i'),
+        garment: root.querySelector('.garment'),
+        fill: root.querySelector('.garment-fill'),
+        pct: root.querySelector('.garment-pct')
+      });
+    });
+  }
+
+  function buildDims() {
+    for (var i = 0; i &lt; items.length - 1; i++) {
+      var el = document.createElement('div');
+      el.className = 'dim';
+      el.innerHTML =
+        '&lt;div class=&quot;dim-line&quot;&gt;&lt;/div&gt;' +
+        '&lt;div class=&quot;dim-label&quot;&gt;&lt;b&gt;0.0&lt;/b&gt;&lt;span&gt;cm&lt;/span&gt;&lt;/div&gt;';
+      stage.appendChild(el);
+      dimEls.push({
+        el: el,
+        line: el.querySelector('.dim-line'),
+        label: el.querySelector('.dim-label'),
+        value: el.querySelector('.dim-label b')
+      });
+    }
+  }
+
+  function buildFlows() {
+    for (var i = 0; i &lt; items.length - 1; i++) {
+      var f = document.createElement('div');
+      f.className = 'flow';
+      stage.appendChild(f);
+      flowEls.push(f);
+    }
+  }
+
+  function buildChannels() {
+    for (var i = 0; i &lt; items.length - 1; i++) {
+      var el = document.createElement('div');
+      el.className = 'chan';
+      el.innerHTML =
+        '&lt;div class=&quot;chan-top&quot;&gt;' +
+          '&lt;span class=&quot;chan-pair&quot;&gt;' + pad2(items[i].id) + '—' + pad2(items[i + 1].id) + '&lt;/span&gt;' +
+          '&lt;span class=&quot;chan-sub&quot;&gt;中心距 0.0cm&lt;/span&gt;' +
+        '&lt;/div&gt;' +
+        '&lt;div class=&quot;chan-val&quot;&gt;&lt;span class=&quot;v&quot;&gt;0.0&lt;/span&gt;&lt;em&gt;cm&lt;/em&gt;&lt;/div&gt;';
+      channelsEl.appendChild(el);
+      chanEls.push({
+        el: el,
+        pair: el.querySelector('.chan-pair'),
+        sub: el.querySelector('.chan-sub'),
+        val: el.querySelector('.v')
+      });
+    }
+  }
+
+  function buildRows() {
+    items.forEach(function (it) {
+      var row = document.createElement('div');
+      row.className = 'garment-row';
+      row.innerHTML =
+        '&lt;span class=&quot;g-id&quot;&gt;' + pad2(it.id) + '&lt;/span&gt;' +
+        '&lt;div class=&quot;g-main&quot;&gt;' +
+          '&lt;div class=&quot;g-top&quot;&gt;&lt;span class=&quot;g-name&quot;&gt;' + it.name + '&lt;/span&gt;&lt;span class=&quot;g-state&quot;&gt;&lt;/span&gt;&lt;/div&gt;' +
+          '&lt;input class=&quot;range-mini&quot; type=&quot;range&quot; min=&quot;0&quot; max=&quot;100&quot; step=&quot;1&quot; value=&quot;' + it.humidity + '&quot; ' +
+                 'aria-label=&quot;' + it.name + ' 湿度，百分比&quot;&gt;' +
+        '&lt;/div&gt;' +
+        '&lt;div class=&quot;g-batt&quot;&gt;&lt;span class=&quot;batt&quot;&gt;&lt;i&gt;&lt;/i&gt;&lt;/span&gt;&lt;span class=&quot;batt-num&quot;&gt;' + it.battery + '%&lt;/span&gt;&lt;/div&gt;';
+      listEl.appendChild(row);
+
+      var rowEls = {
+        root: row,
+        state: row.querySelector('.g-state'),
+        range: row.querySelector('.range-mini'),
+        battFill: row.querySelector('.batt i'),
+        battNum: row.querySelector('.batt-num')
+      };
+      rows.set(it.id, rowEls);
+
+      var st = humidityState(it.humidity);
+      rowEls.state.dataset.state = st.key;
+      rowEls.state.textContent = st.label + ' ' + it.humidity + '%';
+      paintRange(rowEls.range, it.humidity / 100, humidityColor(it.humidity).color);
+
+      // 每件衣物的湿度滑杆：改湿度后，智能分配会重新分隙
+      rowEls.range.addEventListener('input', function () {
+        it.humidity = Number(rowEls.range.value);
+        rowEls.state.dataset.state = humidityState(it.humidity).key;
+        rowEls.state.textContent = humidityState(it.humidity).label + ' ' + it.humidity + '%';
+        paintRange(rowEls.range, it.humidity / 100, humidityColor(it.humidity).color);
+        render();
+        if (state.mode === 'smart' &amp;&amp; state.running &amp;&amp; !state.estop) scheduleApply();
+      });
+    });
+  }
+
+  function buildRuler() {
+    var frag = document.createDocumentFragment();
+    for (var cm = 0; cm &lt;= ROD_CM; cm += 5) {
+      var tick = document.createElement('i');
+      tick.className = 'tick' + (cm % 30 === 0 ? ' major' : '');
+      tick.style.left = (cm / ROD_CM * 100) + '%';
+      frag.appendChild(tick);
+    }
+    ruler.appendChild(frag);
+    [0, 30, 60, 90, 120].forEach(function (cm) {
+      var label = document.createElement('span');
+      label.className = 'ruler-label' + (cm === 0 ? ' edge-l' : cm === 120 ? ' edge-r' : '');
+      label.style.left = (cm / ROD_CM * 100) + '%';
+      label.textContent = cm;
+      ruler.appendChild(label);
+    });
+  }
+
+  function paintRange(input, ratio, fillColor) {
+    input.style.setProperty('--p', (clamp(ratio, 0, 1) * 100).toFixed(1) + '%');
+    if (fillColor) input.style.setProperty('--fill', fillColor);
+  }
+
+  /* =========================================================================
+     6. 渲染：位置 / 湿度色标 / 间距标注 / 风道 / 读数
+     ========================================================================= */
+  function render() {
+    if (!view.w) return;
+    var order = byPos();
+
+    // ---- 单元 ----
+    items.forEach(function (it) {
+      var e = els.get(it.id);
+      var cx = centerX(it.pos);
+      var hue = humidityColor(it.humidity);
+      var st = humidityState(it.humidity);
+      var pxW = garmentPx(it.bulk);
+
+      e.root.style.left = cx + 'px';
+      e.root.style.transform = 'translateY(' + (-(it.lift || 0)) + 'px)';
+      e.root.style.zIndex = it.lift ? '30' : String(10 + it.id);
+      e.root.classList.toggle('reorder', state.arcIds.indexOf(it.id) !== -1);
+
+      e.garment.style.width = pxW + 'px';
+      e.garment.style.setProperty('--hue', hue.rgb);
+      e.garment.dataset.state = st.key;
+      e.fill.style.height = (it.humidity * 0.55).toFixed(1) + '%';
+
+      e.pct.textContent = it.humidity + '%';
+      e.pct.style.display = pxW &gt;= 26 ? '' : 'none';
+
+      e.led.style.background = hue.color;
+      e.led.style.boxShadow = '0 0 8px ' + hue.color;
+
+      // 电量：低于 30% 变珊瑚色
+      e.battFill.style.width = clamp(it.battery, 0, 100) + '%';
+      e.battFill.style.background = it.battery &lt; 30
+        ? 'linear-gradient(90deg, rgba(240,122,99,.5), var(--coral))'
+        : '';
+    });
+
+    // ---- 间距标注 / 气流 / 读数 ----
+    for (var i = 0; i &lt; order.length - 1; i++) {
+      var a = order[i];
+      var b = order[i + 1];
+      var clear = (b.pos - a.pos) - (a.bulk + b.bulk) / 2;
+      var displayClear = Math.max(0, clear);
+      var left = centerX(a.pos) + garmentPx(a.bulk) / 2;
+      var right = centerX(b.pos) - garmentPx(b.bulk) / 2;
+      var width = Math.max(0, right - left);
+      var tone = clearTone(clear);
+
+      var dim = dimEls[i];
+      dim.el.style.left = left + 'px';
+      dim.el.style.width = width + 'px';
+      dim.el.dataset.tone = tone;
+      dim.label.style.visibility = width &gt;= (view.w &lt; 520 ? 30 : 26) ? 'visible' : 'hidden';
+      dim.value.textContent = fmt(displayClear);
+      dim.el.style.opacity = width &lt; 3 ? '0' : '1';
+
+      var flow = flowEls[i];
+      flow.style.left = left + 'px';
+      flow.style.width = width + 'px';
+      flow.style.opacity = width &gt; 12 ? '' : '0';
+
+      var chan = chanEls[i];
+      chan.pair.textContent = pad2(a.id) + '—' + pad2(b.id);
+      chan.val.textContent = fmt(displayClear);
+      chan.sub.textContent = '中心距 ' + fmt(b.pos - a.pos) + 'cm';
+      chan.el.dataset.tone = tone;
+    }
+
+    // ---- 顶部统计 ----
+    var clears = [];
+    for (var j = 0; j &lt; order.length - 1; j++) {
+      clears.push(Math.max(0, (order[j + 1].pos - order[j].pos) - (order[j].bulk + order[j + 1].bulk) / 2));
+    }
+    var avg = clears.reduce(function (s, c) { return s + c; }, 0) / clears.length;
+    var min = Math.min.apply(null, clears);
+    var hits = clears.filter(function (c) { return c &gt;= state.targetGap - CLEAR_TOL; }).length;
+
+    statAvg.innerHTML = fmt(avg) + '&lt;em&gt;cm&lt;/em&gt;';
+    statMin.innerHTML = fmt(min) + '&lt;em&gt;cm&lt;/em&gt;';
+    statMin.className = 'stat-value' +
+      (min &lt; MIN_CLEAR ? ' warn' : min &lt; state.targetGap - CLEAR_TOL ? ' gold' : '');
+    statTarget.innerHTML = fmt(state.targetGap) + '&lt;em&gt;cm&lt;/em&gt;';
+    statOk.textContent = hits + '/' + clears.length;
+    statOk.className = 'stat-value ' + (hits === clears.length ? 'ok' : 'warn');
+  }
+
+  /* =========================================================================
+     7. 几何求解：目标位置
+     ========================================================================= */
+  // 按顺序 + 各段净风道，计算每个单元的目标中心位置（整体居中，越界自动缩放）
+  function layoutTargets(order, gaps, center) {
+    var bulkSum = 0;
+    order.forEach(function (it) { bulkSum += it.bulk; });
+    var avail = ROD_CM - 2 * EDGE_CM;
+    var gapSum = gaps.reduce(function (s, g) { return s + g; }, 0);
+    var gs = gaps.slice();
+
+    if (bulkSum + gapSum &gt; avail) {
+      var k = (avail - bulkSum) / gapSum;
+      gs = gs.map(function (g) { return Math.max(MIN_CLEAR, g * k); });
+      gapSum = gs.reduce(function (s, g) { return s + g; }, 0);
+    }
+
+    var span = bulkSum + gapSum;
+    var cursor = clamp(center - span / 2, EDGE_CM, ROD_CM - EDGE_CM - span);
+    var targets = new Map();
+    order.forEach(function (it, i) {
+      if (i &gt; 0) cursor += gs[i - 1];
+      targets.set(it.id, cursor + it.bulk / 2);
+      cursor += it.bulk;
+    });
+    return targets;
+  }
+
+  // 智能分配基准：环境越湿，基准间隙越大（0.80—1.70 倍）
+  function smartBaseGap() {
+    var t = (clamp(state.env, ENV_MIN, ENV_MAX) - ENV_MIN) / (ENV_MAX - ENV_MIN);
+    var factor = 0.8 + t * 0.9;
+    return clamp(state.targetGap * factor, MIN_CLEAR, MAX_CLEAR);
+  }
+
+  // 带上下限的按权重分配（water-filling）：返回各项间隙，总和 = total
+  function distribute(weights, total, min, max) {
+    var n = weights.length;
+    var result = new Array(n).fill(null);
+    var active = weights.map(function (_, i) { return i; });
+    var remaining = total;
+
+    for (var guard = 0; guard &lt; 16 &amp;&amp; active.length; guard++) {
+      var sumW = active.reduce(function (s, i) { return s + weights[i]; }, 0);
+      var changed = false;
+      for (var k = 0; k &lt; active.length; k++) {
+        var idx = active[k];
+        var v = remaining * (weights[idx] / sumW);
+        if (v &lt; min - 1e-9 || v &gt; max + 1e-9) {
+          result[idx] = clamp(v, min, max);
+          remaining -= result[idx];
+          active = active.filter(function (x) { return x !== idx; });
+          changed = true;
+          break;
+        }
+      }
+      if (!changed) {
+        for (var m = 0; m &lt; active.length; m++) {
+          result[active[m]] = remaining * (weights[active[m]] / sumW);
+        }
+        active = [];
+        break;
+      }
+    }
+
+    if (active.length) {
+      var rest = remaining / active.length;
+      active.forEach(function (i) { result[i] = clamp(rest, min, max); });
+    }
+    return result.map(function (v) { return v == null ? min : v; });
+  }
+
+  /* =========================================================================
+     8. 运动：所有位移走同一条平滑动画管线（真机可替换为 MQTT 目标下发）
+     ========================================================================= */
+  var raf = window.requestAnimationFrame || function (fn) { return setTimeout(function () { fn(Date.now()); }, 16); };
+
+  function stopMotion() {
+    state.motion = null;
+    state.arcIds = [];
+    items.forEach(function (it) { it.lift = 0; });
+  }
+
+  function startMotion(targets, opts) {
+    opts = opts || {};
+    stopMotion();
+    var from = new Map();
+    var maxDelta = 0;
+    items.forEach(function (it) {
+      from.set(it.id, it.pos);
+      var to = targets.get(it.id);
+      if (to != null) maxDelta = Math.max(maxDelta, Math.abs(to - it.pos));
+    });
+    var baseDur = opts.duration || 900;
+    var dur = REDUCED ? 260 : clamp(baseDur + maxDelta * 8, baseDur, baseDur + 500);
+    var arcs = opts.arcIds || (opts.arcId ? [opts.arcId] : []);
+
+    state.motion = {
+      from: from,
+      to: targets,
+      t0: performance.now(),
+      dur: dur,
+      arcIds: arcs,
+      onDone: opts.onDone || null
+    };
+    state.arcIds = arcs;
+    state.running = true;
+    updateStatus();
+    raf(motionTick);
+  }
+
+  function motionTick(now) {
+    var m = state.motion;
+    if (!m) return;
+    var t = clamp((now - m.t0) / m.dur, 0, 1);
+    var e = easeInOutCubic(t);
+    var liftPx = view.w &lt; 520 ? 26 : 38;
+
+    items.forEach(function (it) {
+      var to = m.to.get(it.id);
+      if (to == null) return;
+      it.pos = lerp(m.from.get(it.id), to, e);
+      it.lift = m.arcIds.indexOf(it.id) !== -1 ? Math.sin(Math.PI * t) * liftPx : 0;
+    });
+    render();
+
+    if (t &gt;= 1) {
+      state.motion = null;
+      state.arcIds = [];
+      items.forEach(function (it) { it.lift = 0; });
+      render();
+      updateStatus();
+      if (m.onDone) m.onDone();
+    } else {
+      raf(motionTick);
+    }
+  }
+
+  /* =========================================================================
+     9. 四种运行模式
+     ========================================================================= */
+  var applyTimer = null;
+  function scheduleApply() {
+    clearTimeout(applyTimer);
+    applyTimer = setTimeout(function () {
+      if (!state.estop &amp;&amp; state.running) applyMode();
+    }, 500);
+  }
+
+  function runEqual() {
+    var order = byPos();
+    var gap = clamp(state.targetGap, MIN_CLEAR, MAX_CLEAR);
+    var gaps = order.slice(0, -1).map(function () { return gap; });
+    var targets = layoutTargets(order, gaps, ROD_CM / 2);
+    log('一键等距 · 目标净风道 ' + fmt(gap) + ' cm', 'info');
+    startMotion(targets, {
+      duration: 900,
+      onDone: function () { log('等距完成 · 三段风道已对齐', 'ok'); }
+    });
+  }
+
+  function runCollect() {
+    var order = byPos();
+    var targets = new Map();
+    var cursor = ROD_CM - EDGE_CM;
+    for (var i = order.length - 1; i &gt;= 0; i--) {
+      var it = order[i];
+      var c = cursor - it.bulk / 2;
+      targets.set(it.id, c);
+      cursor = c - it.bulk / 2 - MIN_CLEAR;
+    }
+    log('收衣归拢 · 单元向右端收纳位靠拢，保持 ' + MIN_CLEAR + ' cm 安全间隙', 'info');
+    startMotion(targets, {
+      duration: 1200,
+      onDone: function () { log('收衣完成 · 可摘下衣物', 'ok'); }
+    });
+  }
+
+  // 顺序冲突：两件最湿的衣物被别的衣物隔开（无法共用一条大风道）
+  function findConflict(order) {
+    var wet = order.filter(function (it) { return it.humidity &gt;= 65; })
+      .sort(function (a, b) { return b.humidity - a.humidity; });
+    if (wet.length &lt; 2) return null;
+    var a = wet[0], b = wet[1];
+    var ia = order.indexOf(a), ib = order.indexOf(b);
+    if (Math.abs(ia - ib) === 1) return null; // 已相邻，风道已经连在一起
+    var between = order.slice(Math.min(ia, ib) + 1, Math.max(ia, ib));
+    if (!between.length) return null;
+    var driest = between.reduce(function (x, y) { return y.humidity &lt; x.humidity ? y : x; });
+    return { wetA: a, wetB: b, between: between, driest: driest };
+  }
+
+  function runSmart() {
+    var order = byPos();
+    var newOrder = order.slice();
+    var arcIds = [];
+    var base = smartBaseGap();
+    var conflict = findConflict(order);
+
+    // ---- 顺序冲突：默认不换序（与 P0/P1 真机一致）；只有打开 P2 概念才演示抬升越障 ----
+    if (conflict) {
+      var betweenText = conflict.between.map(tag).join(' / ');
+      var conflictText = '顺序冲突 · 最湿的 ' + tag(conflict.wetA) + ' / ' + tag(conflict.wetB) +
+        ' 被 ' + betweenText + ' 隔开';
+      if (!state.p2Lift) {
+        log(conflictText + ' · P0/P1 真机不能换序，按当前顺序分配', 'warn');
+      } else {
+        log(conflictText + ' · P2 概念演示允许抬升越障', 'warn');
+        // P2 概念：把两件最湿衣物之间的&quot;挡路单元&quot;整体移到最远端（保持它们彼此先后）
+        newOrder = newOrder.filter(function (it) { return conflict.between.indexOf(it) === -1; });
+        newOrder = newOrder.concat(conflict.between);
+        arcIds = conflict.between.map(function (it) { return it.id; });
+        log('避让重排 · 挡路的低湿单元 ' + betweenText + ' 移至最远端，让高湿区相邻', 'gold');
+        showToast('P2 概念 · 抬升越障重排');
+      }
+    }
+
+    // ---- 按湿度权重分隙：湿的相邻对，间隙更大 ----
+    var weights = [];
+    for (var j = 0; j &lt; newOrder.length - 1; j++) {
+      weights.push((humidityWeight(newOrder[j]) + humidityWeight(newOrder[j + 1])) / 2);
+    }
+    var budget = base * (newOrder.length - 1);
+    var gaps = distribute(weights, budget, MIN_CLEAR, MAX_CLEAR);
+    var targets = layoutTargets(newOrder, gaps, ROD_CM / 2);
+
+    log('智能分配 · 环境 ' + state.env + '% RH → 基准净风道 ' + fmt(base) + ' cm' +
+      (state.p2Lift ? ' · P2 概念开启' : ' · 保持当前顺序'), 'info');
+
+    var finalOrder = newOrder;
+    startMotion(targets, {
+      duration: arcIds.length ? 1400 : 1050,
+      arcIds: arcIds,
+      onDone: function () {
+        var show = [];
+        for (var k = 0; k &lt; finalOrder.length - 1; k++) {
+          show.push(fmt(gaps[k]));
+        }
+        log('分配完成 · 风道 ' + show.join(' / ') + ' cm', 'ok');
+      }
+    });
+  }
+
+  function applyMode() {
+    if (state.estop) return;
+    state.running = true;
+    if (state.mode === 'manual') {
+      log('手动模式 · 拖动任意模块调整位置', 'info');
+      render();
+      updateStatus();
+      return;
+    }
+    if (state.mode === 'equal') runEqual();
+    else if (state.mode === 'smart') runSmart();
+    else if (state.mode === 'collect') runCollect();
+    updateStatus();
+  }
+
+  /* =========================================================================
+     10. 拖动：限制在相邻单元之间，不互相穿过
+     ========================================================================= */
+  function clampDrag(it, desired) {
+    var order = byPos();
+    var idx = order.indexOf(it);
+    var half = it.bulk / 2;
+    var lo = EDGE_CM + half;
+    var hi = ROD_CM - EDGE_CM - half;
+
+    if (idx &gt; 0) {
+      var prev = order[idx - 1];
+      lo = Math.max(lo, prev.pos + prev.bulk / 2 + half + MIN_CLEAR);
+    }
+    if (idx &lt; order.length - 1) {
+      var next = order[idx + 1];
+      hi = Math.min(hi, next.pos - next.bulk / 2 - half - MIN_CLEAR);
+    }
+    it.pos = clamp(desired, lo, Math.max(lo, hi));
+  }
+
+  function bindDrag() {
+    items.forEach(function (it) {
+      var root = els.get(it.id).root;
+
+      root.addEventListener('pointerdown', function (ev) {
+        if (ev.button !== 0 &amp;&amp; ev.pointerType === 'mouse') return;
+        if (state.estop) {
+          log('急停锁定中 · 请先点击「复位并启动」', 'warn');
+          shake(btnStart);
+          return;
+        }
+        ev.preventDefault();
+        stopMotion();
+        if (state.mode !== 'manual') {
+          state.mode = 'manual';
+          updateModeUI();
+          log('切换到手动模式 · 拖动模块调整位置', 'info');
+        }
+        state.running = true;
+        state.drag = {
+          id: it.id,
+          pointerId: ev.pointerId,
+          startX: ev.clientX,
+          startPos: it.pos,
+          moved: false
+        };
+        try { root.setPointerCapture(ev.pointerId); } catch (err) { /* 忽略 */ }
+        root.classList.add('dragging');
+        updateStatus();
+      });
+
+      root.addEventListener('pointermove', function (ev) {
+        var d = state.drag;
+        if (!d || d.id !== it.id || ev.pointerId !== d.pointerId) return;
+        var dxCm = (ev.clientX - d.startX) / view.scale;
+        if (Math.abs(dxCm) &gt; 0.15) d.moved = true;
+        clampDrag(it, d.startPos + dxCm);
+        render();
+      });
+
+      function endDrag() {
+        var d = state.drag;
+        if (!d || d.id !== it.id) return;
+        state.drag = null;
+        root.classList.remove('dragging');
+        if (d.moved) {
+          var order = byPos();
+          var idx = order.indexOf(it);
+          var parts = [];
+          if (idx &gt; 0) {
+            var pl = (it.pos - it.bulk / 2) - (order[idx - 1].pos + order[idx - 1].bulk / 2);
+            parts.push('左 ' + fmt(pl));
+          }
+          if (idx &lt; order.length - 1) {
+            var pr = (order[idx + 1].pos - order[idx + 1].bulk / 2) - (it.pos + it.bulk / 2);
+            parts.push('右 ' + fmt(pr));
+          }
+          log('手动调整 · ' + tag(it) + ' 位置 ' + fmt(it.pos) + ' cm，净风道 ' + parts.join(' / ') + ' cm', 'ok');
+        }
+        render();
+        updateStatus();
+      }
+
+      root.addEventListener('pointerup', endDrag);
+      root.addEventListener('pointercancel', endDrag);
+    });
+  }
+
+  /* =========================================================================
+     11. 状态 / 控件 / 日志 / 反馈
+     ========================================================================= */
+  function updateStatus() {
+    var key = 'idle';
+    var text = '待机 · 拖动模块或选择运行模式';
+    if (state.estop) {
+      key = 'estop';
+      text = '急停锁定 · 点击「复位并启动」';
+    } else if (state.motion) {
+      key = 'busy';
+      text = '执行中 · ' + MODE_NAME[state.mode];
+    } else if (state.running) {
+      key = 'run';
+      text = '运行中 · ' + MODE_NAME[state.mode];
+    }
+    statusLine.dataset.state = key;
+    stateText.textContent = text;
+    btnEstop.classList.toggle('is-active', state.estop);
+    btnStart.querySelector('.btn-label').textContent = state.estop ? '复位并启动' : '开始 / 执行';
+    stage.classList.toggle('is-running', state.running &amp;&amp; !state.estop);
+  }
+
+  function updateModeUI() {
+    document.querySelectorAll('.mode').forEach(function (btn) {
+      btn.setAttribute('aria-pressed', String(btn.dataset.mode === state.mode));
+    });
+  }
+
+  function updateControlUI() {
+    gapRange.value = String(state.targetGap);
+    gapVal.innerHTML = fmt(state.targetGap) + '&lt;em&gt;cm&lt;/em&gt;';
+    paintRange(gapRange, (state.targetGap - MIN_CLEAR) / (MAX_CLEAR - MIN_CLEAR));
+
+    envRange.value = String(state.env);
+    envVal.innerHTML = state.env + '&lt;em&gt;%&lt;/em&gt;';
+    paintRange(envRange, (state.env - ENV_MIN) / (ENV_MAX - ENV_MIN));
+
+    var base = smartBaseGap();
+    var factor = base / state.targetGap;
+    effBase.innerHTML = fmt(base) + '&lt;em&gt;cm&lt;/em&gt;';
+    statTarget.innerHTML = fmt(state.targetGap) + '&lt;em&gt;cm&lt;/em&gt;';
+    effNote.textContent = '目标 ' + fmt(state.targetGap) + ' cm × 湿度系数 ' +
+      factor.toFixed(2) + '（环境 ' + state.env + '% RH）';
+
+    envHint.textContent = state.env &gt;= 80
+      ? '高湿 · 智能分配优先拉大风道'
+      : state.env &gt;= 60
+        ? '潮湿 · 智能分配自动加宽'
+        : '偏干 · 按目标间距执行';
+
+    envTel.textContent = state.env + '%';
+  }
+
+  // P2 概念开关的视觉状态：默认关闭，开启后杆视图右上角出现角标
+  function updateP2UI() {
+    p2Toggle.checked = state.p2Lift;
+    p2Row.classList.toggle('on', state.p2Lift);
+    p2Badge.classList.toggle('show', state.p2Lift);
+    p2Note.textContent = state.p2Lift
+      ? '概念演示已开启：允许抬升越障换序，硬件需抬升机构；P0/P1 真机只做串行让位、不换序。'
+      : '默认关闭：智能分配不换序，与 P0/P1 真机一致。开启仅为概念演示，硬件需抬升机构。';
+  }
+
+  function updateBatteryUI() {
+    var minBatt = 100;
+    items.forEach(function (it) {
+      minBatt = Math.min(minBatt, it.battery);
+      var row = rows.get(it.id);
+      if (!row) return;
+      row.battFill.style.width = clamp(it.battery, 0, 100) + '%';
+      row.battNum.textContent = it.battery + '%';
+      row.battFill.style.background = it.battery &lt; 30
+        ? 'linear-gradient(90deg, rgba(240,122,99,.45), var(--coral))'
+        : '';
+      var led = els.get(it.id).battFill;
+      led.style.width = clamp(it.battery, 0, 100) + '%';
+    });
+    battTel.textContent = minBatt + '%';
+  }
+
+  function log(msg, level) {
+    level = level || 'info';
+    var li = document.createElement('li');
+    li.className = level;
+    var t = new Date();
+    li.innerHTML = '&lt;time&gt;&lt;/time&gt;&lt;span class=&quot;lvl&quot;&gt;&lt;/span&gt;&lt;span class=&quot;msg&quot;&gt;&lt;/span&gt;';
+    li.querySelector('time').textContent =
+      pad2(t.getHours()) + ':' + pad2(t.getMinutes()) + ':' + pad2(t.getSeconds());
+    li.querySelector('.msg').textContent = msg;
+    logEl.prepend(li);
+    while (logEl.children.length &gt; LOG_LIMIT) {
+      logEl.lastElementChild.remove();
+    }
+  }
+
+  var toastTimer = null;
+  function showToast(text) {
+    stageToast.textContent = text;
+    stageToast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { stageToast.classList.remove('show'); }, 2400);
+  }
+
+  function shake(el) {
+    el.classList.remove('shake');
+    // 强制重排以重启动画
+    void el.offsetWidth;
+    el.classList.add('shake');
+    setTimeout(function () { el.classList.remove('shake'); }, 360);
+  }
+
+  /* =========================================================================
+     12. 事件绑定
+     ========================================================================= */
+  function bindControls() {
+    document.querySelectorAll('.mode').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        if (state.estop) {
+          log('急停锁定中 · 请先点击「复位并启动」', 'warn');
+          shake(btn);
+          return;
+        }
+        var next = btn.dataset.mode;
+        if (next === state.mode) {
+          applyMode();          // 重复点击 = 再次执行当前模式
+        } else {
+          state.mode = next;
+          updateModeUI();
+          applyMode();
+        }
+        state.running = true;
+        updateStatus();
+      });
+    });
+
+    // 目标净风道
+    gapRange.addEventListener('input', function () {
+      state.targetGap = Number(gapRange.value);
+      updateControlUI();
+      if (state.running &amp;&amp; !state.estop &amp;&amp; (state.mode === 'equal' || state.mode === 'smart')) {
+        scheduleApply();
+      }
+    });
+
+    // 环境湿度：只影响智能分配的基准间隙
+    envRange.addEventListener('input', function () {
+      state.env = Number(envRange.value);
+      updateControlUI();
+      if (state.running &amp;&amp; !state.estop &amp;&amp; state.mode === 'smart') scheduleApply();
+    });
+
+    // P2 概念开关：默认关闭；开启后才演示&quot;抬升越障&quot;换序
+    p2Toggle.addEventListener('change', function () {
+      if (state.estop) {
+        p2Toggle.checked = state.p2Lift;
+        log('急停锁定中 · 无法切换 P2 概念演示', 'warn');
+        return;
+      }
+      state.p2Lift = p2Toggle.checked;
+      updateP2UI();
+      log(state.p2Lift
+        ? 'P2 概念演示开启 · 抬升越障（硬件需抬升机构，P0/P1 真机不具备）'
+        : 'P2 概念演示关闭 · 智能分配恢复为保持当前顺序', state.p2Lift ? 'warn' : 'info');
+      if (state.mode === 'smart' &amp;&amp; state.running) scheduleApply();
+    });
+
+    // 开始 / 执行（急停时变为复位）
+    btnStart.addEventListener('click', function () {
+      if (state.estop) {
+        state.estop = false;
+        stage.classList.remove('estop');
+        log('急停复位 · 系统重新使能', 'ok');
+        state.running = true;
+        applyMode();
+        updateStatus();
+        return;
+      }
+      if (state.motion) {
+        log('动作执行中 · 请稍候', 'info');
+        return;
+      }
+      state.running = true;
+      applyMode();
+      updateStatus();
+    });
+
+    // 急停：立即中断动画、锁定拖动，必须手动复位
+    btnEstop.addEventListener('click', function () {
+      if (state.estop) return;
+      state.estop = true;
+      state.running = false;
+      stopMotion();
+      stage.classList.add('estop');
+      log('⛔ 急停触发 · 全部模块立即锁定，需人工复位', 'err');
+      render();
+      updateStatus();
+    });
+
+    document.getElementById('clearLog').addEventListener('click', function () {
+      logEl.innerHTML = '';
+    });
+  }
+
+  /* =========================================================================
+     13. 尺寸自适应 + 启动
+     ========================================================================= */
+  function measure() {
+    var w = stage.clientWidth;
+    if (!w) return;
+    view.w = w;
+    view.pad = w &lt; 520 ? 14 : 24;
+    view.scale = (w - view.pad * 2) / ROD_CM;
+    stage.style.setProperty('--rod-pad', view.pad + 'px');
+    render();
+  }
+
+  function initLogs() {
+    log('HangFlow 演示模式启动 · 前端模拟，未连接硬件', 'gold');
+    log('MQTT 已连接（模拟）· RDK X5 中枢在线', 'ok');
+    log('4 个套挂单元上线 · 电量正常', 'info');
+    log('目标净风道 ' + fmt(state.targetGap) + ' cm · 安全下限 ' + MIN_CLEAR + ' cm（g_min）', 'info');
+
+    // 用当前真实排布生成提示，保证日志与画面一致
+    var order = byPos();
+    var conflict = findConflict(order);
+    if (conflict) {
+      var betweenText = conflict.between.map(tag).join(' / ');
+      log('检测到 ' + tag(conflict.wetA) + ' / ' + tag(conflict.wetB) + ' 高湿被 ' +
+        betweenText + ' 隔开 · 默认保持顺序分配', 'warn');
+    } else {
+      var narrow = (order[1].pos - order[0].pos) - (order[0].bulk + order[1].bulk) / 2;
+      if (narrow &lt; state.targetGap - CLEAR_TOL) {
+        log('检测到 ' + tag(order[0]) + '–' + tag(order[1]) + ' 净风道 ' + fmt(narrow) +
+          ' cm 未达目标 · 建议执行智能分配', 'warn');
+      } else {
+        log('手动模式 · 拖拽模块或点「智能分配」看风道打开', 'info');
+      }
+    }
+  }
+
+  // ---- 初始化 ----
+  buildUnits();
+  buildDims();
+  buildFlows();
+  buildChannels();
+  buildRows();
+  buildRuler();
+  bindDrag();
+  bindControls();
+  updateModeUI();
+  updateControlUI();
+  updateP2UI();
+  updateBatteryUI();
+  measure();
+  initLogs();
+  updateStatus();
+
+  if (window.ResizeObserver) {
+    new ResizeObserver(measure).observe(stage);
+  } else {
+    window.addEventListener('resize', measure);
+  }
+
+  // 模拟 MQTT 往返时延
+  setInterval(function () {
+    latencyEl.textContent = (9 + Math.floor(Math.random() * 35)) + 'ms';
+  }, 2800);
+
+  // 模拟缓慢掉电
+  setInterval(function () {
+    if (state.estop) return;
+    var it = items[Math.floor(Math.random() * items.length)];
+    if (it.battery &gt; 18) {
+      it.battery -= 1;
+      updateBatteryUI();
+    }
+  }, 15000);
+
+})();
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+"></iframe>
+<pre id="result">{
+ "steps": [
+  {
+   "name": "initial",
+   "order": [
+    "01",
+    "02",
+    "03",
+    "04"
+   ],
+   "gaps": [
+    "4.3cm",
+    "6.8cm",
+    "6.5cm"
+   ],
+   "ok": "0/3",
+   "badge": "none",
+   "p2RowOn": false,
+   "p2Note": "默认关闭：智能分配不换序，与 P0/P1 真机一致。开启仅为概念演示，硬件需抬升机构。",
+   "logs": [
+    "01:41:31检测到 #01 / #04 高湿被 #02 / #03 隔开 · 默认保持顺序分配",
+    "01:41:31目标净风道 12.0 cm · 安全下限 3 cm（g_min）",
+    "01:41:314 个套挂单元上线 · 电量正常",
+    "01:41:31MQTT 已连接（模拟）· RDK X5 中枢在线",
+    "01:41:31HangFlow 演示模式启动 · 前端模拟，未连接硬件"
+   ],
+   "state": "待机 · 拖动模块或选择运行模式",
+   "scrollW": 390,
+   "clientW": 390
+  },
+  {
+   "name": "smart-default",
+   "order": [
+    "01",
+    "02",
+    "03",
+    "04"
+   ],
+   "gaps": [
+    "17.1cm",
+    "13.0cm",
+    "17.6cm"
+   ],
+   "ok": "3/3",
+   "badge": "none",
+   "p2RowOn": false,
+   "p2Note": "默认关闭：智能分配不换序，与 P0/P1 真机一致。开启仅为概念演示，硬件需抬升机构。",
+   "logs": [
+    "01:41:33分配完成 · 风道 17.1 / 13.0 / 17.6 cm",
+    "01:41:32智能分配 · 环境 72% RH → 基准净风道 15.9 cm · 保持当前顺序",
+    "01:41:32顺序冲突 · 最湿的 #01 / #04 被 #02 / #03 隔开 · P0/P1 真机不能换序，按当前顺序分配",
+    "01:41:31检测到 #01 / #04 高湿被 #02 / #03 隔开 · 默认保持顺序分配",
+    "01:41:31目标净风道 12.0 cm · 安全下限 3 cm（g_min）"
+   ],
+   "state": "运行中 · 智能分配",
+   "scrollW": 390,
+   "clientW": 390
+  },
+  {
+   "name": "p2-on",
+   "order": [
+    "01",
+    "02",
+    "03",
+    "04"
+   ],
+   "gaps": [
+    "17.1cm",
+    "13.0cm",
+    "17.6cm"
+   ],
+   "ok": "3/3",
+   "badge": "block",
+   "p2RowOn": true,
+   "p2Note": "概念演示已开启：允许抬升越障换序，硬件需抬升机构；P0/P1 真机只做串行让位、不换序。",
+   "logs": [
+    "01:41:34P2 概念演示开启 · 抬升越障（硬件需抬升机构，P0/P1 真机不具备）",
+    "01:41:33分配完成 · 风道 17.1 / 13.0 / 17.6 cm",
+    "01:41:32智能分配 · 环境 72% RH → 基准净风道 15.9 cm · 保持当前顺序",
+    "01:41:32顺序冲突 · 最湿的 #01 / #04 被 #02 / #03 隔开 · P0/P1 真机不能换序，按当前顺序分配",
+    "01:41:31检测到 #01 / #04 高湿被 #02 / #03 隔开 · 默认保持顺序分配"
+   ],
+   "state": "运行中 · 智能分配",
+   "scrollW": 390,
+   "clientW": 390
+  },
+  {
+   "name": "smart-p2",
+   "order": [
+    "01",
+    "04",
+    "02",
+    "03"
+   ],
+   "gaps": [
+    "20.2cm",
+    "15.4cm",
+    "12.0cm"
+   ],
+   "ok": "3/3",
+   "badge": "block",
+   "p2RowOn": true,
+   "p2Note": "概念演示已开启：允许抬升越障换序，硬件需抬升机构；P0/P1 真机只做串行让位、不换序。",
+   "logs": [
+    "01:41:36分配完成 · 风道 20.2 / 15.4 / 12.0 cm",
+    "01:41:35智能分配 · 环境 72% RH → 基准净风道 15.9 cm · P2 概念开启",
+    "01:41:35避让重排 · 挡路的低湿单元 #02 / #03 移至最远端，让高湿区相邻",
+    "01:41:35顺序冲突 · 最湿的 #01 / #04 被 #02 / #03 隔开 · P2 概念演示允许抬升越障",
+    "01:41:34智能分配 · 环境 72% RH → 基准净风道 15.9 cm · P2 概念开启"
+   ],
+   "state": "运行中 · 智能分配",
+   "scrollW": 390,
+   "clientW": 390
+  },
+  {
+   "name": "smart-off",
+   "order": [
+    "01",
+    "04",
+    "02",
+    "03"
+   ],
+   "gaps": [
+    "20.2cm",
+    "15.4cm",
+    "12.0cm"
+   ],
+   "ok": "3/3",
+   "badge": "none",
+   "p2RowOn": false,
+   "p2Note": "默认关闭：智能分配不换序，与 P0/P1 真机一致。开启仅为概念演示，硬件需抬升机构。",
+   "logs": [
+    "01:41:39分配完成 · 风道 20.2 / 15.4 / 12.0 cm",
+    "01:41:38智能分配 · 环境 72% RH → 基准净风道 15.9 cm · 保持当前顺序",
+    "01:41:37智能分配 · 环境 72% RH → 基准净风道 15.9 cm · 保持当前顺序",
+    "01:41:37P2 概念演示关闭 · 智能分配恢复为保持当前顺序",
+    "01:41:36分配完成 · 风道 20.2 / 15.4 / 12.0 cm"
+   ],
+   "state": "运行中 · 智能分配",
+   "scrollW": 390,
+   "clientW": 390
+  },
+  {
+   "name": "estop-p2-blocked",
+   "order": [
+    "01",
+    "04",
+    "02",
+    "03"
+   ],
+   "gaps": [
+    "20.2cm",
+    "15.4cm",
+    "12.0cm"
+   ],
+   "ok": "3/3",
+   "badge": "none",
+   "p2RowOn": false,
+   "p2Note": "默认关闭：智能分配不换序，与 P0/P1 真机一致。开启仅为概念演示，硬件需抬升机构。",
+   "logs": [
+    "01:41:40急停锁定中 · 无法切换 P2 概念演示",
+    "01:41:40⛔ 急停触发 · 全部模块立即锁定，需人工复位",
+    "01:41:39分配完成 · 风道 20.2 / 15.4 / 12.0 cm",
+    "01:41:38智能分配 · 环境 72% RH → 基准净风道 15.9 cm · 保持当前顺序",
+    "01:41:37智能分配 · 环境 72% RH → 基准净风道 15.9 cm · 保持当前顺序"
+   ],
+   "state": "急停锁定 · 点击「复位并启动」",
+   "scrollW": 390,
+   "clientW": 390
+  }
+ ],
+ "initial": {
+  "innerWidth": 390,
+  "clientW": 390,
+  "scrollW": 390,
+  "mq640": true,
+  "overflow": []
+ },
+ "errors": []
+}</pre>
+<script>
+(async function () {
+  var f = document.getElementById('frame');
+  var errors = [];
+  var out = { steps: [] };
+  var d, w;
+  function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  function txt(el) { return el ? el.textContent.replace(/\s+/g, ' ').trim() : null; }
+  function order() {
+    return Array.prototype.slice.call(d.querySelectorAll('.unit')).sort(function (a, b) {
+      return parseFloat(a.style.left) - parseFloat(b.style.left);
+    }).map(function (u) { return txt(u.querySelector('.clip-no')); });
+  }
+  function snap(name) {
+    var chans = Array.prototype.slice.call(d.querySelectorAll('.chan')).map(function (c) {
+      return txt(c.querySelector('.chan-val'));
+    });
+    out.steps.push({
+      name: name,
+      order: order(),
+      gaps: chans,
+      ok: txt(d.getElementById('statOk')),
+      badge: getComputedStyle(d.getElementById('p2Badge')).display,
+      p2RowOn: d.getElementById('p2Row').classList.contains('on'),
+      p2Note: txt(d.getElementById('p2Note')),
+      logs: Array.prototype.slice.call(d.querySelectorAll('#log li')).slice(0, 5).map(txt),
+      state: txt(d.getElementById('stateText')),
+      scrollW: d.documentElement.scrollWidth,
+      clientW: d.documentElement.clientWidth
+    });
+  }
+  var html = await (await fetch('index.html')).text();
+  var shim = '<scr' + 'ipt>' +
+    'window.requestAnimationFrame=function(fn){return setTimeout(function(){fn(performance.now())},16)};' +
+    'window.cancelAnimationFrame=function(id){clearTimeout(id)};' +
+    '</scr' + 'ipt>';
+  html = html.replace('<head>', '<head>' + shim);
+  f.addEventListener('load', async function () {
+    d = f.contentDocument;
+    w = f.contentWindow;
+    w.addEventListener('error', function (e) { errors.push('error: ' + e.message); });
+    w.addEventListener('unhandledrejection', function (e) { errors.push('rejection: ' + e.reason); });
+    var s = d.createElement('style');
+    s.textContent = 'html{scrollbar-width:none}::-webkit-scrollbar{display:none}';
+    d.head.appendChild(s);
+    await sleep(400);
+
+    out.initial = {
+      innerWidth: w.innerWidth, clientW: d.documentElement.clientWidth, scrollW: d.documentElement.scrollWidth,
+      mq640: w.matchMedia('(max-width:640px)').matches,
+      overflow: Array.prototype.slice.call(d.querySelectorAll('body *')).map(function (el) {
+        var r = el.getBoundingClientRect();
+        return { el: el.tagName + '.' + (typeof el.className === 'string' ? el.className : ''), right: Math.round(r.right) };
+      }).filter(function (o) { return o.right > d.documentElement.clientWidth + 1; }).slice(0, 10)
+    };
+    snap('initial');
+
+    d.querySelector('.mode[data-mode="smart"]').click();
+    await sleep(2400);
+    snap('smart-default');
+
+    d.getElementById('p2Toggle').click();
+    await sleep(300);
+    snap('p2-on');
+
+    d.querySelector('.mode[data-mode="smart"]').click();
+    await sleep(2800);
+    snap('smart-p2');
+
+    d.getElementById('p2Toggle').click();
+    await sleep(300);
+    d.querySelector('.mode[data-mode="smart"]').click();
+    await sleep(2400);
+    snap('smart-off');
+
+    // 急停时不允许切换 P2
+    d.getElementById('btnEstop').click();
+    await sleep(150);
+    d.getElementById('p2Toggle').click();
+    await sleep(150);
+    snap('estop-p2-blocked');
+
+    out.errors = errors;
+    document.getElementById('result').textContent = JSON.stringify(out, null, 1);
+  }, { once: true });
+  f.srcdoc = html;
+})();
+</script>
+
+
+</body></html>

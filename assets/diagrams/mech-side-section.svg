@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="700" viewBox="0 0 900 700">
+<style>
+  .out   { fill:none; stroke:#1f2937; stroke-width:1.8; stroke-linejoin:round; }
+  .part  { fill:#f1f5f9; stroke:#1f2937; stroke-width:1.7; stroke-linejoin:round; }
+  .p2    { fill:#e2e8f0; stroke:#1f2937; stroke-width:1.6; stroke-linejoin:round; }
+  .dash  { fill:#ffffff; stroke:#64748b; stroke-width:1.2; stroke-dasharray:7 4; }
+  .cut   { fill:url(#hatch); stroke:#1f2937; stroke-width:1.8; }
+  .soft  { fill:#cbd5e1; stroke:#334155; stroke-width:1.4; }
+  .dim   { fill:none; stroke:#0f766e; stroke-width:0.9; marker-start:url(#ar); marker-end:url(#ar); }
+  .ext   { fill:none; stroke:#0f766e; stroke-width:0.7; stroke-dasharray:4 3; }
+  .lead  { fill:none; stroke:#b45309; stroke-width:0.9; }
+  .dt    { font:12px 'Microsoft YaHei','PingFang SC',sans-serif; fill:#0f766e; text-anchor:middle;
+           paint-order:stroke; stroke:#ffffff; stroke-width:3.5; stroke-linejoin:round; }
+  .lb    { font:13px 'Microsoft YaHei','PingFang SC',sans-serif; fill:#7c2d12; }
+  .ttl   { font:bold 18px 'Microsoft YaHei','PingFang SC',sans-serif; fill:#0f172a; }
+  .sub   { font:12.5px 'Microsoft YaHei','PingFang SC',sans-serif; fill:#475569; }
+  .in    { font:12px 'Microsoft YaHei','PingFang SC',sans-serif; fill:#0f172a; text-anchor:middle;
+           paint-order:stroke; stroke:#ffffff; stroke-width:3; }
+</style>
+<defs>
+  <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,1 L10,5 L0,9 z" fill="#0f766e"/>
+  </marker>
+  <pattern id="hatch" width="8" height="8" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+    <rect width="8" height="8" fill="#dbe3ec"/>
+    <line x1="0" y1="0" x2="0" y2="8" stroke="#8fa2b8" stroke-width="1.1"/>
+  </pattern>
+</defs>
+<rect x="0" y="0" width="900" height="700" fill="#ffffff"/>
+<text class="ttl" x="28" y="34">图 2  套挂单元 · 侧视剖面（垂直于杆看，X–Z 平面）</text>
+<text class="sub" x="28" y="56">单位 mm · 全部为设计值 · Ø25 名义杆 · 轮距 60 = 抗俯仰力臂 · 与 docs/04 §4.6 对应</text>
+<rect class="part" x="238.0" y="122.0" width="384.0" height="312.0" rx="10"/>
+<rect class="cut" x="182.0" y="240.0" width="496.0" height="100.0"/>
+<text class="in" x="246.0" y="295.0" text-anchor="start">Ø25 既有圆杆（不改造）</text>
+<circle class="p2" cx="430.0" cy="184.0" r="56.0"/>
+<line class="ext" x1="430.0" y1="184.0" x2="430.0" y2="240.0"/>
+<text class="in" x="430.0" y="189.0" text-anchor="start">Ø28</text>
+<circle class="p2" cx="310.0" cy="380.0" r="40.0"/>
+<circle cx="310.0" cy="380.0" r="2.6" fill="#1f2937"/>
+<text class="in" x="310.0" y="384.0" text-anchor="start">Ø20</text>
+<circle class="p2" cx="550.0" cy="380.0" r="40.0"/>
+<circle cx="550.0" cy="380.0" r="2.6" fill="#1f2937"/>
+<text class="in" x="550.0" y="384.0" text-anchor="start">Ø20</text>
+<rect class="part" x="334.0" y="434.0" width="192.0" height="20.0" rx="0"/>
+<rect class="p2" x="342.0" y="450.0" width="24.0" height="40.0" rx="0"/>
+<rect class="p2" x="494.0" y="450.0" width="24.0" height="40.0" rx="0"/>
+<rect class="soft" x="350.0" y="470.0" width="160.0" height="24.0" rx="4"/>
+<text class="in" x="430.0" y="486.0" text-anchor="start">Ø6 钢销</text>
+<line class="ext" x1="238.0" y1="122.0" x2="238.0" y2="80.0"/>
+<line class="ext" x1="622.0" y1="122.0" x2="622.0" y2="80.0"/>
+<line class="dim" x1="238.0" y1="80.0" x2="622.0" y2="80.0"/>
+<text class="dt" x="430.0" y="73.0" text-anchor="middle">96（沿杆总长）</text>
+<line class="ext" x1="310.0" y1="420.0" x2="310.0" y2="545.0"/>
+<line class="ext" x1="550.0" y1="420.0" x2="550.0" y2="545.0"/>
+<line class="dim" x1="310.0" y1="545.0" x2="550.0" y2="545.0"/>
+<text class="dt" x="430.0" y="538.0" text-anchor="middle">60（惰轮轴距 = 抗俯仰力臂）</text>
+<line class="ext" x1="182.0" y1="290.0" x2="150.0" y2="290.0"/>
+<line class="ext" x1="350.0" y1="482.0" x2="150.0" y2="482.0"/>
+<line class="dim" x1="150.0" y1="290.0" x2="150.0" y2="482.0"/>
+<text class="dt" x="142.0" y="390.0" text-anchor="middle" transform="rotate(-90 142.0 390.0)">48</text>
+<line class="ext" x1="182.0" y1="290.0" x2="110.0" y2="290.0"/>
+<line class="ext" x1="270.0" y1="380.0" x2="110.0" y2="380.0"/>
+<line class="dim" x1="110.0" y1="290.0" x2="110.0" y2="380.0"/>
+<text class="dt" x="102.0" y="339.0" text-anchor="middle" transform="rotate(-90 102.0 339.0)">22.5</text>
+<line class="lead" x1="470.0" y1="138.0" x2="650.0" y2="124.0"/>
+<circle cx="470.0" cy="138.0" r="2.4" fill="#b45309"/>
+<text class="lb" x="650.0" y="128.0" text-anchor="start">上壳（PETG，3 壁 / 25% 填充）</text>
+<line class="lead" x1="454.0" y1="170.0" x2="650.0" y2="200.0"/>
+<circle cx="454.0" cy="170.0" r="2.4" fill="#b45309"/>
+<text class="lb" x="650.0" y="204.0" text-anchor="start">驱动轮压杆顶：N_f = 47.1 N（2kg）</text>
+<line class="lead" x1="614.0" y1="210.0" x2="650.0" y2="300.0"/>
+<circle cx="614.0" cy="210.0" r="2.4" fill="#b45309"/>
+<text class="lb" x="650.0" y="304.0" text-anchor="start">背舱：电池 + 电路，底面 −36</text>
+<line class="lead" x1="550.0" y1="434.0" x2="650.0" y2="424.0"/>
+<circle cx="550.0" cy="434.0" r="2.4" fill="#b45309"/>
+<text class="lb" x="650.0" y="428.0" text-anchor="start">下爪 + 弹簧上顶：F_s = 25 N</text>
+<line class="lead" x1="510.0" y1="470.0" x2="650.0" y2="520.0"/>
+<circle cx="510.0" cy="470.0" r="2.4" fill="#b45309"/>
+<text class="lb" x="650.0" y="524.0" text-anchor="start">挂点钢销（杆轴正下方 48）</text>
+<text class="sub" x="28.0" y="600.0" text-anchor="start">① 沿杆方向 10N 推挤 → 俯仰力矩 M = 10 × 0.048 = 0.48 N·m，由前后惰轮支反力差承担：</text>
+<text class="sub" x="28.0" y="621.0" text-anchor="start">   ΔN = M / 60mm = ±4.0 N（单轮 12.5 ± 4.0 N），后轮仍 &gt;0 不抬离，SF 3.1。</text>
+<text class="sub" x="28.0" y="642.0" text-anchor="start">② 速度：v = πDn/60 = π×0.028×30/60 = 44.0 mm/s；20cm 用时 4.55 s（设计值 5.0 s，含加减速与负载降速）。</text>
+<text class="sub" x="28.0" y="663.0" text-anchor="start">③ 挂点销心 (y=0, z=−48)：2kg 衣物重力通过杆轴 → 对杆轴力矩 = 0（几何保证，不靠摩擦）。</text>
+</svg>

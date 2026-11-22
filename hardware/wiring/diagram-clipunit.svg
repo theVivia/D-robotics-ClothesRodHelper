@@ -1,0 +1,165 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="730" viewBox="0 0 1080 730" font-family="Consolas, 'Microsoft YaHei', monospace">
+  <defs>
+    <marker id="ar" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 z" fill="#8ab4f8"/>
+    </marker>
+    <marker id="arp" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 z" fill="#e0715a"/>
+    </marker>
+  </defs>
+  <style>
+    .box{fill:#1b2230;stroke:#3d4a5c;stroke-width:1.4;rx:6}
+    .mbox{fill:#241d2b;stroke:#6b5570;stroke-width:1.4}
+    .pbox{fill:#2a1d1d;stroke:#7a4a44;stroke-width:1.4}
+    .t{fill:#e6edf3;font-size:13px}
+    .ts{fill:#93a1b1;font-size:11px}
+    .tp{fill:#ffd7a8;font-size:12px}
+    .line{stroke:#8ab4f8;stroke-width:1.6;fill:none;marker-end:url(#ar)}
+    .pline{stroke:#e0715a;stroke-width:1.8;fill:none;marker-end:url(#arp)}
+    .thick{stroke:#5ac8a0;stroke-width:2.6;fill:none}
+    .gnd{stroke:#7f8c9b;stroke-width:1.6;fill:none}
+    .dash{stroke:#7a4a44;stroke-width:1.2;stroke-dasharray:4 3;fill:none}
+  </style>
+
+  <text x="24" y="30" fill="#e6edf3" font-size="17">衣序 HangFlow · 套挂单元（ClipUnit）接线图</text>
+  <text x="24" y="50" class="ts">P0 = ESP32-C3 SuperMini + DRV8833 + N20 6V + AS5600 + VL53L1X + WS2812 + 18650。引脚依据见 docs/05 §5</text>
+
+  <!-- ===================== 左：电源树 ===================== -->
+  <rect x="20" y="70" width="250" height="620" class="box" stroke-dasharray="6 4"/>
+  <text x="34" y="92" class="tp">电源树（3.0—4.2V → 6V / 3.3V）</text>
+
+  <rect x="44" y="108" width="200" height="46" class="pbox mbox"/>
+  <text x="54" y="127" class="t">18650 2000mAh</text>
+  <text x="54" y="144" class="ts">带保护板 DW01+8205A</text>
+
+  <rect x="44" y="186" width="200" height="46" class="pbox mbox"/>
+  <text x="54" y="205" class="t">TP4056 充电+保护</text>
+  <text x="54" y="222" class="ts">USB-C 5V 输入，1A ≈ 0.5C</text>
+
+  <rect x="44" y="264" width="200" height="40" class="pbox mbox"/>
+  <text x="54" y="289" class="t">电源开关 SS12D00</text>
+
+  <circle cx="144" cy="326" r="5" fill="#e0715a"/>
+  <text x="156" y="330" class="tp">VBAT_SW</text>
+
+  <rect x="44" y="352" width="200" height="56" class="pbox mbox"/>
+  <text x="54" y="372" class="t">MT3608 升压 → 6.0V</text>
+  <text x="54" y="389" class="ts">η≈85%，输出 ≤1A</text>
+  <text x="54" y="403" class="ts">→ DRV8833 VM</text>
+
+  <rect x="44" y="432" width="200" height="56" class="pbox mbox"/>
+  <text x="54" y="452" class="t">SuperMini “5V” 脚</text>
+  <text x="54" y="469" class="ts">电池 3.0—4.2V 直供</text>
+  <text x="54" y="483" class="ts">板载 LDO → 3.3V</text>
+
+  <rect x="44" y="512" width="200" height="52" class="pbox mbox"/>
+  <text x="54" y="532" class="t">100k / 100k 分压</text>
+  <text x="54" y="549" class="ts">+100nF → GPIO0 (ADC)</text>
+
+  <rect x="44" y="588" width="200" height="52" class="pbox mbox"/>
+  <text x="54" y="608" class="t">100µF×2 / 100nF</text>
+  <text x="54" y="625" class="ts">6V 轨 + 电池入口去耦</text>
+
+  <path d="M144,154 L144,186" class="pline"/>
+  <path d="M144,232 L144,264" class="pline"/>
+  <path d="M144,304 L144,326" class="pline"/>
+  <path d="M144,326 L144,352" class="pline"/>
+  <path d="M144,326 L84,326 L84,432" class="pline"/>
+  <path d="M144,326 L204,326 L204,512" class="pline"/>
+
+  <!-- ===================== 右：信号连接 ===================== -->
+  <rect x="300" y="70" width="760" height="620" class="box" stroke-dasharray="6 4"/>
+  <text x="314" y="92" class="tp">信号连接（橙色=电源，蓝色=信号，绿色=I²C）</text>
+
+  <!-- MCU -->
+  <rect x="400" y="110" width="250" height="470" class="mbox"/>
+  <text x="420" y="134" fill="#e6edf3" font-size="15">ESP32-C3 SuperMini</text>
+  <text x="420" y="152" class="ts">RISC-V 160MHz / 4MB Flash</text>
+  <text x="420" y="167" class="ts">USB-C 直连 GPIO18/19</text>
+
+  <text x="418" y="205" class="t">GPIO4</text>   <text x="490" y="205" class="ts">LEDC ch0 20kHz</text>
+  <text x="418" y="232" class="t">GPIO5</text>   <text x="490" y="232" class="ts">LEDC ch1 20kHz</text>
+  <text x="418" y="259" class="t">GPIO10</text>   <text x="490" y="259" class="ts">10k↓ 上电默认停</text>
+  <text x="418" y="300" class="t">GPIO6</text>   <text x="490" y="300" class="ts">SDA</text>
+  <text x="418" y="327" class="t">GPIO7</text>   <text x="490" y="327" class="ts">SCL</text>
+  <text x="418" y="386" class="t">GPIO2</text>   <text x="490" y="386" class="ts">10k↑ strapping 保高</text>
+  <text x="418" y="445" class="t">GPIO3</text>   <text x="490" y="445" class="ts">串 330Ω</text>
+  <text x="418" y="500" class="t">GPIO1</text>   <text x="490" y="500" class="ts">内部上拉，低有效</text>
+  <text x="418" y="555" class="t">GPIO0</text>   <text x="490" y="555" class="ts">ADC1_CH0 / ATTEN3</text>
+
+  <text x="628" y="205" class="ts">4</text><text x="628" y="232" class="ts">5</text>
+  <text x="622" y="259" class="ts">10</text>
+  <text x="628" y="300" class="ts">6</text><text x="628" y="327" class="ts">7</text>
+  <text x="628" y="386" class="ts">2</text><text x="628" y="445" class="ts">3</text>
+  <text x="628" y="500" class="ts">1</text><text x="628" y="555" class="ts">0</text>
+
+  <!-- 未使用脚警示 -->
+  <rect x="400" y="592" width="250" height="82" fill="#2a1d1d" stroke="#7a4a44" rx="5"/>
+  <text x="412" y="612" fill="#ffb4a2" font-size="12">不可用：GPIO8 / GPIO9（strapping）</text>
+  <text x="412" y="630" fill="#ffb4a2" font-size="12">GPIO11—17（Flash）GPIO18/19（USB）</text>
+  <text x="412" y="648" fill="#ffb4a2" font-size="12">GPIO20/21 留作 UART0 / 编码器(P1)</text>
+
+  <!-- DRV8833 -->
+  <rect x="700" y="110" width="180" height="100" class="mbox"/>
+  <text x="712" y="132" class="t">DRV8833（A 通道）</text>
+  <text x="712" y="150" class="ts">VM 6.0V · 1.5A RMS/通道</text>
+  <text x="712" y="166" class="ts">BIN1/BIN2 → GND</text>
+  <text x="712" y="190" class="ts">pin: AIN1 / AIN2 / nSLEEP</text>
+
+  <!-- N20 -->
+  <rect x="930" y="118" width="118" height="80" class="mbox"/>
+  <text x="942" y="140" class="t">N20 6V</text>
+  <text x="942" y="158" class="ts">30rpm 1:298</text>
+  <text x="942" y="174" class="ts">堵转 ≈0.7A</text>
+  <text x="942" y="190" class="ts">轮 ⌀28 压杆</text>
+
+  <path d="M650,205 L688,205 L688,145 L700,145" class="line"/>
+  <path d="M650,232 L688,232 L688,172 L700,172" class="line"/>
+  <path d="M650,259 L676,259 L676,199 L700,199" class="line"/>
+  <path d="M880,145 L905,145 L905,155 L930,155" class="line" stroke="#d4b106"/>
+  <path d="M880,175 L905,175 L905,170 L930,170" class="line" stroke="#d4b106"/>
+  <text x="890" y="212" class="ts">AOUT1/2</text>
+  <text x="712" y="240" class="ts" fill="#ffd7a8">← VM 接 MT3608 +6V0</text>
+
+  <!-- I2C 总线 -->
+  <path d="M650,300 L676,300 L676,268 L712,268" class="line" stroke="#5ac8a0"/>
+  <path d="M650,327 L690,327 L690,362 L712,362" class="line" stroke="#5ac8a0"/>
+  <line x1="676" y1="268" x2="676" y2="362" stroke="#5ac8a0" stroke-width="2.6"/>
+  <text x="680" y="252" class="ts" fill="#5ac8a0">I²C 400k, 4.7k↑ 到 3V3</text>
+
+  <!-- AS5600 -->
+  <rect x="712" y="240" width="200" height="56" class="mbox"/>
+  <text x="724" y="261" class="t">AS5600 磁编码 0x36</text>
+  <text x="724" y="279" class="ts">12bit 绝对角 / 气隙 0.5—3mm / DIR→GND</text>
+  <path d="M676,268 L712,268" class="line" stroke="#5ac8a0"/>
+
+  <!-- VL53L1X -->
+  <rect x="712" y="330" width="200" height="64" class="mbox"/>
+  <text x="724" y="351" class="t">VL53L1X 测距 0x29</text>
+  <text x="724" y="369" class="ts">4m 量程 / 27° FOV</text>
+  <text x="724" y="385" class="ts">XSHUT → GPIO2（10k↑）</text>
+  <path d="M676,362 L712,362" class="line" stroke="#5ac8a0"/>
+  <path d="M650,386 L676,386 L676,404 L712,404" class="line" stroke="#8ab4f8"/>
+
+  <!-- WS2812 -->
+  <rect x="712" y="430" width="200" height="48" class="mbox"/>
+  <text x="724" y="450" class="t">WS2812B-2020 ×1</text>
+  <text x="724" y="467" class="ts">VDD 3V3 / 100nF / 绿=就绪 红=故障</text>
+  <path d="M650,445 L712,445" class="line"/>
+
+  <!-- KEY -->
+  <rect x="712" y="492" width="200" height="48" class="mbox"/>
+  <text x="724" y="512" class="t">按键（短按配网 / 长按3s急停）</text>
+  <text x="724" y="529" class="ts">另一端 GND / 并 100nF</text>
+  <path d="M650,500 L712,500" class="line"/>
+
+  <!-- 分压 -->
+  <rect x="712" y="552" width="200" height="56" class="mbox"/>
+  <text x="724" y="572" class="t">电量检测 100k/100k</text>
+  <text x="724" y="589" class="ts">4.2V → 2.10V / ADC ATTEN3</text>
+  <text x="724" y="604" class="ts">采样只在电机停转时做</text>
+  <path d="M650,555 L712,555" class="line"/>
+  <path d="M812,552 L812,510 L812,510" class="dash"/>
+  <text x="820" y="530" class="ts" fill="#ffb4a2">← VBAT_SW 100k</text>
+
+</svg>

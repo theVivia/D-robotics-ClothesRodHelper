@@ -1,0 +1,25 @@
+# 运行时产物
+logs/
+*.log
+__pycache__/
+*.pyc
+.pio/
+.pytest_cache/
+.venv/
+venv/
+
+# 硬件工具链
+*.stl
+*.gcode
+*.3mf
+*.step
+*.stp
+
+# 系统
+.DS_Store
+Thumbs.db
+~$*
+
+deck/_qa/
+deck/_tmp.pdf
+app/_probe*.html

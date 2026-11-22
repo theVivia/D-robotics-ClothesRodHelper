@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>衣序 HangFlow · DDC2026 路演</title>
+<style>
+  :root{
+    --bg:#06080b; --bg2:#0b0f15; --panel:#12161c; --panel2:#171c24;
+    --gold:#d6b173; --gold-hi:#f1d69a; --gold-dim:rgba(214,177,115,.15);
+    --txt:#eef2f8; --txt2:#98a4b5; --txt3:#5b6779;
+    --line:rgba(255,255,255,.08); --teal:#5fd6b4; --coral:#f07a63;
+    --font:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei","PingFang SC",sans-serif;
+    --mono:ui-monospace,"SF Mono","Cascadia Mono",Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:var(--font)}
+  .stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#000}
+  .deck{width:1600px;height:900px;position:relative;transform-origin:center center;background:var(--bg);overflow:hidden}
+  .slide{position:absolute;inset:0;display:none;padding:64px 80px;color:var(--txt);
+         background:
+           radial-gradient(900px 500px at 85% -10%,rgba(214,177,115,.10),transparent 60%),
+           radial-gradient(700px 500px at 0% 110%,rgba(95,214,180,.06),transparent 60%),
+           linear-gradient(160deg,#06080b 0%,#080b10 55%,#0a0e14 100%);}
+  .slide.on{display:block}
+  .slide::before{content:"";position:absolute;inset:0;pointer-events:none;
+    background-image:linear-gradient(rgba(255,255,255,.022) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.022) 1px,transparent 1px);
+    background-size:80px 80px;opacity:.5}
+  .kicker{font-size:15px;letter-spacing:.22em;color:var(--gold);text-transform:uppercase;margin-bottom:18px}
+  h1{font-size:86px;line-height:1.02;margin:0 0 18px;font-weight:800;letter-spacing:-.02em}
+  h1 .thin{font-weight:300;color:var(--txt2)}
+  h2{font-size:48px;line-height:1.1;margin:0 0 14px;font-weight:750;letter-spacing:-.01em}
+  h3{font-size:24px;margin:0 0 10px;font-weight:650}
+  p{font-size:20px;line-height:1.55;color:var(--txt2);margin:0}
+  .gold{color:var(--gold)} .mono{font-family:var(--mono)}
+  .foot{position:absolute;left:80px;bottom:30px;font-size:13px;color:var(--txt3);letter-spacing:.08em}
+  .pageno{position:absolute;right:80px;bottom:30px;font-size:13px;color:var(--txt3);font-family:var(--mono)}
+  .brandline{position:absolute;top:36px;right:80px;font-size:13px;color:var(--txt3);letter-spacing:.16em}
+  .bar{position:absolute;left:0;top:0;height:3px;background:linear-gradient(90deg,var(--gold),transparent);z-index:9}
+  /* cover */
+  .cover-art{position:absolute;right:-120px;bottom:0;height:700px;opacity:.95;
+    -webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 28%);mask-image:linear-gradient(90deg,transparent 0%,#000 28%)}
+  .cover-art img{height:100%}
+  .cover h1{font-size:104px}
+  .cover .sub{font-size:26px;color:var(--txt);margin:8px 0 30px}
+  .tags{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}
+  .tag{font-size:14px;padding:8px 14px;border:1px solid var(--line);border-radius:999px;color:var(--txt2);background:rgba(255,255,255,.02)}
+  .tag.hi{border-color:rgba(214,177,115,.45);color:var(--gold-hi);background:var(--gold-dim)}
+  /* generic grids */
+  .cols2{display:grid;grid-template-columns:1fr 1fr;gap:48px}
+  .cols3{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+  .cols4{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+  .card{background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.012));
+        border:1px solid var(--line);border-radius:20px;padding:26px}
+  .num{font-size:56px;font-weight:800;font-family:var(--mono);color:var(--gold);line-height:1}
+  .num small{font-size:18px;color:var(--txt2);font-weight:400;letter-spacing:0}
+  .label{font-size:13px;color:var(--txt3);letter-spacing:.12em;margin-top:8px}
+  .bigstat{display:flex;gap:56px;margin-top:26px}
+  .bigstat .num{font-size:64px}
+  ul.clean{list-style:none;padding:0;margin:0}
+  ul.clean li{font-size:20px;color:var(--txt2);padding:12px 0;border-bottom:1px dashed rgba(255,255,255,.07)}
+  ul.clean li b{color:var(--txt)}
+  .quote{font-size:22px;color:var(--txt);border-left:3px solid var(--gold);padding-left:22px;line-height:1.6}
+  .imgbox{border:1px solid var(--line);border-radius:18px;overflow:hidden;background:#0a0d12;display:flex;align-items:center;justify-content:center}
+  .imgbox img{max-width:100%;max-height:100%;display:block}
+  .fig-cap{font-size:13px;color:var(--txt3);margin-top:10px;letter-spacing:.04em}
+  /* demo slide */
+  .phone{width:250px;border-radius:32px;border:1px solid var(--line);overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.6)}
+  .phone img{width:100%;display:block}
+  .steps{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:26px}
+  .step{border:1px solid var(--line);border-radius:12px;padding:12px 10px;font-size:13px;color:var(--txt2);background:rgba(255,255,255,.02)}
+  .step b{display:block;color:var(--gold);font-family:var(--mono);font-size:12px;margin-bottom:6px}
+  /* pricing */
+  .price{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:22px}
+  .pcard{border:1px solid var(--line);border-radius:18px;padding:22px;background:linear-gradient(180deg,rgba(255,255,255,.03),transparent)}
+  .pcard.hot{border-color:rgba(214,177,115,.5);box-shadow:0 0 0 1px rgba(214,177,115,.15) inset}
+  .pcard .pv{font-size:40px;font-weight:800;color:var(--gold);font-family:var(--mono)}
+  .pcard .pn{font-size:16px;color:var(--txt);font-weight:650;margin-bottom:6px}
+  .pcard .pd{font-size:13px;color:var(--txt3);line-height:1.5}
+  /* final */
+  .final{display:flex;flex-direction:column;justify-content:center;height:100%}
+  .final h1{font-size:76px}
+  .qr{width:170px;height:170px;border:1px solid var(--line);border-radius:16px;display:flex;align-items:center;justify-content:center;color:var(--txt3);font-size:12px;text-align:center;padding:14px;background:#fff}
+  .barrow{display:grid;grid-template-columns:150px 1fr 64px;gap:14px;align-items:center;margin:14px 0;font-size:15px;color:var(--txt2)}
+  .barrow b{font-family:var(--mono);color:var(--txt);font-size:15px;text-align:right}
+  .track{height:10px;border-radius:999px;background:rgba(255,255,255,.06);overflow:hidden}
+  .track i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--gold),var(--gold-hi))}
+  .qr-img{width:168px;height:168px;border-radius:14px;background:#fff;padding:8px}
+  .hint{position:fixed;right:18px;bottom:14px;color:#3a4150;font-size:12px;font-family:var(--mono)}
+  @page{size:1600px 900px;margin:0}@media print{html,body{background:#06080b!important}}@media print{
+    html,body{overflow:visible;background:#fff}
+    .stage{position:static;display:block;background:none}
+    .deck{transform:none!important;width:1600px;height:auto;overflow:visible}
+    .slide{display:block!important;position:relative;inset:auto;width:1600px;height:900px;page-break-after:always;break-after:page}.slide:last-child{page-break-after:auto;break-after:auto}
+    .hint{display:none}
+  }
+</style>
+</head>
+<body>
+<div class="stage"><div class="deck" id="deck">
+
+  <!-- 1 封面 -->
+  <section class="slide cover">
+    <div class="brandline">DDC2026 · SHANGHAI · RDK X5</div>
+    <div class="kicker">Clothes Rod Helper · 套挂式衣物间距调节器</div>
+    <h1>衣序 <span class="thin">HangFlow</span></h1>
+    <div class="sub">不换晾衣杆，让衣服自己让出风道。</div>
+    <p style="max-width:560px">几个巴掌大的模块夹在现有晾衣杆上，衣服挂在模块上；RDK 看全场、算间距，模块自己走。<br>手机扫码就能一键排开。</p>
+    <div class="tags">
+      <span class="tag hi">RDK X5 · 视觉闭环</span>
+      <span class="tag">4 单元协同</span>
+      <span class="tag">零改造</span>
+      <span class="tag">±5mm</span>
+      <span class="tag">打样 ¥850 起</span>
+    </div>
+    <div class="cover-art"><img src="../assets/diagrams/product-hero.svg" alt="产品概念图"></div>
+    <div class="foot">2026.12.07 · DDC2026 决赛路演</div>
+    <div class="pageno">01 / 10</div>
+  </section>
+
+  <!-- 2 痛点 -->
+  <section class="slide">
+    <div class="kicker">The Problem</div>
+    <h2>衣服不是没地方挂，是<b class="gold">风进不去</b>。</h2>
+    <div class="cols2" style="margin-top:34px">
+      <div>
+        <p style="font-size:22px;color:var(--txt)">梅雨季、回南天，衣服挤在杆上，中间只剩 <b class="gold">3–5cm</b>。外层干了，贴着的那面还是潮的，凑近一股闷味。</p>
+        <div class="quote" style="margin-top:30px">“知道要分开，但每次都要爬上去够、推、再调——最后算了，就这样吧。”</div>
+        <ul class="clean" style="margin-top:26px">
+          <li><b>手推</b>：够不着、推不齐、湿衣重、杆会歪</li>
+          <li><b>现有产品</b>：解决升降/烘干/除湿，<b>没有一个解决间距</b></li>
+          <li><b>代价</b>：返工重洗、异味、霉斑，每天都在发生</li>
+        </ul>
+      </div>
+      <div style="display:flex;flex-direction:column;justify-content:center;gap:18px">
+        <div class="card" style="text-align:center;padding:36px">
+          <div class="label">现在的间隙</div>
+          <div class="num" style="color:var(--coral);font-size:88px">3–5<small>cm</small></div>
+        </div>
+        <div style="text-align:center;color:var(--gold);font-size:34px">↓ 一键</div>
+        <div class="card" style="text-align:center;padding:36px;border-color:rgba(214,177,115,.4)">
+          <div class="label">目标间隙</div>
+          <div class="num" style="font-size:88px">10–15<small>cm</small></div>
+        </div>
+      </div>
+    </div>
+    <div class="foot">痛点来自生活观察 + 5 个用户访谈（赛前补证）</div>
+    <div class="pageno">02 / 10</div>
+  </section>
+
+  <!-- 3 方案 -->
+  <section class="slide">
+    <div class="kicker">The Solution</div>
+    <h2>把“推衣服”变成<b class="gold">“模块自己走”</b>。</h2>
+    <div class="cols3" style="margin-top:38px">
+      <div class="card">
+        <div class="label">01 · 套挂单元 ×4</div>
+        <h3 style="margin-top:12px">夹上就能走</h3>
+        <p>C 形夹爪夹住 20–35mm 圆杆；硅胶摩擦轮压杆驱动；18650 供电，不用布线；侧面挂钩承重 5kg。</p>
+      </div>
+      <div class="card">
+        <div class="label">02 · RDK X5 中枢</div>
+        <h3 style="margin-top:12px">一颗板全包</h3>
+        <p>USB 相机 → ArUco 视觉定位 → 加权间距规划 → MQTT 下发；同时跑网页服务与日志回放。</p>
+      </div>
+      <div class="card">
+        <div class="label">03 · 手机网页</div>
+        <h3 style="margin-top:12px">扫码即用</h3>
+        <p>手动拖 / 一键等距 / 智能分配 / 收衣；急停永远在拇指区；不用装 App。</p>
+      </div>
+    </div>
+    <div style="display:flex;gap:12px;margin-top:30px;flex-wrap:wrap">
+      <span class="tag hi">手动</span><span class="tag hi">一键等距</span>
+      <span class="tag hi">智能分配（按湿度）</span><span class="tag hi">收衣归拢</span>
+      <span class="tag">断电短时保持</span><span class="tag">堵转即停</span><span class="tag">断网自停</span>
+    </div>
+    <div style="display:flex;gap:72px;margin-top:56px">
+      <div><div class="num">4<small> 个</small></div><div class="label">套挂单元（可扩展到 8）</div></div>
+      <div><div class="num">30<small> s</small></div><div class="label">4 件衣服一键排开（典型）</div></div>
+      <div><div class="num">0<small> 改造</small></div><div class="label">不动杆、不布线、搬家带走</div></div>
+    </div>
+    <div class="foot">不换杆 · 不布线 · 搬家能带走</div>
+    <div class="pageno">03 / 10</div>
+  </section>
+
+  <!-- 4 现场演示 -->
+  <section class="slide">
+    <div class="kicker">Live Demo</div>
+    <h2>评委扫码，自己拖一下。</h2>
+    <div style="display:grid;grid-template-columns:250px 1fr;gap:46px;margin-top:26px;align-items:start">
+      <div class="phone"><img src="../assets/screenshots/app-mobile.png" alt="手机端演示"></div>
+      <div>
+        <h3 style="font-size:30px;margin:6px 0 10px">扫码 → 拖一下 → 衣服自己排开</h3>
+        <p style="font-size:19px">同一个网页，手机竖屏和桌面大屏都能用。评委不需要装 App，连上 RDK 热点就能操作；数据来自真实设备，断网时自动切模拟数据，演示不会中断。</p>
+        <div style="display:flex;gap:14px;margin-top:22px;flex-wrap:wrap">
+          <span class="tag hi">实时间距读数</span><span class="tag hi">拖动模块</span><span class="tag hi">一键等距</span><span class="tag">急停常在</span>
+        </div>
+        <div class="imgbox" style="height:220px;margin-top:22px"><img src="../assets/screenshots/app-desktop.png" alt="桌面端演示"></div>
+      </div>
+    </div>
+    <div class="steps" style="margin-top:24px">
+      <div class="step"><b>STEP 1</b>扫码打开网页</div>
+      <div class="step"><b>STEP 2</b>看当前间距 3cm</div>
+      <div class="step"><b>STEP 3</b>点“一键等距”</div>
+      <div class="step"><b>STEP 4</b>模块依次排开</div>
+      <div class="step"><b>STEP 5</b>点“收衣”聚拢</div>
+      <div class="step"><b>STEP 6</b>急停 / 复位</div>
+    </div>
+    <div class="foot">演示视频与日志已备份：不依赖现场网络</div>
+    <div class="pageno">04 / 10</div>
+  </section>
+
+  <!-- 5 架构 -->
+  <section class="slide">
+    <div class="kicker">System Architecture</div>
+    <h2>中枢 + 分布式单元，任何一层挂了都<b class="gold">默认停</b>。</h2>
+    <div class="imgbox" style="height:640px;margin-top:20px"><img src="../assets/diagrams/sys-architecture.svg" alt="系统架构"></div>
+    <div class="foot">端到端 &lt;150ms · 视觉 300ms 校正 · 五层安全</div>
+    <div class="pageno">05 / 10</div>
+  </section>
+
+  <!-- 6 算法 -->
+  <section class="slide">
+    <div class="kicker">Algorithm</div>
+    <h2>间距不是平均分，是<b class="gold">按干燥需求分配</b>。</h2>
+    <div style="display:grid;grid-template-columns:1.25fr .75fr;gap:36px;margin-top:22px">
+      <div>
+        <div class="imgbox" style="height:420px"><img src="../docs/figures/alg-01-spacing-waterfill.png" alt="间距规划"></div>
+        <div class="fig-cap">闭式解：先保 30mm 安全底，剩余空间按湿度权重分配；O(N)，毫秒级。</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px;justify-content:center">
+        <div class="card"><div class="num" style="font-size:40px">±5<small>mm</small></div><div class="label">定位精度（视觉校正后 ±3mm）</div></div>
+        <div class="card"><div class="num" style="font-size:40px">300<small>ms</small></div><div class="label">视觉外环校正周期</div></div>
+        <div class="card"><div class="num" style="font-size:40px">N−k</div><div class="label">换序最少步数（P2 抬升越障）</div></div>
+        <div class="card" style="border-color:rgba(240,122,99,.35)"><div class="num" style="font-size:34px;color:var(--coral)">30<small>mm</small></div><div class="label">最小安全间隙（硬约束）</div></div>
+      </div>
+    </div>
+    <div class="foot">同一根杆连续运动无法换序——这条物理边界写进了代码与答辩</div>
+    <div class="pageno">06 / 10</div>
+  </section>
+
+  <!-- 7 硬件 -->
+  <section class="slide">
+    <div class="kicker">Hardware</div>
+    <h2>便宜电机，也能做到<b class="gold">毫米级</b>。</h2>
+    <div class="cols2" style="margin-top:26px;align-items:center">
+      <div class="imgbox" style="height:430px"><img src="../hardware/wiring/diagram-system.svg" alt="系统接线"></div>
+      <div class="cols2" style="grid-template-columns:1fr 1fr;gap:16px">
+        <div class="card"><div class="num">5<small>kg</small></div><div class="label">单模块承重</div></div>
+        <div class="card"><div class="num">4.5<small>cm/s</small></div><div class="label">移动速度（安静优先）</div></div>
+        <div class="card"><div class="num">2<small>天</small></div><div class="label">在线待机（18650）</div></div>
+        <div class="card"><div class="num">3000<small>+</small></div><div class="label">纯动作次数</div></div>
+        <div class="card"><div class="num">20–35<small>mm</small></div><div class="label">适配杆径</div></div>
+        <div class="card"><div class="num">150<small>元</small></div><div class="label">单模块打样 BOM</div></div>
+      </div>
+    </div>
+    <div class="foot">AS5600 绝对角 + 视觉绝对位置双源；DRV8833 无采样电阻 → 堵转靠角度判据</div>
+    <div class="pageno">07 / 10</div>
+  </section>
+
+  <!-- 8 成本与商业 -->
+  <section class="slide">
+    <div class="kicker">Cost &amp; Business</div>
+    <h2>打样 ¥850，量产目标<b class="gold">¥650</b>。</h2>
+    <div style="display:grid;grid-template-columns:1fr 1.05fr;gap:40px;margin-top:24px">
+      <div>
+        <div class="card" style="padding:28px 30px">
+          <div style="display:flex;justify-content:space-between;align-items:baseline">
+            <span class="label">整机打样成本（不含 RDK）</span>
+            <span class="num" style="font-size:42px">¥850</span>
+          </div>
+          <div style="margin-top:24px">
+            <div class="barrow"><span>套挂单元 ×4</span><div class="track"><i style="width:71%"></i></div><b>¥600</b></div>
+            <div class="barrow"><span>中枢外设（相机等）</span><div class="track"><i style="width:21%"></i></div><b>¥175</b></div>
+            <div class="barrow"><span>演示架</span><div class="track"><i style="width:9%"></i></div><b>¥75</b></div>
+            <div class="barrow"><span>RDK X5（现场发放）</span><div class="track"><i style="width:65%"></i></div><b>¥549</b></div>
+          </div>
+          <div style="font-size:12px;color:var(--txt3);margin-top:18px">量产 1 万台：单单元 ¥125，整机（4 单元 + 中枢）¥650。</div>
+        </div>
+        <div class="fig-cap">口径见 docs/09；RDK 由赛事发放，不计自购。</div>
+      </div>
+      <div>
+        <div class="price">
+          <div class="pcard"><div class="pn">Lite</div><div class="pv">399</div><div class="pd">2 单元 + 手机直连<br>宿舍 / 小阳台</div></div>
+          <div class="pcard hot"><div class="pn">Pro Core</div><div class="pv">999</div><div class="pd">4 单元 + ESP32 网关<br>家庭主力款</div></div>
+          <div class="pcard"><div class="pn">Pro Vision</div><div class="pv">1899</div><div class="pd">4 单元 + RDK 视觉中枢<br>高端 / 发烧</div></div>
+        </div>
+        <ul class="clean" style="margin-top:22px">
+          <li><b>市场</b>：中国城镇约 2.9 亿户，阳台晾晒仍是主流</li>
+          <li><b>渠道</b>：电商、家装后市场、租房平台、长租公寓 B 端</li>
+          <li><b>延展</b>：衣柜内部分区、阳台植物架——卖的是“可移动的挂点”</li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot">毛利 36%–43%（估算）；完整测算见 docs/15</div>
+    <div class="pageno">08 / 10</div>
+  </section>
+
+  <!-- 9 计划 -->
+  <section class="slide">
+    <div class="kicker">Execution</div>
+    <h2>12 天准备 + 48 小时现场，<b class="gold">门禁不达标就砍功能</b>。</h2>
+    <div class="imgbox" style="height:520px;margin-top:22px"><img src="../docs/figures/gantt.png" alt="赛程甘特图"></div>
+    <div class="foot">G1 12.05 24:00 ≥3 单元可控 · G2 12.06 12:00 一键等距 · G3 12.06 19:00 全流程 5 次</div>
+    <div class="pageno">09 / 10</div>
+  </section>
+
+  <!-- 10 结尾 -->
+  <section class="slide">
+    <div class="kicker">Why Us</div>
+    <div class="final">
+      <h1>衣序 <span class="thin">HangFlow</span></h1>
+      <p style="font-size:30px;color:var(--txt);margin:10px 0 34px">不换晾衣杆，让衣服自己让出风道。</p>
+      <div style="display:flex;gap:56px;align-items:flex-end">
+        <div>
+          <ul class="clean" style="width:720px">
+            <li><b>真实需求</b>：评委也晾衣服，30 秒能共情</li>
+            <li><b>能跑</b>：4 单元现场演示，P0 全通才交付</li>
+            <li><b>有技术</b>：视觉闭环 + 加权规划 + 一维调度边界</li>
+            <li><b>能卖</b>：单模块 150，Lite 399，零改造</li>
+          </ul>
+        </div>
+        <div style="margin-left:auto;text-align:center">
+          <img class="qr-img" src="../assets/screenshots/qr-demo.png" alt="演示二维码"><div style="font-size:11px;color:var(--txt3);margin-top:8px">192.168.4.1:8000</div>
+          <div style="font-size:12px;color:var(--txt3);margin-top:10px">theVivia/D-robotics-ClothesRodHelper</div>
+        </div>
+      </div>
+      <div class="brandline" style="top:auto;bottom:34px;left:80px;right:auto">DDC2026 · 地瓜机器人黑客松</div>
+    </div>
+    <div class="pageno">10 / 10</div>
+  </section>
+
+  <div class="bar" id="bar" style="width:0%"></div>
+</div></div>
+<div class="hint">← → / 空格 翻页 · F 全屏 · P 打印/PDF</div>
+<script>
+  const slides=[...document.querySelectorAll('.slide')];
+  let i=0;
+  function show(n){
+    i=Math.max(0,Math.min(slides.length-1,n));
+    slides.forEach((s,k)=>s.classList.toggle('on',k===i));
+    document.getElementById('bar').style.width=((i+1)/slides.length*100)+'%';
+    location.hash=i+1;
+  }
+  function fit(){
+    const s=Math.min(innerWidth/1600,innerHeight/900);
+    document.getElementById('deck').style.transform='scale('+s+')';
+  }
+  addEventListener('resize',fit);
+  addEventListener('keydown',e=>{
+    if(['ArrowRight','ArrowDown',' ','PageDown','Enter'].includes(e.key)){e.preventDefault();show(i+1)}
+    if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){e.preventDefault();show(i-1)}
+    if(e.key==='f'||e.key==='F'){document.documentElement.requestFullscreen?.()}
+    if(e.key==='p'||e.key==='P'){print()}
+  });
+  addEventListener('click',e=>{if(e.clientX>innerWidth*0.55)show(i+1);else if(e.clientX<innerWidth*0.45)show(i-1)});
+  const q=new URLSearchParams(location.search);
+  fit(); show(q.has('s')?parseInt(q.get('s'))-1:(parseInt(location.hash.slice(1))||1)-1);
+</script>
+</body>
+</html>
+
+
+
+
+
+
+

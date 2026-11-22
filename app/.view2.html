@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><title>HangFlow view</title>
+<style>html,body{margin:0;padding:0;background:#05070a;overflow:hidden}iframe{border:0;display:block;background:#05070a}</style>
+</head>
+<body>
+<iframe id="f"></iframe>
+<script>
+(async function () {
+  var q = new URLSearchParams(location.search);
+  var W = +(q.get('w') || 390);
+  var H = +(q.get('h') || 844);
+  var mode = q.get('mode');
+  var p2 = q.get('p2') === '1';
+  var f = document.getElementById('f');
+  f.style.width = W + 'px';
+  f.style.height = H + 'px';
+
+  var html = await (await fetch('index.html')).text();
+  var shim = '<scr' + 'ipt>' +
+    'window.requestAnimationFrame=function(fn){return setTimeout(function(){fn(performance.now())},16)};' +
+    'window.cancelAnimationFrame=function(id){clearTimeout(id)};' +
+    '</scr' + 'ipt>';
+  var css = '<style>html{scrollbar-width:none}::-webkit-scrollbar{display:none}</style>';
+  f.addEventListener('load', function () {
+    var d = f.contentDocument;
+    setTimeout(function () {
+      if (p2) {
+        var t = d.getElementById('p2Toggle');
+        if (t) t.click();
+      }
+      setTimeout(function () {
+        if (!mode) return;
+        var btn = d.querySelector('.mode[data-mode="' + mode + '"]');
+        if (btn) btn.click();
+      }, 350);
+    }, 350);
+  }, { once: true });
+  f.srcdoc = html.replace('<head>', '<head>' + shim + css);
+})();
+</script>
+</body>
+</html>
