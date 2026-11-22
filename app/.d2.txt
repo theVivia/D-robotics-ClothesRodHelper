@@ -1,2 +1,0 @@
-[6712:24124:1123/014227.584:ERROR:chrome\browser\task_manager\providers\fallback_task_provider.cc:126] Every renderer should have at least one task provided by a primary task provider. If a "Renderer" fallback task is shown, it is a bug. If you have repro steps, please file a new bug and tag it as a dependency of crbug.com/40528867.
-366296 bytes written to file E:\D-robotics-ClothesRodHelper\app\.desk-final2.png
