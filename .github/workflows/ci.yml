@@ -1,0 +1,36 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy scipy matplotlib pytest opencv-python-headless
+
+      - name: Unit tests (planner / reorder / control)
+        run: python -m pytest sim -q
+
+      - name: Simulation + figures
+        run: python sim/run_all.py
+
+      - name: Vision synthetic check
+        run: python sim/vision_demo.py
+
+      - name: Hub mock end-to-end
+        run: python -m software.hub.mock_demo
+
+      - name: Markdown relative links
+        run: python assets/scripts/check_links.py

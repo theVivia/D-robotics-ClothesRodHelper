@@ -14,6 +14,7 @@
 1. 🎬 **路演 deck**：[deck/衣序-HangFlow-DDC2026.pdf](deck/衣序-HangFlow-DDC2026.pdf)（10 页，直接能讲）
 2. 📱 **交互演示**：双击 [`app/index.html`](app/index.html)（离线可用，手机竖屏也行）
 3. 📄 **一页纸方案**：[docs/00-执行摘要.md](docs/00-执行摘要.md)
+4. 🖨️ **展台卡**：[deck/衣序-展台卡-A4.pdf](deck/衣序-展台卡-A4.pdf)（A4 打印，放在展台）
 
 ---
 
@@ -117,8 +118,9 @@
 1. **看交互**：双击打开 [`app/index.html`](app/index.html)（单文件，离线可用）。拖模块、点"一键等距"、调湿度，看它怎么排。真实 390×844 手机视口验证截图在 [`app/.verify/`](app/.verify)。
 2. **跑算法**：`python sim/run_all.py`（12 秒），生成 7 张 300dpi 图 + `docs/_data/algorithm-results.md`。
 3. **跑中枢 mock**：`python -m software.hub.mock_demo`（4 个虚拟单元，串行下发、到位校验、写 JSONL 日志）。
-4. **看路演**：打开 [deck/衣序-HangFlow-DDC2026.pdf](deck/衣序-HangFlow-DDC2026.pdf)，或双击 `deck/index.html` 用方向键放映。
-5. **读方案**：从 [docs/00-执行摘要.md](docs/00-执行摘要.md) 开始，10 分钟看完；要细节再按目录跳。
+4. **验视觉链路**：`python sim/vision_demo.py`（合成图 ArUco 检测 6/6，输出误差图）。
+5. **看路演**：打开 [deck/衣序-HangFlow-DDC2026.pdf](deck/衣序-HangFlow-DDC2026.pdf)，或双击 `deck/index.html` 用方向键放映。
+6. **读方案**：从 [docs/00-执行摘要.md](docs/00-执行摘要.md) 开始，10 分钟看完；要细节再按目录跳。
 
 > 需要 Python 3.11 + numpy/scipy/matplotlib；无第三方硬件依赖。
 
@@ -130,8 +132,11 @@
 |---|---|---|
 | 间距规划 + 重排 + 控制 + 视觉误差仿真 | `python sim/run_all.py` | 17/17 单测通过，7 张图，12 秒 |
 | 中枢 mock 端到端（4 虚拟单元） | `python -m software.hub.mock_demo` | PASS，串行 36.2s（≤45s），净空 98.9—103mm |
+| 视觉链路合成验证 | `python sim/vision_demo.py` | 6/6 标记检出，系统偏移 0.82mm |
 | 手机/桌面交互页 | Edge headless 截图 + DevTools 390×844 | 无 console 报错，390 视口零越界 |
 | 路演 deck | 逐页截图检查 + PDF 导出 | 10 页，16:9 |
+| A4 展台卡 | Edge 打印导出 | 1 页 A4 |
+| CI（GitHub Actions） | `.github/workflows/ci.yml` | push 时跑单测/仿真/mock/链接检查 |
 | 机械 CAD | OpenSCAD 参数模型（未渲染） | `hardware/cad/clip_unit.scad`，5 条 assert |
 | 固件 | 骨架（未上真机） | 引脚/协议/安全判据与 docs/05 对齐 |
 
