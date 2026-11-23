@@ -26,11 +26,9 @@ def _draw_chain(ax, plan: lp.LengthPlan, y: float = 0.58,
     box_h = 0.12
     ax.plot([0, avail], [y, y], color="#c9ced6", lw=5,
             solid_capstyle="round", zorder=1)
-    for x, name in ((0.0, L("左锚点 0", "anchor 0")),
-                    (D, L(f"右锚点 D={D:.0f}", f"anchor D={D:.0f}"))):
+    for x in (0.0, D):
         ax.plot([x, x], [y - 0.24, y + 0.24], color="#5b6779", lw=4, zorder=4)
-        ax.text(x, y + 0.27, name, ha="center", va="bottom", fontsize=6.2,
-                color="#5b6779")
+    ax.axvline(D, color="#5b6779", ls=":", lw=0.8, alpha=0.6, zorder=1)
     if avail > D + 5:
         ax.axvspan(D, avail, color="#eef1f5", zorder=0)
         ax.text((D + avail) / 2, y + 0.10,
@@ -46,9 +44,8 @@ def _draw_chain(ax, plan: lp.LengthPlan, y: float = 0.58,
     for i, (l, r) in enumerate(lay.regulator_edges):
         role = "end" if (i == 0 or i == plan.K) else "inner"
         c = color if role == "inner" else "#8a6d3b"
-        ax.add_patch(FancyBboxPatch(
+        ax.add_patch(Rectangle(
             (l, y - box_h / 2), r - l, box_h,
-            boxstyle="round,pad=0,rounding_size=8",
             facecolor=c, edgecolor="#1f3a5f", lw=0.9, alpha=0.88, zorder=3))
         if show_len and (r - l) > 45:
             ax.text((l + r) / 2, y, f"{r - l:.0f}", ha="center", va="center",
@@ -62,13 +59,13 @@ def _draw_chain(ax, plan: lp.LengthPlan, y: float = 0.58,
             ax.text((l + r) / 2, y - 0.32, f"调{i}", ha="center", va="top",
                     fontsize=6.2, color="#666")
     for j, cx in enumerate(lay.garment_centers):
-        ax.add_patch(Rectangle((cx - 2.2, y - 0.17), 4.4, 0.34,
+        ax.add_patch(Rectangle((cx - 2.2, y - 0.12), 4.4, 0.24,
                                facecolor="#f2d18b", edgecolor="#8a6d3b",
                                lw=0.9, zorder=5))
         ax.text(cx, y - 0.52, f"衣{j + 1}", ha="center", va="top", fontsize=6.0,
                 color="#8a6d3b")
     ax.set_xlim(-25, avail + 25)
-    ax.set_ylim(-0.02, 1.02)
+    ax.set_ylim(-0.12, 1.05)
     ax.set_yticks([])
     ax.grid(True, axis="x", ls="--", lw=0.5, alpha=0.4)
     ax.set_axisbelow(True)
@@ -87,8 +84,8 @@ def fig_length_plan(plans: Dict[str, lp.LengthPlan]) -> str:
                          "内部 100 mm，链 460 mm", "① equal"), PALETTE[0]),
              ("weighted", L("② 按湿度加权：内部重分配，端部自动补/收",
                             "② weighted"), PALETTE[1]),
-             ("collect", L(f"③ 收衣：端部到 {co.ends[0]:.0f} 限位，链 400 mm、"
-                           f"空杆 {co.gap_mm:.0f} mm（未完全收拢）", "③ collect"),
+             ("collect", L(f"③ 收衣：内部回 {co.inner[0]:.0f} mm、端部回到 "
+                           f"{co.ends[0]:.0f} mm，链 460 mm", "③ collect"),
               PALETTE[4])]
     for i, (key, title, color) in enumerate(modes):
         _draw_chain(axes[i], plans[key], y=0.60, color=color)
@@ -125,7 +122,7 @@ def fig_chain_order(demo: dict) -> str:
     fig, (ax1, ax2) = plt.subplots(
         1, 2, figsize=(10.0, 4.3), gridspec_kw={"width_ratios": [1.55, 1.0]})
 
-    _draw_chain(ax1, plan, y=0.60, color=PALETTE[0], annotate_clamps=True)
+    _draw_chain(ax1, plan, y=0.60, color=PALETTE[0], annotate_clamps=False)
     lay = ch.chain_layout(plan)
     for i, (l, r) in enumerate(lay.regulator_edges):
         if 0 < i < plan.K:
@@ -145,14 +142,14 @@ def fig_chain_order(demo: dict) -> str:
             ("锚定左墙（推荐）", PALETTE[0], "o", L("锚定左锚点（推荐）", "anchor")),
             ("不锁端（整链推）", PALETTE[4], "s", L("不锁端（反例）", "no clamp"))):
         moves = [s for s in cmp[key]["steps"]
-                 if s["action"] in ("move_right", "move_left", "preload",
-                                    "push_block")]
+                 if s["action"] in ("move_right", "move_left", "push_block")]
         xs = np.arange(1, len(moves) + 1)
         ax2.plot(xs, [s["force_n"] for s in moves], marker + "-", color=color,
                  lw=1.7, ms=5, label=label)
     ax2.axhline(ch.F_UNIT_N, color="#888", ls=":", lw=1.0)
-    ax2.text(2.3, ch.F_UNIT_N + 0.4, L("伸缩副自身 2 N", "unit drag 2 N"),
+    ax2.text(3.35, ch.F_UNIT_N + 0.45, L("伸缩副自身 2 N", "unit drag 2 N"),
              fontsize=7)
+    ax2.set_xticks([1, 2, 3, 4, 5])
     ax2.set_xlabel(L("第几次伸缩动作", "move index"), fontsize=9.5)
     ax2.set_ylabel(L("轴向力（N）", "axial force (N)"), fontsize=9.5)
     ax2.legend(fontsize=7.4, loc="upper right")
@@ -191,9 +188,9 @@ def fig_timing(timing: dict, setup: dict) -> str:
                color=PALETTE[3], zorder=5,
                label=L(f"安装标定（一次性）{setup['time_s']:.0f} s",
                        f"setup {setup['time_s']:.0f} s"))
-    ax.annotate(L("日常：收衣→等距，5 段都动", "daily: 5 units move"),
-                xy=(4, rows[1][timing["drives"][0]]["time_s"]),
-                xytext=(4.9, 20.0), fontsize=7.2, color=PALETTE[0],
+    ax.annotate(L("日常：12 cm→收衣（5 段都动）", "daily: 5 units move"),
+                xy=(4.05, rows[1][timing["drives"][0]]["time_s"]),
+                xytext=(5.0, 45.0), fontsize=7.2, color=PALETTE[0],
                 arrowprops=dict(arrowstyle="->", lw=0.8, color=PALETTE[0]))
     ax.set_xlabel(L("衣物件数 K（件）", "garments K"), fontsize=9.5)
     ax.set_ylabel(L("耗时（s）", "time (s)"), fontsize=9.5)
@@ -215,13 +212,13 @@ def fig_control(study: dict, backlash: dict, stall: dict) -> str:
     for i, drive in enumerate(ch.DRIVES):
         res = study["traces"][drive.name]
         ax1.plot(res.t, res.x_load, color=colors[i], lw=1.6, label=drive.name)
-    ax1.axhline(100.0, color="#333", ls=":", lw=1.0)
-    ax1.text(0.6, 102.0, L("目标 100 mm", "target 100 mm"), fontsize=7.4)
+    ax1.axhline(160.0, color="#333", ls=":", lw=1.0)
+    ax1.text(0.6, 162.0, L("目标 160 mm", "target 160 mm"), fontsize=7.4)
     ax1.set_xlim(0, 16)
-    ax1.set_ylim(35, 112)
+    ax1.set_ylim(95, 172)
     ax1.set_xlabel(L("时间（s）", "time (s)"), fontsize=9)
     ax1.set_ylabel(L("圆柱长度（mm）", "length (mm)"), fontsize=9)
-    ax1.set_title(L("① 40→100 mm 阶跃（11 N 负载）", "① step 40→100 (11 N)"),
+    ax1.set_title(L("① 100→160 mm 阶跃（11 N 负载）", "① step 100→160 (11 N)"),
                   fontsize=9.6)
     ax1.legend(fontsize=6.8, loc="lower right")
 

@@ -469,10 +469,10 @@ def setup_study(rod_length: float = DEFAULT_ROD_MM,
 
 
 def demo_chain(garment_count: int = 4) -> dict:
-    """演示：4 件衣物、5 个调节器；收衣（400 mm 内）→ 等距（1100 mm）。"""
+    """演示：4 件、5 个调节器；12 cm → 收衣（内部回 100 mm）。"""
     K = garment_count
-    start = plan_lengths(K, mode="collect")
-    end = plan_lengths(K, mode="equal")
+    start = plan_lengths(K, mode="equal", target_gap=120.0)
+    end = plan_lengths(K, mode="collect")
     drive = DRIVES[0]
     return {
         "K": K,

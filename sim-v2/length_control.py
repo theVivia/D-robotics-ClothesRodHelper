@@ -73,8 +73,8 @@ def clamp_target(target: float) -> tuple:
 
 
 def simulate_step(drive: Drive,
-                  target: float = 100.0,
-                  start: float = 40.0,
+                  target: float = 160.0,
+                  start: float = 100.0,
                   gains: ControlGains = ControlGains(),
                   t_end: float = T_END,
                   dt: float = DT,
@@ -86,7 +86,7 @@ def simulate_step(drive: Drive,
                   stall_at_s: Optional[float] = None,
                   stall_force_n: float = 60.0,
                   seed: int = 0) -> LengthResult:
-    """仿真一次长度阶跃（默认 40→100 mm）。
+    """仿真一次长度阶跃（默认 100→160 mm，行程 60 mm）。
 
     unidirectional : 末段从同方向（伸长侧）逼近，保证间隙状态确定；
     compensate     : 命令端补 b/2，抵消已知的间隙偏置；
@@ -258,13 +258,13 @@ def backlash_study() -> dict:
     """反向间隙 / 逼近策略对「负载侧长度误差」的影响。"""
     drive = DRIVES[1]
     cases = [
-        ("直接逼近（缩短）", dict(start=160.0, target=100.0,
+        ("直接逼近（缩短）", dict(start=220.0, target=160.0,
                                  unidirectional=False, compensate=False)),
-        ("直接逼近（伸长）", dict(start=40.0, target=100.0,
+        ("直接逼近（伸长）", dict(start=100.0, target=160.0,
                                  unidirectional=False, compensate=False)),
-        ("单向逼近（缩短→伸长）", dict(start=160.0, target=100.0,
+        ("单向逼近（缩短→伸长）", dict(start=220.0, target=160.0,
                                      unidirectional=True, compensate=False)),
-        ("单向逼近 + b/2 补偿", dict(start=160.0, target=100.0,
+        ("单向逼近 + b/2 补偿", dict(start=220.0, target=160.0,
                                    unidirectional=True, compensate=True)),
     ]
     rows = []
@@ -283,7 +283,7 @@ def backlash_study() -> dict:
 def stall_study() -> dict:
     """堵转检测：2 s 时遇到 60 N 阻塞，看多久能判出。"""
     drive = DRIVES[1]
-    res = simulate_step(drive, start=40.0, target=160.0, stall_at_s=2.0)
+    res = simulate_step(drive, start=100.0, target=220.0, stall_at_s=2.0)
     return {
         "stall_at_s": 2.0,
         "stall_force_n": 60.0,

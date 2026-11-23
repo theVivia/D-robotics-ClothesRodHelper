@@ -73,8 +73,8 @@ def build_captions(results: dict) -> Dict[str, dict]:
         "v2-01-length-plan": {
             "caption": (
                 f"外端锚点 0/D 固定（D=460 mm）：等距时端部内端各 {eq.ends[0]:.0f} mm、"
-                f"内部 3 段各 100 mm，链长 460 完全贴合；加权只重分内部段（端部自动补/收），"
-                f"收衣时内部缩到 40、端部伸到 120 限位，链长 400、空杆 60 → 未完全收拢。"
+                f"内部 3 段各 100 mm，链长 460 完全贴合；加权只用 12 cm 平均预算重分配内部段，"
+                f"收衣＝内部回 100 mm，端部回到 60。"
             ),
         },
         "v2-02-chain-order": {
@@ -87,14 +87,14 @@ def build_captions(results: dict) -> Dict[str, dict]:
         },
         "v2-03-timing": {
             "caption": (
-                f"日常（收衣→等距）端部与内部 5 段都要动：4 mm/s 校核 {t_daily:.1f} s、"
-                f"7 mm/s 提速 {t_fast:.1f} s，仍都超过 30 s——端部参与后行程涨到 300 mm，"
-                f"要达标需 ≥12 mm/s；安装标定（一次性）{setup['time_s']:.0f} s。"
+                f"日常（12 cm→收衣）5 段都动、行程 120 mm：4 mm/s 校核 {t_daily:.1f} s"
+                f"（超 30 s）、7 mm/s 提速 {t_fast:.1f} s（达标）；"
+                f"安装标定（一次性）{setup['time_s']:.0f} s。"
             ),
         },
         "v2-04-control": {
             "caption": (
-                f"长度闭环 40→100 mm：{drv} 上升 {lead8['rise_s']:.1f} s、稳态误差 "
+                f"长度闭环 100→160 mm：{drv} 上升 {lead8['rise_s']:.1f} s、稳态误差 "
                 f"{lead8['sse_mm']:+.2f} mm、超调 {lead8['overshoot_mm']:.2f} mm；"
                 f"0.2 mm 反向间隙在负载侧只剩 "
                 f"±{max(abs(r['error_mm']) for r in bl) * 1000:.0f} µm；"
@@ -151,7 +151,7 @@ def build_md(results: dict, figures: List[Path], captions: Dict[str, dict]) -> s
 
     L: List[str] = []
     A = L.append
-    A("# v2 算法与控制仿真结果（衣序 HangFlow · rev-D）")
+    A("# v2 算法与控制仿真结果（衣序 HangFlow · rev-E 最终机械口径）")
     A("")
     A(f"> 由 `python sim-v2/run_all.py` 自动生成（{meta['generated']}），**请勿手改**。")
     A(f"> Python {meta['python']} / numpy {meta['numpy']}；单元测试 "
@@ -166,19 +166,19 @@ def build_md(results: dict, figures: List[Path], captions: Dict[str, dict]) -> s
     A(f"1. **默认安装态**：`[60, 100, 100, 100, 60]`，锚点间距 D=**460 mm**，"
       f"链长 460 完全贴合，锚点 0/460 不动。")
     A(f"2. **端部内端吸收总长变化**：等距 12 cm → `[30,120,120,120,30]`（Δ=+60，端部各 −30）；"
-      f"再切 8 cm → `[90,80,80,80,90]`（Δ=−120，各 +60）。链长始终 460。")
-    A(f"3. **收衣**：内部缩到 40、端部伸到 120 限位 → 链长 **400 mm**、空杆 **60 mm**，"
-      f"状态 `partial`，提示「未完全收拢」。")
-    A(f"4. **拒绝条件**：目标 20 cm 时内部 600 mm，端部最短也放不下 → `rejected`，"
-      f"提示减小目标/减件。")
+      f"收衣（内部回 100 mm）→ `[60,100,100,100,60]`（端部各 +30）。链长始终 460。")
+    A(f"3. **收衣 = 内部回动力段最短 100 mm**（不是 40 mm）；4–10 cm 由被动短套处理，"
+      f"不进自动规划。")
+    A(f"4. **拒绝条件**：目标 8 cm（低于动力段下限）→ 拒绝并说明用被动短套；"
+      f"目标 15 cm（端部需 60−75 < 30 下限）→ 拒绝；目标 20 cm（内部 600 mm 超过 D）→ 拒绝。")
     A(f"5. **调节顺序**：锚定左锚点、从左往右，先锁靠基准侧夹头 → 伸缩自由端 → 锁死另一端。"
       f"峰值 **{a['peak_force_n']:.0f} N / {a['peak_current_a']:.2f} A**；"
       f"不锁端整链推 {b['peak_force_n']:.0f} N / {b['peak_current_a']:.2f} A，且要重标定。")
-    A(f"6. **耗时**：日常（收衣→等距，5 段都动，行程 300 mm）4 mm/s 校核 "
-      f"**{d4[plan_case['drives'][0]]['time_s']:.1f} s**、7 mm/s "
-      f"{d4[plan_case['drives'][1]]['time_s']:.1f} s，均超 30 s → 需 ≥12 mm/s；"
-      f"安装标定 {setup['time_s']:.0f} s。")
-    A(f"7. **长度闭环 / 误差**：{drv} 阶跃 40→100 mm 上升 {lead8['rise_s']:.1f} s、"
+    A(f"6. **耗时**：日常（12 cm→收衣，5 段都动，行程 120 mm）4 mm/s 校核 "
+      f"**{d4[plan_case['drives'][0]]['time_s']:.1f} s**（超 30 s）、7 mm/s "
+      f"{d4[plan_case['drives'][1]]['time_s']:.1f} s（达标）；安装标定 "
+      f"{setup['time_s']:.0f} s。")
+    A(f"7. **长度闭环 / 误差**：{drv} 阶跃 100→160 mm 上升 {lead8['rise_s']:.1f} s、"
       f"稳态误差 {lead8['sse_mm']:+.2f} mm；误差预算 RSS **{budget['rss_mm']:.2f} mm**、"
       f"最坏 {budget['worst_case_mm']:.2f} mm，±2 mm 达 100%（MC {mc['n_runs']} 次）；"
       f"视觉 2 mm 不进闭环。")
@@ -197,8 +197,9 @@ def build_md(results: dict, figures: List[Path], captions: Dict[str, dict]) -> s
              [["K", "衣物件数", "演示 4（2–8）"],
               ["K+1", "调节器数量", "演示 5"],
               ["t_h", "衣架沿杆厚度", f"{params['t_h_mm']:.0f} mm"],
-              ["L_i", "内部段 = 净风道",
+              ["L_i", "内部动力段 = 净风道",
                f"[{params['inner_min_mm']:.0f}, {params['inner_max_mm']:.0f}] mm"],
+              ["4–10 cm", "被动短套（不参与自动规划）", "—"],
               ["L0/LK", "端部内端长度（外端锚定）",
                f"[{params['end_min_mm']:.0f}, {params['end_max_mm']:.0f}]，默认 "
                f"{params['end_base_mm']:.0f}"],
@@ -211,32 +212,29 @@ def build_md(results: dict, figures: List[Path], captions: Dict[str, dict]) -> s
     A("等距/加权：算内部目标 → Δ = Σ(新 − 旧)")
     A("          两端各吸收 −Δ/2（clamp 30–120）；一端到限位另一端补")
     A("          两端都不够 → rejected")
-    A("收衣：    内部缩到 40 → Δ<0，端部内端伸出吸收；到 120 停下")
-    A("          链长 400、空杆 60 → partial「未完全收拢」")
+    A("收衣：    内部回 100（动力段最短）→ Δ 由端部内端吸收，链长仍 460")
+    A("4–10 cm： 用被动短套，不进自动规划；目标 <100 mm 直接拒绝")
     A("手动拖：  单端锁、拖自由端 → 同侧端部优先吸收（外端永不动）")
     A("```")
     A("")
-    A("### 2.1 验收用例（对应 docs/v2/10 §5）")
+    A("### 2.1 验收用例（对应 docs/v2/10 §5 与最终机械口径）")
     A("")
-    A(_table(["场景", "L0/L1/L2/L3/L4 (mm)", "链长 (mm)", "空杆 (mm)", "状态", "告警"],
+    p12 = lp_plan(4, 120)
+    A(_table(["场景", "L0/L1/L2/L3/L4 (mm)", "链长 (mm)", "空杆 (mm)", "状态", "说明"],
              [["默认（等距 10 cm）",
                " / ".join(_f(v, 0) for v in eq.all_lengths),
-               _f(eq.chain_length_mm, 0), _f(eq.gap_mm, 0), eq.status, "—"],
+               _f(eq.chain_length_mm, 0), _f(eq.gap_mm, 0), eq.status, "锚点 0/460 不动"],
               ["等距 12 cm",
-               " / ".join(_f(v, 0) for v in
-                          lp_plan(4, 120).all_lengths),
-               _f(lp_plan(4, 120).chain_length_mm, 0),
-               _f(lp_plan(4, 120).gap_mm, 0), lp_plan(4, 120).status, "—"],
-              ["12 → 8 cm",
-               " / ".join(_f(v, 0) for v in _case(cases, "12→8")["all_lengths"])
-               if _case(cases, "12→8") else "—", "—", "—", "—", "—"],
-              ["目标 20 cm", "—", "—", "—", "rejected", "端部行程不够"],
-              ["收衣", " / ".join(_f(v, 0) for v in co.all_lengths),
+               " / ".join(_f(v, 0) for v in p12.all_lengths),
+               _f(p12.chain_length_mm, 0), _f(p12.gap_mm, 0), p12.status,
+               "端部各 +/−30"],
+              ["收衣（内部回 100）",
+               " / ".join(_f(v, 0) for v in co.all_lengths),
                _f(co.chain_length_mm, 0), _f(co.gap_mm, 0), co.status,
-               "未完全收拢"]]))
-    A("")
-    A("> 12 cm / 8 cm 的完整对照见 §2.2 边界用例表；`docs/v2/10 §5` 的六个验收点"
-      "在 `sim-v2/tests.py` 里都有断言。")
+               "端部回 60"],
+              ["目标 8 cm", "—", "—", "—", "rejected", "低于动力段下限，用被动短套"],
+              ["目标 15 cm", "—", "—", "—", "rejected", "端部超下限"],
+              ["目标 20 cm", "—", "—", "—", "rejected", "内部超过锚定跨度"]]))
     A("")
     A("### 2.2 边界与拒绝")
     A("")
@@ -296,9 +294,9 @@ def build_md(results: dict, figures: List[Path], captions: Dict[str, dict]) -> s
                   ("" if r[d]["within_budget"] else " ✗")) for d in plan_case["drives"]]]
               for r in plan_case["rows"]]))
     A("")
-    A(f"> 端部参与后，日常行程从 180 mm 涨到 300 mm，4 mm/s 校核 "
-      f"{d4[plan_case['drives'][0]]['time_s']:.1f} s、7 mm/s "
-      f"{d4[plan_case['drives'][1]]['time_s']:.1f} s，要 30 s 需 ≥12 mm/s。")
+    A(f"> 日常（12 cm→收衣）行程 120 mm：4 mm/s 校核 "
+      f"{d4[plan_case['drives'][0]]['time_s']:.1f} s（超 30 s）、7 mm/s "
+      f"{d4[plan_case['drives'][1]]['time_s']:.1f} s（达标）。")
     A("")
 
     A("## 4. 长度闭环控制")
@@ -383,8 +381,8 @@ def build_md(results: dict, figures: List[Path], captions: Dict[str, dict]) -> s
     A("## 9. 假设与局限")
     A("")
     A("- 全部为仿真/估算；答辩说「仿真」。")
-    A("- D=460 是安装时定的锚点间距；端部内端 30–120 mm，收衣受 120 限位，"
-      "只能收 180 mm（内部）里的一部分，剩 60 mm 空杆。")
+    A("- D=460 是安装时定的锚点间距；端部内端 30–120 mm、内部动力段 100–220 mm；"
+      "收衣＝内部回 100 mm，端部回到 60 mm。")
     A("- 衣架滑动摩擦 3 N/件、副阻力 2 N、夹持动作 0.4 s、预紧 10 N 为设计估算。")
     A("- 视觉实验是合成图 + 真实检测器，未建模反光/逆光。")
     A("")

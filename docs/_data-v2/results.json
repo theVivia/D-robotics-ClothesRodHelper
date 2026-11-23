@@ -1,11 +1,11 @@
 {
   "meta": {
     "project": "衣序 HangFlow v2 (rev-B)",
-    "generated": "2026-11-23 10:02:48",
+    "generated": "2026-11-23 11:11:39",
     "python": "3.11.6",
     "numpy": "1.25.1",
-    "test_passed": 13,
-    "test_total": 13,
+    "test_passed": 18,
+    "test_total": 18,
     "zh_labels": 1,
     "note": "全部为仿真/估算值，不是实测数据"
   },
@@ -35,20 +35,18 @@
         110.0,
         110.0
       ],
+      "anchor_span_mm": 460.0,
       "rod_length_mm": 1200.0,
       "available_mm": 1100.0,
       "inner_total_mm": 300.0,
       "chain_length_mm": 460.0,
-      "leftover_mm": 640.0,
+      "gap_mm": 0.0,
+      "free_rod_mm": 640.0,
+      "required_end_sum_mm": 120.0,
       "target_gap_mm": 100.0,
-      "fill": 0,
-      "wall_contact": 0,
-      "preload_mm": 0.0,
       "feasible": 1,
       "status": "ok",
-      "warnings": [
-        "链长 460 mm，剩余 640 mm 为空心杆段 / 端部夹头锁位区（端部段固定 60/60 mm，不填满杆）"
-      ],
+      "warnings": [],
       "degradation": "",
       "drop_advice": 0
     },
@@ -57,89 +55,43 @@
       "K": 4,
       "regulators": 5,
       "inner_mm": [
-        117.631,
-        97.692,
-        84.677
+        125.877,
+        119.231,
+        114.892
       ],
       "ends_mm": [
-        60.0,
-        60.0
+        30.0,
+        30.0
       ],
       "all_lengths_mm": [
-        60.0,
-        117.631,
-        97.692,
-        84.677,
-        60.0
+        30.0,
+        125.877,
+        119.231,
+        114.892,
+        30.0
       ],
       "center_distances_mm": [
-        127.631,
-        107.692,
-        94.677
+        135.877,
+        129.231,
+        124.892
       ],
+      "anchor_span_mm": 460.0,
       "rod_length_mm": 1200.0,
       "available_mm": 1100.0,
-      "inner_total_mm": 300.0,
+      "inner_total_mm": 360.0,
       "chain_length_mm": 460.0,
-      "leftover_mm": 640.0,
-      "target_gap_mm": 100.0,
-      "fill": 0,
-      "wall_contact": 0,
-      "preload_mm": 0.0,
+      "gap_mm": 0.0,
+      "free_rod_mm": 640.0,
+      "required_end_sum_mm": 60.0,
+      "target_gap_mm": 120.0,
       "feasible": 1,
       "status": "ok",
-      "warnings": [
-        "链长 460 mm，剩余 640 mm 为空心杆段 / 端部夹头锁位区（端部段固定 60/60 mm，不填满杆）"
-      ],
+      "warnings": [],
       "degradation": "",
       "drop_advice": 0
     },
     "collect": {
       "mode": "collect",
-      "K": 4,
-      "regulators": 5,
-      "inner_mm": [
-        40.0,
-        40.0,
-        40.0
-      ],
-      "ends_mm": [
-        60.0,
-        60.0
-      ],
-      "all_lengths_mm": [
-        60.0,
-        40.0,
-        40.0,
-        40.0,
-        60.0
-      ],
-      "center_distances_mm": [
-        50.0,
-        50.0,
-        50.0
-      ],
-      "rod_length_mm": 1200.0,
-      "available_mm": 1100.0,
-      "inner_total_mm": 120.0,
-      "chain_length_mm": 280.0,
-      "leftover_mm": 820.0,
-      "target_gap_mm": 40.0,
-      "fill": 0,
-      "wall_contact": 0,
-      "preload_mm": 0.0,
-      "feasible": 1,
-      "status": "ok",
-      "warnings": [
-        "链长 280 mm，剩余 820 mm 为空心杆段 / 端部夹头锁位区（端部段固定 60/60 mm，不填满杆）"
-      ],
-      "degradation": "",
-      "drop_advice": 0
-    }
-  },
-  "plans_fill": {
-    "equal": {
-      "mode": "equal",
       "K": 4,
       "regulators": 5,
       "inner_mm": [
@@ -148,119 +100,33 @@
         100.0
       ],
       "ends_mm": [
-        120.0,
-        120.0
+        60.0,
+        60.0
       ],
       "all_lengths_mm": [
-        120.0,
+        60.0,
         100.0,
         100.0,
         100.0,
-        120.0
+        60.0
       ],
       "center_distances_mm": [
         110.0,
         110.0,
         110.0
       ],
+      "anchor_span_mm": 460.0,
       "rod_length_mm": 1200.0,
       "available_mm": 1100.0,
       "inner_total_mm": 300.0,
-      "chain_length_mm": 580.0,
-      "leftover_mm": 520.0,
+      "chain_length_mm": 460.0,
+      "gap_mm": 0.0,
+      "free_rod_mm": 640.0,
+      "required_end_sum_mm": 120.0,
       "target_gap_mm": 100.0,
-      "fill": 1,
-      "wall_contact": 0,
-      "preload_mm": 0.0,
       "feasible": 1,
-      "status": "clipped",
-      "warnings": [
-        "fill 模式也填不满：空杆还剩 520 mm（端部段上限 120 mm）→ 建议缩短杆长或加件"
-      ],
-      "degradation": "",
-      "drop_advice": 0
-    },
-    "weighted": {
-      "mode": "weighted",
-      "K": 4,
-      "regulators": 5,
-      "inner_mm": [
-        117.631,
-        97.692,
-        84.677
-      ],
-      "ends_mm": [
-        120.0,
-        120.0
-      ],
-      "all_lengths_mm": [
-        120.0,
-        117.631,
-        97.692,
-        84.677,
-        120.0
-      ],
-      "center_distances_mm": [
-        127.631,
-        107.692,
-        94.677
-      ],
-      "rod_length_mm": 1200.0,
-      "available_mm": 1100.0,
-      "inner_total_mm": 300.0,
-      "chain_length_mm": 580.0,
-      "leftover_mm": 520.0,
-      "target_gap_mm": 100.0,
-      "fill": 1,
-      "wall_contact": 0,
-      "preload_mm": 0.0,
-      "feasible": 1,
-      "status": "clipped",
-      "warnings": [
-        "fill 模式也填不满：空杆还剩 520 mm（端部段上限 120 mm）→ 建议缩短杆长或加件"
-      ],
-      "degradation": "",
-      "drop_advice": 0
-    },
-    "collect": {
-      "mode": "collect",
-      "K": 4,
-      "regulators": 5,
-      "inner_mm": [
-        40.0,
-        40.0,
-        40.0
-      ],
-      "ends_mm": [
-        120.0,
-        120.0
-      ],
-      "all_lengths_mm": [
-        120.0,
-        40.0,
-        40.0,
-        40.0,
-        120.0
-      ],
-      "center_distances_mm": [
-        50.0,
-        50.0,
-        50.0
-      ],
-      "rod_length_mm": 1200.0,
-      "available_mm": 1100.0,
-      "inner_total_mm": 120.0,
-      "chain_length_mm": 400.0,
-      "leftover_mm": 700.0,
-      "target_gap_mm": 40.0,
-      "fill": 1,
-      "wall_contact": 0,
-      "preload_mm": 0.0,
-      "feasible": 1,
-      "status": "clipped",
-      "warnings": [
-        "fill 模式也填不满：空杆还剩 700 mm（端部段上限 120 mm）→ 建议缩短杆长或加件"
-      ],
+      "status": "ok",
+      "warnings": [],
       "degradation": "",
       "drop_advice": 0
     }
@@ -281,10 +147,11 @@
         60.0,
         60.0
       ],
+      "anchor_span_mm": 460.0,
       "chain_length_mm": 460.0,
-      "leftover_mm": 640.0,
-      "wall_contact": 0,
-      "n_warnings": 1,
+      "gap_mm": 0.0,
+      "free_rod_mm": 640.0,
+      "n_warnings": 0,
       "drop_advice": 0
     },
     "weighted": {
@@ -293,19 +160,20 @@
       "mode": "weighted",
       "status": "ok",
       "feasible": 1,
-      "inner_total_mm": 300.0,
-      "min_gap_mm": 84.67692311464143,
-      "max_gap_mm": 117.6307691873704,
-      "mean_gap_mm": 100.0,
-      "gap_std_mm": 13.551951287959785,
+      "inner_total_mm": 360.0,
+      "min_gap_mm": 114.89230770488047,
+      "max_gap_mm": 125.8769230624568,
+      "mean_gap_mm": 120.0,
+      "gap_std_mm": 4.517317095986597,
       "ends_mm": [
-        60.0,
-        60.0
+        30.0,
+        30.0
       ],
+      "anchor_span_mm": 460.0,
       "chain_length_mm": 460.0,
-      "leftover_mm": 640.0,
-      "wall_contact": 0,
-      "n_warnings": 1,
+      "gap_mm": 0.0,
+      "free_rod_mm": 640.0,
+      "n_warnings": 0,
       "drop_advice": 0
     },
     "collect": {
@@ -314,197 +182,186 @@
       "mode": "collect",
       "status": "ok",
       "feasible": 1,
-      "inner_total_mm": 120.0,
-      "min_gap_mm": 40.0,
-      "max_gap_mm": 40.0,
-      "mean_gap_mm": 40.0,
+      "inner_total_mm": 300.0,
+      "min_gap_mm": 100.0,
+      "max_gap_mm": 100.0,
+      "mean_gap_mm": 100.0,
       "gap_std_mm": 0.0,
       "ends_mm": [
         60.0,
         60.0
       ],
-      "chain_length_mm": 280.0,
-      "leftover_mm": 820.0,
-      "wall_contact": 0,
-      "n_warnings": 1,
+      "anchor_span_mm": 460.0,
+      "chain_length_mm": 460.0,
+      "gap_mm": 0.0,
+      "free_rod_mm": 640.0,
+      "n_warnings": 0,
       "drop_advice": 0
     }
   },
   "planner_timing": {
     "n4": {
       "n_repeat": 2000,
-      "mean_us": 227.155849992414,
-      "median_us": 77.95000055921264,
-      "p95_us": 632.9400024696952
+      "mean_us": 61.39570001323591,
+      "median_us": 45.60000525088981,
+      "p95_us": 117.82500223489475
     },
     "n10": {
       "n_repeat": 1000,
-      "mean_us": 274.87710009881994,
-      "median_us": 161.65000124601647,
-      "p95_us": 767.4900018173495
+      "mean_us": 65.5509000789607,
+      "median_us": 57.54999801865779,
+      "p95_us": 106.5500029653776
     }
   },
   "plan_cases": [
     {
-      "label": "11 件 @10 cm（杆不够，压内部段）",
+      "label": "等距 12 cm（Δ=+60 由端部吸收）",
       "mode": "equal",
-      "status": "clipped",
+      "status": "ok",
       "feasible": 1,
       "inner_mm": [
-        87.0,
-        87.0,
-        87.0,
-        87.0,
-        87.0,
-        87.0,
-        87.0,
-        87.0,
-        87.0,
-        87.0
-      ],
-      "ends_mm": [
-        60.0,
-        60.0
-      ],
-      "chain_mm": 1100.0,
-      "leftover_mm": 0.0,
-      "warnings": [
-        "杆放不下：11 件 + 12 段在 60/60 mm 端部下，内部段被压到 87–87 mm"
-      ],
-      "degradation": "降级方案：减少件数 / 换更长杆 / 降低目标风道（本杆长建议 ≤9 件）",
-      "drop_advice": 2
-    },
-    {
-      "label": "23 件（完全不可行）",
-      "mode": "equal",
-      "status": "infeasible",
-      "feasible": 0,
-      "inner_mm": [
-        40.0,
-        40.0,
-        40.0,
-        40.0,
-        40.0,
-        40.0,
-        40.0,
-        40.0,
-        40.0,
-        40.0,
-        40.0,
-        40.0,
-        40.0,
-        40.0,
-        40.0,
-        40.0,
-        40.0,
-        40.0,
-        40.0,
-        40.0,
-        40.0,
-        40.0
-      ],
-      "ends_mm": [
-        60.0,
-        60.0
-      ],
-      "chain_mm": 1230.0,
-      "leftover_mm": -130.0,
-      "warnings": [
-        "连最短状态都放不下：23 件 + 24 段最短合计 1190 mm，可用仅 1100 mm"
-      ],
-      "degradation": "必须减少件数或换杆（本杆长建议 ≤9 件）",
-      "drop_advice": 14
-    },
-    {
-      "label": "目标 300 mm（超内部上限）",
-      "mode": "equal",
-      "status": "clipped",
-      "feasible": 1,
-      "inner_mm": [
-        220.0,
-        220.0,
-        220.0
-      ],
-      "ends_mm": [
-        60.0,
-        60.0
-      ],
-      "chain_mm": 820.0,
-      "leftover_mm": 280.0,
-      "warnings": [
-        "目标风道 300 mm 超出范围，已夹到 220 mm（内部段 40–220 mm）"
-      ],
-      "degradation": "",
-      "drop_advice": 0
-    },
-    {
-      "label": "目标 20 mm（低于下限）",
-      "mode": "equal",
-      "status": "clipped",
-      "feasible": 1,
-      "inner_mm": [
-        40.0,
-        40.0,
-        40.0
-      ],
-      "ends_mm": [
-        60.0,
-        60.0
-      ],
-      "chain_mm": 280.0,
-      "leftover_mm": 820.0,
-      "warnings": [
-        "目标风道 20 mm 超出范围，已夹到 40 mm（内部段 40–220 mm）"
-      ],
-      "degradation": "",
-      "drop_advice": 0
-    },
-    {
-      "label": "fill 模式（端部补到 120 上限仍不满）",
-      "mode": "collect",
-      "status": "clipped",
-      "feasible": 1,
-      "inner_mm": [
-        40.0,
-        40.0,
-        40.0
-      ],
-      "ends_mm": [
+        120.0,
         120.0,
         120.0
       ],
-      "chain_mm": 400.0,
-      "leftover_mm": 700.0,
-      "warnings": [
-        "fill 模式也填不满：空杆还剩 700 mm（端部段上限 120 mm）→ 建议缩短杆长或加件"
+      "ends_mm": [
+        30.0,
+        30.0
       ],
+      "chain_mm": 460.0,
+      "gap_mm": 0.0,
+      "free_rod_mm": 640.0,
+      "anchor_mm": 460.0,
+      "warnings": [],
       "degradation": "",
       "drop_advice": 0
     },
     {
-      "label": "收衣（内部缩到 40，端部不动）",
+      "label": "收衣（内部回 100）",
       "mode": "collect",
       "status": "ok",
       "feasible": 1,
       "inner_mm": [
-        40.0,
-        40.0,
-        40.0
+        100.0,
+        100.0,
+        100.0
       ],
       "ends_mm": [
         60.0,
         60.0
       ],
-      "chain_mm": 280.0,
-      "leftover_mm": 820.0,
+      "chain_mm": 460.0,
+      "gap_mm": 0.0,
+      "free_rod_mm": 640.0,
+      "anchor_mm": 460.0,
+      "warnings": [],
+      "degradation": "",
+      "drop_advice": 0
+    },
+    {
+      "label": "目标 8 cm（低于动力段下限 → 拒绝）",
+      "mode": "equal",
+      "status": "rejected",
+      "feasible": 0,
+      "inner_mm": [
+        100.0,
+        100.0,
+        100.0
+      ],
+      "ends_mm": [
+        60.0,
+        60.0
+      ],
+      "chain_mm": 460.0,
+      "gap_mm": 0.0,
+      "free_rod_mm": 640.0,
+      "anchor_mm": 460.0,
       "warnings": [
-        "链长 280 mm，剩余 820 mm 为空心杆段 / 端部夹头锁位区（端部段固定 60/60 mm，不填满杆）"
+        "目标风道 80 mm 低于内部动力段下限 100 mm；4–10 cm 用被动短套，不参与自动规划"
+      ],
+      "degradation": "4–10 cm 用被动短套；自动模式最小 10 cm",
+      "drop_advice": 0
+    },
+    {
+      "label": "目标 15 cm（端部超下限 → 拒绝）",
+      "mode": "equal",
+      "status": "rejected",
+      "feasible": 0,
+      "inner_mm": [
+        150.0,
+        150.0,
+        150.0
+      ],
+      "ends_mm": [
+        30.0,
+        30.0
+      ],
+      "chain_mm": 550.0,
+      "gap_mm": 0.0,
+      "free_rod_mm": 640.0,
+      "anchor_mm": 460.0,
+      "warnings": [
+        "内部段总长 450 mm 超过锚定跨度允许值：端部最短 30×2 时链长 550 mm > D=460 mm；拒绝，请减小目标风道或减少件数"
+      ],
+      "degradation": "降低目标风道 / 减少件数 / 加大锚点间距 D",
+      "drop_advice": 0
+    },
+    {
+      "label": "目标 20 cm（端部行程不够 → 拒绝）",
+      "mode": "equal",
+      "status": "rejected",
+      "feasible": 0,
+      "inner_mm": [
+        200.0,
+        200.0,
+        200.0
+      ],
+      "ends_mm": [
+        30.0,
+        30.0
+      ],
+      "chain_mm": 700.0,
+      "gap_mm": 0.0,
+      "free_rod_mm": 640.0,
+      "anchor_mm": 460.0,
+      "warnings": [
+        "内部段总长 600 mm 超过锚定跨度允许值：端部最短 30×2 时链长 700 mm > D=460 mm；拒绝，请减小目标风道或减少件数"
+      ],
+      "degradation": "降低目标风道 / 减少件数 / 加大锚点间距 D",
+      "drop_advice": 0
+    },
+    {
+      "label": "K=10（名义 D=1120 > 可用 1100 → 钳制）",
+      "mode": "equal",
+      "status": "ok",
+      "feasible": 1,
+      "inner_mm": [
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0,
+        100.0
+      ],
+      "ends_mm": [
+        50.0,
+        50.0
+      ],
+      "chain_mm": 1100.0,
+      "gap_mm": 0.0,
+      "free_rod_mm": 0.0,
+      "anchor_mm": 1100.0,
+      "warnings": [
+        "名义锚点间距 D=1120 mm 超过可用杆长 1100 mm，已按 1100 mm 布置（端部内端相应缩短）"
       ],
       "degradation": "",
       "drop_advice": 0
     },
     {
-      "label": "端部配置改为 120 mm",
+      "label": "锚点间距改为 500 mm",
       "mode": "equal",
       "status": "ok",
       "feasible": 1,
@@ -514,33 +371,38 @@
         100.0
       ],
       "ends_mm": [
-        120.0,
-        120.0
+        80.0,
+        80.0
       ],
-      "chain_mm": 580.0,
-      "leftover_mm": 520.0,
-      "warnings": [
-        "链长 580 mm，剩余 520 mm 为空心杆段 / 端部夹头锁位区（端部段固定 120/120 mm，不填满杆）"
-      ],
+      "chain_mm": 500.0,
+      "gap_mm": 0.0,
+      "free_rod_mm": 600.0,
+      "anchor_mm": 500.0,
+      "warnings": [],
       "degradation": "",
       "drop_advice": 0
     }
   ],
   "capacity": {
     "gap_mm": [
-      40,
-      60,
-      80,
       100,
+      120,
       140,
+      180,
       220
     ],
     "max_k": [
-      20,
-      14,
-      11,
       9,
+      8,
       7,
+      6,
+      5
+    ],
+    "max_k_short_ends": [
+      10,
+      8,
+      7,
+      6,
       5
     ]
   },
@@ -549,14 +411,14 @@
     "wall_margin_mm": 50.0,
     "available_mm": 1100.0,
     "t_h_mm": 10.0,
-    "inner_min_mm": 40.0,
+    "inner_min_mm": 100.0,
     "inner_max_mm": 220.0,
     "end_min_mm": 30.0,
     "end_max_mm": 120.0,
-    "end_config_mm": 60.0,
+    "end_base_mm": 60.0,
+    "anchor_span_mm": 460.0,
+    "free_rod_mm": 640.0,
     "target_gap_mm": 100.0,
-    "preload_mm": 0.5,
-    "preload_force_n": 10.0,
     "moisture": [
       0.55,
       0.9,
@@ -603,57 +465,123 @@
         285.0,
         395.0
       ],
-      "chain_end_mm": 460.0,
-      "right_gap_mm": 640.0,
-      "wall_contact": 0
+      "content_end_mm": 400.0,
+      "anchor_span_mm": 460.0,
+      "gap_mm": 0.0
     },
     "layout_start": {
       "inner_mm": [
-        40.0,
-        40.0,
-        40.0
+        120.0,
+        120.0,
+        120.0
       ],
       "ends_mm": [
-        60.0,
-        60.0
+        30.0,
+        30.0
       ],
       "regulator_edges_mm": [
         [
           0.0,
-          60.0
+          30.0
         ],
         [
-          70.0,
-          110.0
-        ],
-        [
-          120.0,
+          40.0,
           160.0
         ],
         [
           170.0,
-          210.0
+          290.0
         ],
         [
-          220.0,
-          280.0
+          300.0,
+          420.0
+        ],
+        [
+          430.0,
+          460.0
         ]
       ],
       "garment_centers_mm": [
-        65.0,
-        115.0,
+        35.0,
         165.0,
-        215.0
+        295.0,
+        425.0
       ],
-      "chain_end_mm": 280.0,
-      "right_gap_mm": 820.0,
-      "wall_contact": 0
+      "content_end_mm": 430.0,
+      "anchor_span_mm": 460.0,
+      "gap_mm": 0.0
     },
     "comparison": {
       "锚定左墙（推荐）": {
         "strategy": "anchor_left",
         "drive": "T8/8 @4 mm/s（校核）",
         "steps": [
+          {
+            "unit": 0,
+            "role": "end_left",
+            "action": "clamp_left",
+            "clamp_before": {
+              "left": 0,
+              "right": 0
+            },
+            "clamp_after": {
+              "left": 1,
+              "right": 0
+            },
+            "length_before_mm": 30.0,
+            "length_after_mm": 30.0,
+            "travel_mm": 0.0,
+            "force_n": 0.0,
+            "current_a": 0.08,
+            "speed_mm_s": 0.0,
+            "time_s": 0.4,
+            "garment_moved": null,
+            "block_garments": 0
+          },
+          {
+            "unit": 0,
+            "role": "end_left",
+            "action": "move_right",
+            "clamp_before": {
+              "left": 1,
+              "right": 0
+            },
+            "clamp_after": {
+              "left": 1,
+              "right": 1
+            },
+            "length_before_mm": 30.0,
+            "length_after_mm": 60.0,
+            "travel_mm": 30.0,
+            "force_n": 14.0,
+            "current_a": 0.487,
+            "speed_mm_s": 4.0,
+            "time_s": 7.8,
+            "garment_moved": 1,
+            "block_garments": 4
+          },
+          {
+            "unit": 0,
+            "role": "end_left",
+            "action": "clamp_right",
+            "clamp_before": {
+              "left": 1,
+              "right": 0
+            },
+            "clamp_after": {
+              "left": 1,
+              "right": 1
+            },
+            "length_before_mm": 60.0,
+            "length_after_mm": 60.0,
+            "travel_mm": 0.0,
+            "force_n": 14.0,
+            "current_a": 0.487,
+            "speed_mm_s": 0.0,
+            "time_s": 0.4,
+            "garment_moved": null,
+            "block_garments": 0
+          },
           {
             "unit": 1,
             "role": "inner",
@@ -666,8 +594,8 @@
               "left": 1,
               "right": 0
             },
-            "length_before_mm": 40.0,
-            "length_after_mm": 40.0,
+            "length_before_mm": 120.0,
+            "length_after_mm": 120.0,
             "travel_mm": 0.0,
             "force_n": 0.0,
             "current_a": 0.08,
@@ -688,13 +616,13 @@
               "left": 1,
               "right": 1
             },
-            "length_before_mm": 40.0,
+            "length_before_mm": 120.0,
             "length_after_mm": 100.0,
-            "travel_mm": 60.0,
+            "travel_mm": 20.0,
             "force_n": 11.0,
             "current_a": 0.4,
             "speed_mm_s": 4.0,
-            "time_s": 15.3,
+            "time_s": 5.3,
             "garment_moved": 2,
             "block_garments": 3
           },
@@ -732,8 +660,8 @@
               "left": 1,
               "right": 0
             },
-            "length_before_mm": 40.0,
-            "length_after_mm": 40.0,
+            "length_before_mm": 120.0,
+            "length_after_mm": 120.0,
             "travel_mm": 0.0,
             "force_n": 0.0,
             "current_a": 0.08,
@@ -754,13 +682,13 @@
               "left": 1,
               "right": 1
             },
-            "length_before_mm": 40.0,
+            "length_before_mm": 120.0,
             "length_after_mm": 100.0,
-            "travel_mm": 60.0,
+            "travel_mm": 20.0,
             "force_n": 8.0,
             "current_a": 0.313,
             "speed_mm_s": 4.0,
-            "time_s": 15.3,
+            "time_s": 5.3,
             "garment_moved": 3,
             "block_garments": 2
           },
@@ -798,8 +726,8 @@
               "left": 1,
               "right": 0
             },
-            "length_before_mm": 40.0,
-            "length_after_mm": 40.0,
+            "length_before_mm": 120.0,
+            "length_after_mm": 120.0,
             "travel_mm": 0.0,
             "force_n": 0.0,
             "current_a": 0.08,
@@ -820,13 +748,13 @@
               "left": 1,
               "right": 1
             },
-            "length_before_mm": 40.0,
+            "length_before_mm": 120.0,
             "length_after_mm": 100.0,
-            "travel_mm": 60.0,
+            "travel_mm": 20.0,
             "force_n": 5.0,
             "current_a": 0.226,
             "speed_mm_s": 4.0,
-            "time_s": 15.3,
+            "time_s": 5.3,
             "garment_moved": 4,
             "block_garments": 1
           },
@@ -851,20 +779,174 @@
             "time_s": 0.4,
             "garment_moved": null,
             "block_garments": 0
+          },
+          {
+            "unit": 4,
+            "role": "end_right",
+            "action": "clamp_left",
+            "clamp_before": {
+              "left": 0,
+              "right": 0
+            },
+            "clamp_after": {
+              "left": 1,
+              "right": 0
+            },
+            "length_before_mm": 30.0,
+            "length_after_mm": 30.0,
+            "travel_mm": 0.0,
+            "force_n": 0.0,
+            "current_a": 0.08,
+            "speed_mm_s": 0.0,
+            "time_s": 0.4,
+            "garment_moved": null,
+            "block_garments": 0
+          },
+          {
+            "unit": 4,
+            "role": "end_right",
+            "action": "move_right",
+            "clamp_before": {
+              "left": 1,
+              "right": 0
+            },
+            "clamp_after": {
+              "left": 1,
+              "right": 1
+            },
+            "length_before_mm": 30.0,
+            "length_after_mm": 60.0,
+            "travel_mm": 30.0,
+            "force_n": 2.0,
+            "current_a": 0.138,
+            "speed_mm_s": 4.0,
+            "time_s": 7.8,
+            "garment_moved": null,
+            "block_garments": 0
+          },
+          {
+            "unit": 4,
+            "role": "end_right",
+            "action": "clamp_right",
+            "clamp_before": {
+              "left": 1,
+              "right": 0
+            },
+            "clamp_after": {
+              "left": 1,
+              "right": 1
+            },
+            "length_before_mm": 60.0,
+            "length_after_mm": 60.0,
+            "travel_mm": 0.0,
+            "force_n": 2.0,
+            "current_a": 0.138,
+            "speed_mm_s": 0.0,
+            "time_s": 0.4,
+            "garment_moved": null,
+            "block_garments": 0
+          },
+          {
+            "unit": 4,
+            "role": "end_right",
+            "action": "preload",
+            "clamp_before": {
+              "left": 1,
+              "right": 1
+            },
+            "clamp_after": {
+              "left": 1,
+              "right": 1
+            },
+            "length_before_mm": 60.0,
+            "length_after_mm": 60.5,
+            "travel_mm": 0.5,
+            "force_n": 10.0,
+            "current_a": 0.371,
+            "speed_mm_s": 4.0,
+            "time_s": 0.5,
+            "garment_moved": null,
+            "block_garments": 0
           }
         ],
-        "total_time_s": 48.9,
-        "peak_force_n": 11.0,
-        "peak_current_a": 0.4,
-        "max_block_garments": 3,
+        "total_time_s": 37.0,
+        "peak_force_n": 14.0,
+        "peak_current_a": 0.487,
+        "max_block_garments": 4,
         "requires_redatum": 0,
         "untouched_drift_mm": 0.0,
-        "clamp_actions": 6
+        "clamp_actions": 10
       },
       "锚定右墙": {
         "strategy": "anchor_right",
         "drive": "T8/8 @4 mm/s（校核）",
         "steps": [
+          {
+            "unit": 4,
+            "role": "end_right",
+            "action": "clamp_right",
+            "clamp_before": {
+              "left": 0,
+              "right": 0
+            },
+            "clamp_after": {
+              "left": 0,
+              "right": 1
+            },
+            "length_before_mm": 30.0,
+            "length_after_mm": 30.0,
+            "travel_mm": 0.0,
+            "force_n": 0.0,
+            "current_a": 0.08,
+            "speed_mm_s": 0.0,
+            "time_s": 0.4,
+            "garment_moved": null,
+            "block_garments": 0
+          },
+          {
+            "unit": 4,
+            "role": "end_right",
+            "action": "move_left",
+            "clamp_before": {
+              "left": 0,
+              "right": 1
+            },
+            "clamp_after": {
+              "left": 1,
+              "right": 1
+            },
+            "length_before_mm": 30.0,
+            "length_after_mm": 60.0,
+            "travel_mm": 30.0,
+            "force_n": 14.0,
+            "current_a": 0.487,
+            "speed_mm_s": 4.0,
+            "time_s": 7.8,
+            "garment_moved": 4,
+            "block_garments": 4
+          },
+          {
+            "unit": 4,
+            "role": "end_right",
+            "action": "clamp_left",
+            "clamp_before": {
+              "left": 0,
+              "right": 1
+            },
+            "clamp_after": {
+              "left": 1,
+              "right": 1
+            },
+            "length_before_mm": 60.0,
+            "length_after_mm": 60.0,
+            "travel_mm": 0.0,
+            "force_n": 14.0,
+            "current_a": 0.487,
+            "speed_mm_s": 0.0,
+            "time_s": 0.4,
+            "garment_moved": null,
+            "block_garments": 0
+          },
           {
             "unit": 3,
             "role": "inner",
@@ -877,8 +959,8 @@
               "left": 0,
               "right": 1
             },
-            "length_before_mm": 40.0,
-            "length_after_mm": 40.0,
+            "length_before_mm": 120.0,
+            "length_after_mm": 120.0,
             "travel_mm": 0.0,
             "force_n": 0.0,
             "current_a": 0.08,
@@ -899,13 +981,13 @@
               "left": 1,
               "right": 1
             },
-            "length_before_mm": 40.0,
+            "length_before_mm": 120.0,
             "length_after_mm": 100.0,
-            "travel_mm": 60.0,
+            "travel_mm": 20.0,
             "force_n": 11.0,
             "current_a": 0.4,
             "speed_mm_s": 4.0,
-            "time_s": 15.3,
+            "time_s": 5.3,
             "garment_moved": 3,
             "block_garments": 3
           },
@@ -943,8 +1025,8 @@
               "left": 0,
               "right": 1
             },
-            "length_before_mm": 40.0,
-            "length_after_mm": 40.0,
+            "length_before_mm": 120.0,
+            "length_after_mm": 120.0,
             "travel_mm": 0.0,
             "force_n": 0.0,
             "current_a": 0.08,
@@ -965,13 +1047,13 @@
               "left": 1,
               "right": 1
             },
-            "length_before_mm": 40.0,
+            "length_before_mm": 120.0,
             "length_after_mm": 100.0,
-            "travel_mm": 60.0,
+            "travel_mm": 20.0,
             "force_n": 8.0,
             "current_a": 0.313,
             "speed_mm_s": 4.0,
-            "time_s": 15.3,
+            "time_s": 5.3,
             "garment_moved": 2,
             "block_garments": 2
           },
@@ -1009,8 +1091,8 @@
               "left": 0,
               "right": 1
             },
-            "length_before_mm": 40.0,
-            "length_after_mm": 40.0,
+            "length_before_mm": 120.0,
+            "length_after_mm": 120.0,
             "travel_mm": 0.0,
             "force_n": 0.0,
             "current_a": 0.08,
@@ -1031,13 +1113,13 @@
               "left": 1,
               "right": 1
             },
-            "length_before_mm": 40.0,
+            "length_before_mm": 120.0,
             "length_after_mm": 100.0,
-            "travel_mm": 60.0,
+            "travel_mm": 20.0,
             "force_n": 5.0,
             "current_a": 0.226,
             "speed_mm_s": 4.0,
-            "time_s": 15.3,
+            "time_s": 5.3,
             "garment_moved": 1,
             "block_garments": 1
           },
@@ -1062,20 +1144,130 @@
             "time_s": 0.4,
             "garment_moved": null,
             "block_garments": 0
+          },
+          {
+            "unit": 0,
+            "role": "end_left",
+            "action": "clamp_right",
+            "clamp_before": {
+              "left": 0,
+              "right": 0
+            },
+            "clamp_after": {
+              "left": 0,
+              "right": 1
+            },
+            "length_before_mm": 30.0,
+            "length_after_mm": 30.0,
+            "travel_mm": 0.0,
+            "force_n": 0.0,
+            "current_a": 0.08,
+            "speed_mm_s": 0.0,
+            "time_s": 0.4,
+            "garment_moved": null,
+            "block_garments": 0
+          },
+          {
+            "unit": 0,
+            "role": "end_left",
+            "action": "move_left",
+            "clamp_before": {
+              "left": 0,
+              "right": 1
+            },
+            "clamp_after": {
+              "left": 1,
+              "right": 1
+            },
+            "length_before_mm": 30.0,
+            "length_after_mm": 60.0,
+            "travel_mm": 30.0,
+            "force_n": 2.0,
+            "current_a": 0.138,
+            "speed_mm_s": 4.0,
+            "time_s": 7.8,
+            "garment_moved": 0,
+            "block_garments": 0
+          },
+          {
+            "unit": 0,
+            "role": "end_left",
+            "action": "clamp_left",
+            "clamp_before": {
+              "left": 0,
+              "right": 1
+            },
+            "clamp_after": {
+              "left": 1,
+              "right": 1
+            },
+            "length_before_mm": 60.0,
+            "length_after_mm": 60.0,
+            "travel_mm": 0.0,
+            "force_n": 2.0,
+            "current_a": 0.138,
+            "speed_mm_s": 0.0,
+            "time_s": 0.4,
+            "garment_moved": null,
+            "block_garments": 0
+          },
+          {
+            "unit": 4,
+            "role": "end_right",
+            "action": "preload",
+            "clamp_before": {
+              "left": 1,
+              "right": 1
+            },
+            "clamp_after": {
+              "left": 1,
+              "right": 1
+            },
+            "length_before_mm": 60.0,
+            "length_after_mm": 60.5,
+            "travel_mm": 0.5,
+            "force_n": 10.0,
+            "current_a": 0.371,
+            "speed_mm_s": 4.0,
+            "time_s": 0.5,
+            "garment_moved": null,
+            "block_garments": 0
           }
         ],
-        "total_time_s": 48.9,
-        "peak_force_n": 11.0,
-        "peak_current_a": 0.4,
-        "max_block_garments": 3,
+        "total_time_s": 37.0,
+        "peak_force_n": 14.0,
+        "peak_current_a": 0.487,
+        "max_block_garments": 4,
         "requires_redatum": 0,
         "untouched_drift_mm": 0.0,
-        "clamp_actions": 6
+        "clamp_actions": 10
       },
       "不锁端（整链推）": {
         "strategy": "no_clamp",
         "drive": "T8/8 @4 mm/s（校核）",
         "steps": [
+          {
+            "unit": 0,
+            "role": "end_left",
+            "action": "push_block",
+            "clamp_before": {
+              "left": 0,
+              "right": 0
+            },
+            "clamp_after": {
+              "left": 0,
+              "right": 0
+            },
+            "length_before_mm": 30.0,
+            "length_after_mm": 60.0,
+            "travel_mm": 30.0,
+            "force_n": 14.0,
+            "current_a": 0.487,
+            "speed_mm_s": 4.0,
+            "time_s": 7.7,
+            "garment_moved": 1,
+            "block_garments": 4
+          },
           {
             "unit": 1,
             "role": "inner",
@@ -1088,13 +1280,13 @@
               "left": 0,
               "right": 0
             },
-            "length_before_mm": 40.0,
+            "length_before_mm": 120.0,
             "length_after_mm": 100.0,
-            "travel_mm": 60.0,
+            "travel_mm": 20.0,
             "force_n": 14.0,
             "current_a": 0.487,
             "speed_mm_s": 4.0,
-            "time_s": 15.2,
+            "time_s": 5.2,
             "garment_moved": 2,
             "block_garments": 4
           },
@@ -1110,13 +1302,13 @@
               "left": 0,
               "right": 0
             },
-            "length_before_mm": 40.0,
+            "length_before_mm": 120.0,
             "length_after_mm": 100.0,
-            "travel_mm": 60.0,
+            "travel_mm": 20.0,
             "force_n": 14.0,
             "current_a": 0.487,
             "speed_mm_s": 4.0,
-            "time_s": 15.2,
+            "time_s": 5.2,
             "garment_moved": 3,
             "block_garments": 4
           },
@@ -1132,20 +1324,42 @@
               "left": 0,
               "right": 0
             },
-            "length_before_mm": 40.0,
+            "length_before_mm": 120.0,
             "length_after_mm": 100.0,
-            "travel_mm": 60.0,
+            "travel_mm": 20.0,
             "force_n": 14.0,
             "current_a": 0.487,
             "speed_mm_s": 4.0,
-            "time_s": 15.2,
+            "time_s": 5.2,
             "garment_moved": 4,
+            "block_garments": 4
+          },
+          {
+            "unit": 4,
+            "role": "end_right",
+            "action": "push_block",
+            "clamp_before": {
+              "left": 0,
+              "right": 0
+            },
+            "clamp_after": {
+              "left": 0,
+              "right": 0
+            },
+            "length_before_mm": 30.0,
+            "length_after_mm": 60.0,
+            "travel_mm": 30.0,
+            "force_n": 14.0,
+            "current_a": 0.487,
+            "speed_mm_s": 4.0,
+            "time_s": 7.7,
+            "garment_moved": null,
             "block_garments": 4
           }
         ],
-        "total_time_s": 15.2,
+        "total_time_s": 7.7,
         "peak_force_n": 14.0,
-        "peak_current_a": 1.462,
+        "peak_current_a": 2.437,
         "max_block_garments": 4,
         "requires_redatum": 1,
         "untouched_drift_mm": null,
@@ -1157,125 +1371,125 @@
         {
           "K": 3,
           "regulators": 4,
-          "travel_mm": 120.0,
-          "start_chain_mm": 230.0,
+          "travel_mm": 40.0,
+          "start_chain_mm": 350.0,
           "end_chain_mm": 350.0,
           "T8/8 @4 mm/s（校核）": {
-            "time_s": 32.6,
-            "peak_force_n": 8.0,
-            "peak_current_a": 0.3128209453230012,
-            "within_budget": 0
+            "time_s": 25.699999999999996,
+            "peak_force_n": 11.0,
+            "peak_current_a": 0.40012879981912663,
+            "within_budget": 1
           },
           "T8/8 @7 mm/s（提速）": {
-            "time_s": 19.74285714285714,
-            "peak_force_n": 8.0,
-            "peak_current_a": 0.3128209453230012,
+            "time_s": 17.128571428571426,
+            "peak_force_n": 11.0,
+            "peak_current_a": 0.40012879981912663,
             "within_budget": 1
           },
           "T8/8 不限速（理论上限）": {
-            "time_s": 13.304221416716635,
-            "peak_force_n": 8.0,
-            "peak_current_a": 0.3128209453230012,
+            "time_s": 12.890293228173563,
+            "peak_force_n": 11.0,
+            "peak_current_a": 0.40012879981912663,
             "within_budget": 1
           }
         },
         {
           "K": 4,
           "regulators": 5,
-          "travel_mm": 180.0,
-          "start_chain_mm": 280.0,
+          "travel_mm": 60.0,
+          "start_chain_mm": 460.0,
           "end_chain_mm": 460.0,
           "T8/8 @4 mm/s（校核）": {
-            "time_s": 48.9,
-            "peak_force_n": 11.0,
-            "peak_current_a": 0.40012879981912663,
+            "time_s": 36.99999999999999,
+            "peak_force_n": 14.0,
+            "peak_current_a": 0.4874366543152521,
             "within_budget": 0
           },
           "T8/8 @7 mm/s（提速）": {
-            "time_s": 29.614285714285707,
-            "peak_force_n": 11.0,
-            "peak_current_a": 0.40012879981912663,
+            "time_s": 24.14285714285714,
+            "peak_force_n": 14.0,
+            "peak_current_a": 0.4874366543152521,
             "within_budget": 1
           },
           "T8/8 不限速（理论上限）": {
-            "time_s": 20.741483323788863,
-            "peak_force_n": 11.0,
-            "peak_current_a": 0.40012879981912663,
+            "time_s": 18.385193718114042,
+            "peak_force_n": 14.0,
+            "peak_current_a": 0.4874366543152521,
             "within_budget": 1
           }
         },
         {
           "K": 5,
           "regulators": 6,
-          "travel_mm": 240.0,
-          "start_chain_mm": 330.0,
+          "travel_mm": 80.0,
+          "start_chain_mm": 590.0,
           "end_chain_mm": 570.0,
           "T8/8 @4 mm/s（校核）": {
-            "time_s": 65.2,
-            "peak_force_n": 14.0,
-            "peak_current_a": 0.4874366543152521,
+            "time_s": 43.29999999999999,
+            "peak_force_n": 17.0,
+            "peak_current_a": 0.5747445088113775,
             "within_budget": 0
           },
           "T8/8 @7 mm/s（提速）": {
-            "time_s": 39.48571428571427,
-            "peak_force_n": 14.0,
-            "peak_current_a": 0.4874366543152521,
-            "within_budget": 0
+            "time_s": 28.299999999999994,
+            "peak_force_n": 17.0,
+            "peak_current_a": 0.5747445088113775,
+            "within_budget": 1
           },
           "T8/8 不限速（理论上限）": {
-            "time_s": 28.854818850092542,
-            "peak_force_n": 14.0,
-            "peak_current_a": 0.4874366543152521,
+            "time_s": 22.378037623414972,
+            "peak_force_n": 17.0,
+            "peak_current_a": 0.5747445088113775,
             "within_budget": 1
           }
         },
         {
           "K": 6,
           "regulators": 7,
-          "travel_mm": 300.0,
-          "start_chain_mm": 380.0,
+          "travel_mm": 100.0,
+          "start_chain_mm": 720.0,
           "end_chain_mm": 680.0,
           "T8/8 @4 mm/s（校核）": {
-            "time_s": 81.50000000000001,
-            "peak_force_n": 17.0,
-            "peak_current_a": 0.5747445088113775,
+            "time_s": 49.59999999999999,
+            "peak_force_n": 20.0,
+            "peak_current_a": 0.662052363307503,
             "within_budget": 0
           },
           "T8/8 @7 mm/s（提速）": {
-            "time_s": 49.35714285714285,
-            "peak_force_n": 17.0,
-            "peak_current_a": 0.5747445088113775,
+            "time_s": 32.5407308224275,
+            "peak_force_n": 20.0,
+            "peak_current_a": 0.662052363307503,
             "within_budget": 0
           },
           "T8/8 不限速（理论上限）": {
-            "time_s": 37.81161850279564,
-            "peak_force_n": 17.0,
-            "peak_current_a": 0.5747445088113775,
-            "within_budget": 0
+            "time_s": 26.77120659896338,
+            "peak_force_n": 20.0,
+            "peak_current_a": 0.662052363307503,
+            "within_budget": 1
           }
         },
         {
           "K": 8,
           "regulators": 9,
-          "travel_mm": 420.0,
-          "start_chain_mm": 480.0,
+          "travel_mm": 140.0,
+          "start_chain_mm": 980.0,
           "end_chain_mm": 900.0,
           "T8/8 @4 mm/s（校核）": {
-            "time_s": 114.10000000000004,
-            "peak_force_n": 23.0,
-            "peak_current_a": 0.7493602178036284,
+            "time_s": 62.19999999999998,
+            "peak_force_n": 26.0,
+            "peak_current_a": 0.8366680722997539,
             "within_budget": 0
           },
           "T8/8 @7 mm/s（提速）": {
-            "time_s": 70.87214230949454,
-            "peak_force_n": 23.0,
-            "peak_current_a": 0.7493602178036284,
+            "time_s": 43.16667326252507,
+            "peak_force_n": 26.0,
+            "peak_current_a": 0.8366680722997539,
             "within_budget": 0
           },
           "T8/8 不限速（理论上限）": {
-            "time_s": 59.32661795514733,
-            "peak_force_n": 23.0,
-            "peak_current_a": 0.7493602178036284,
+            "time_s": 37.39714903906095,
+            "peak_force_n": 26.0,
+            "peak_current_a": 0.8366680722997539,
             "within_budget": 0
           }
         }
@@ -1291,9 +1505,9 @@
       "K": 4,
       "start_lengths_mm": [
         30.0,
-        40.0,
-        40.0,
-        40.0,
+        100.0,
+        100.0,
+        100.0,
         30.0
       ],
       "end_lengths_mm": [
@@ -1303,320 +1517,99 @@
         100.0,
         60.0
       ],
-      "total_travel_mm": 240.0,
-      "time_s": 66.5,
+      "total_travel_mm": 60.0,
+      "time_s": 21.099999999999998,
       "peak_force_n": 14.0,
       "peak_current_a": 0.4874366543152521,
       "clamp_actions": 10
-    },
-    "weighted_transition": {
-      "strategy": "anchor_left",
-      "drive": "T8/8 @4 mm/s（校核）",
-      "steps": [
-        {
-          "unit": 1,
-          "role": "inner",
-          "action": "clamp_left",
-          "clamp_before": {
-            "left": 0,
-            "right": 0
-          },
-          "clamp_after": {
-            "left": 1,
-            "right": 0
-          },
-          "length_before_mm": 100.0,
-          "length_after_mm": 100.0,
-          "travel_mm": 0.0,
-          "force_n": 0.0,
-          "current_a": 0.08,
-          "speed_mm_s": 0.0,
-          "time_s": 0.4,
-          "garment_moved": null,
-          "block_garments": 0
-        },
-        {
-          "unit": 1,
-          "role": "inner",
-          "action": "move_right",
-          "clamp_before": {
-            "left": 1,
-            "right": 0
-          },
-          "clamp_after": {
-            "left": 1,
-            "right": 1
-          },
-          "length_before_mm": 100.0,
-          "length_after_mm": 117.63,
-          "travel_mm": 17.63,
-          "force_n": 11.0,
-          "current_a": 0.4,
-          "speed_mm_s": 4.0,
-          "time_s": 4.71,
-          "garment_moved": 2,
-          "block_garments": 3
-        },
-        {
-          "unit": 1,
-          "role": "inner",
-          "action": "clamp_right",
-          "clamp_before": {
-            "left": 1,
-            "right": 0
-          },
-          "clamp_after": {
-            "left": 1,
-            "right": 1
-          },
-          "length_before_mm": 117.63,
-          "length_after_mm": 117.63,
-          "travel_mm": 0.0,
-          "force_n": 11.0,
-          "current_a": 0.4,
-          "speed_mm_s": 0.0,
-          "time_s": 0.4,
-          "garment_moved": null,
-          "block_garments": 0
-        },
-        {
-          "unit": 2,
-          "role": "inner",
-          "action": "clamp_left",
-          "clamp_before": {
-            "left": 0,
-            "right": 0
-          },
-          "clamp_after": {
-            "left": 1,
-            "right": 0
-          },
-          "length_before_mm": 100.0,
-          "length_after_mm": 100.0,
-          "travel_mm": 0.0,
-          "force_n": 0.0,
-          "current_a": 0.08,
-          "speed_mm_s": 0.0,
-          "time_s": 0.4,
-          "garment_moved": null,
-          "block_garments": 0
-        },
-        {
-          "unit": 2,
-          "role": "inner",
-          "action": "move_right",
-          "clamp_before": {
-            "left": 1,
-            "right": 0
-          },
-          "clamp_after": {
-            "left": 1,
-            "right": 1
-          },
-          "length_before_mm": 100.0,
-          "length_after_mm": 97.69,
-          "travel_mm": 2.31,
-          "force_n": 8.0,
-          "current_a": 0.313,
-          "speed_mm_s": 4.0,
-          "time_s": 0.88,
-          "garment_moved": 3,
-          "block_garments": 2
-        },
-        {
-          "unit": 2,
-          "role": "inner",
-          "action": "clamp_right",
-          "clamp_before": {
-            "left": 1,
-            "right": 0
-          },
-          "clamp_after": {
-            "left": 1,
-            "right": 1
-          },
-          "length_before_mm": 97.69,
-          "length_after_mm": 97.69,
-          "travel_mm": 0.0,
-          "force_n": 8.0,
-          "current_a": 0.313,
-          "speed_mm_s": 0.0,
-          "time_s": 0.4,
-          "garment_moved": null,
-          "block_garments": 0
-        },
-        {
-          "unit": 3,
-          "role": "inner",
-          "action": "clamp_left",
-          "clamp_before": {
-            "left": 0,
-            "right": 0
-          },
-          "clamp_after": {
-            "left": 1,
-            "right": 0
-          },
-          "length_before_mm": 100.0,
-          "length_after_mm": 100.0,
-          "travel_mm": 0.0,
-          "force_n": 0.0,
-          "current_a": 0.08,
-          "speed_mm_s": 0.0,
-          "time_s": 0.4,
-          "garment_moved": null,
-          "block_garments": 0
-        },
-        {
-          "unit": 3,
-          "role": "inner",
-          "action": "move_right",
-          "clamp_before": {
-            "left": 1,
-            "right": 0
-          },
-          "clamp_after": {
-            "left": 1,
-            "right": 1
-          },
-          "length_before_mm": 100.0,
-          "length_after_mm": 84.68,
-          "travel_mm": 15.32,
-          "force_n": 5.0,
-          "current_a": 0.226,
-          "speed_mm_s": 4.0,
-          "time_s": 4.13,
-          "garment_moved": 4,
-          "block_garments": 1
-        },
-        {
-          "unit": 3,
-          "role": "inner",
-          "action": "clamp_right",
-          "clamp_before": {
-            "left": 1,
-            "right": 0
-          },
-          "clamp_after": {
-            "left": 1,
-            "right": 1
-          },
-          "length_before_mm": 84.68,
-          "length_after_mm": 84.68,
-          "travel_mm": 0.0,
-          "force_n": 5.0,
-          "current_a": 0.226,
-          "speed_mm_s": 0.0,
-          "time_s": 0.4,
-          "garment_moved": null,
-          "block_garments": 0
-        }
-      ],
-      "total_time_s": 12.72,
-      "peak_force_n": 11.0,
-      "peak_current_a": 0.4,
-      "max_block_garments": 3,
-      "requires_redatum": 0,
-      "untouched_drift_mm": 0.0,
-      "clamp_actions": 6
     }
   },
   "control": {
-    "study": {
-      "rows": [
-        {
-          "drive": "T8/8 @4 mm/s（校核）",
-          "lead_mm": 8.0,
-          "rpm": 100.0,
-          "v_free_mm_s": 13.333333333333334,
-          "target_mm": 100.0,
-          "start_mm": 40.0,
-          "rise_s": 12.005,
-          "settle_s": 14.575,
-          "overshoot_pct": 0.0157,
-          "overshoot_mm": 0.0157,
-          "sse_mm": 0.0157,
-          "sse_abs_mm": 0.0157,
-          "tail_std_mm": 0.0,
-          "peak_current_a": 0.4001,
-          "stall_detected": 0.0,
-          "peak_len_rate_mm_s": 4.0
-        },
-        {
-          "drive": "T8/8 @7 mm/s（提速）",
-          "lead_mm": 8.0,
-          "rpm": 100.0,
-          "v_free_mm_s": 13.333333333333334,
-          "target_mm": 100.0,
-          "start_mm": 40.0,
-          "rise_s": 6.855,
-          "settle_s": 8.35,
-          "overshoot_pct": 0.029,
-          "overshoot_mm": 0.029,
-          "sse_mm": 0.029,
-          "sse_abs_mm": 0.029,
-          "tail_std_mm": 0.0,
-          "peak_current_a": 0.4001,
-          "stall_detected": 0.0,
-          "peak_len_rate_mm_s": 7.0
-        },
-        {
-          "drive": "T8/8 不限速（理论上限）",
-          "lead_mm": 8.0,
-          "rpm": 100.0,
-          "v_free_mm_s": 13.333333333333334,
-          "target_mm": 100.0,
-          "start_mm": 40.0,
-          "rise_s": 4.91,
-          "settle_s": 5.99,
-          "overshoot_pct": 0.0368,
-          "overshoot_mm": 0.0368,
-          "sse_mm": 0.0368,
-          "sse_abs_mm": 0.0368,
-          "tail_std_mm": 0.0,
-          "peak_current_a": 0.4001,
-          "stall_detected": 0.0,
-          "peak_len_rate_mm_s": 9.7763
-        }
-      ],
-      "gains": {
-        "kp": 6.0,
-        "ki": 1.0,
-        "kd": 0.1
+    "rows": [
+      {
+        "drive": "T8/8 @4 mm/s（校核）",
+        "lead_mm": 8.0,
+        "rpm": 100.0,
+        "v_free_mm_s": 13.333333333333334,
+        "target_mm": 160.0,
+        "start_mm": 100.0,
+        "rise_s": 11.995,
+        "settle_s": 14.27,
+        "overshoot_pct": 0.0098,
+        "overshoot_mm": 0.0157,
+        "sse_mm": 0.0157,
+        "sse_abs_mm": 0.0157,
+        "tail_std_mm": 0.0,
+        "peak_current_a": 0.4001,
+        "stall_detected": 0.0,
+        "peak_len_rate_mm_s": 4.0
       },
-      "load_extend_n": 11.0,
-      "backlash_mm": 0.2,
-      "encoder_res_mm": 0.001953125
-    },
+      {
+        "drive": "T8/8 @7 mm/s（提速）",
+        "lead_mm": 8.0,
+        "rpm": 100.0,
+        "v_free_mm_s": 13.333333333333334,
+        "target_mm": 160.0,
+        "start_mm": 100.0,
+        "rise_s": 6.855,
+        "settle_s": 8.175,
+        "overshoot_pct": 0.0181,
+        "overshoot_mm": 0.029,
+        "sse_mm": 0.029,
+        "sse_abs_mm": 0.029,
+        "tail_std_mm": 0.0,
+        "peak_current_a": 0.4001,
+        "stall_detected": 0.0,
+        "peak_len_rate_mm_s": 7.0
+      },
+      {
+        "drive": "T8/8 不限速（理论上限）",
+        "lead_mm": 8.0,
+        "rpm": 100.0,
+        "v_free_mm_s": 13.333333333333334,
+        "target_mm": 160.0,
+        "start_mm": 100.0,
+        "rise_s": 4.91,
+        "settle_s": 5.87,
+        "overshoot_pct": 0.023,
+        "overshoot_mm": 0.0368,
+        "sse_mm": 0.0368,
+        "sse_abs_mm": 0.0368,
+        "tail_std_mm": 0.0,
+        "peak_current_a": 0.4001,
+        "stall_detected": 0.0,
+        "peak_len_rate_mm_s": 9.7763
+      }
+    ],
     "backlash": {
       "rows": [
         {
           "case": "直接逼近（缩短）",
-          "target_mm": 100.0,
-          "x_final_mm": 100.07181469734621,
-          "error_mm": 0.0718146973462126,
-          "settle_s": 8.35
+          "target_mm": 160.0,
+          "x_final_mm": 160.0718146973459,
+          "error_mm": 0.07181469734589996,
+          "settle_s": 8.175
         },
         {
           "case": "直接逼近（伸长）",
-          "target_mm": 100.0,
-          "x_final_mm": 99.92903574696304,
-          "error_mm": -0.07096425303696208,
-          "settle_s": 8.35
+          "target_mm": 160.0,
+          "x_final_mm": 159.92903574696336,
+          "error_mm": -0.07096425303663523,
+          "settle_s": 8.175
         },
         {
           "case": "单向逼近（缩短→伸长）",
-          "target_mm": 100.0,
-          "x_final_mm": 99.9302760055181,
-          "error_mm": -0.06972399448190458,
-          "settle_s": 8.35
+          "target_mm": 160.0,
+          "x_final_mm": 159.93027600551756,
+          "error_mm": -0.0697239944824446,
+          "settle_s": 8.175
         },
         {
           "case": "单向逼近 + b/2 补偿",
-          "target_mm": 100.0,
-          "x_final_mm": 100.02937652648524,
-          "error_mm": 0.02937652648523681,
-          "settle_s": 8.35
+          "target_mm": 160.0,
+          "x_final_mm": 160.02937652648555,
+          "error_mm": 0.029376526485549448,
+          "settle_s": 8.175
         }
       ],
       "backlash_mm": 0.2
@@ -1635,15 +1628,15 @@
       "rows": [
         {
           "requested_mm": 20.0,
-          "clamped_mm": 40.0,
+          "clamped_mm": 100.0,
           "warned": 1,
-          "text": "目标 20 mm 低于下限 40 mm，已钳到下限"
+          "text": "目标 20 mm 低于下限 100 mm，已钳到下限"
         },
         {
           "requested_mm": 40.0,
-          "clamped_mm": 40.0,
-          "warned": 0,
-          "text": ""
+          "clamped_mm": 100.0,
+          "warned": 1,
+          "text": "目标 40 mm 低于下限 100 mm，已钳到下限"
         },
         {
           "requested_mm": 108.0,
@@ -1793,19 +1786,6 @@
       "p999_abs_mm": 0.8552279360975994,
       "max_abs_mm": 0.9717426877324246,
       "p_within_spec": 1.0
-    },
-    "seam_scenario": {
-      "good": {
-        "rss_mm": 0.5258069988123019,
-        "worst_mm": 0.869
-      },
-      "bad": {
-        "rss_mm": 0.5258069988123019,
-        "worst_mm": 0.869
-      },
-      "spec_mm": 2.0,
-      "good_ok": 1,
-      "bad_ok": 1
     }
   },
   "vision": {
@@ -2002,22 +1982,22 @@
   ],
   "captions": {
     "v2-01-length-plan": {
-      "caption": "4 件衣服 = 5 个调节器：等距时端部 L0/L4 各 60 mm（安装配置值，不填满杆）、内部 3 段各 100 mm，链长 460 mm，还剩 640 mm 空杆（端部夹头锁位区）；加权模式只重分内部段（[118.0, 98.0, 85.0]），收衣把内部缩到 40 mm、端部不动 → 链长 280 mm。"
+      "caption": "外端锚点 0/D 固定（D=460 mm）：等距时端部内端各 60 mm、内部 3 段各 100 mm，链长 460 完全贴合；加权只用 12 cm 平均预算重分配内部段，收衣＝内部回 100 mm，端部回到 60。"
     },
     "v2-02-chain-order": {
-      "caption": "每个调节器有 L/R 两个夹持：锁一端就能单向伸缩、只推动相邻衣架；锚定左墙逐段调，峰值轴向力 11 N / 电流 0.40 A，已定位段 0 滑移；不锁端整链推则 14 N / 1.46 A，且必须重新标定全部衣架位置。"
+      "caption": "每个调节器有 L/R 两个锥面收口夹头：锁一端就能单向伸缩、只推动相邻衣架；锚定左锚点逐段调，峰值轴向力 14 N / 电流 0.49 A，已定位段 0 滑移；不锁端整链推则 14 N / 2.44 A，且要重新标定全部衣架。"
     },
     "v2-03-timing": {
-      "caption": "按 4 mm/s 校核，日常工况（收衣→等距、只动内部 3 段）4 件要 48.9 s，**超 30 s**；把轴向速度提到 7 mm/s 后 29.6 s 达标——所以驱动选型要按 ≥7 mm/s 选（T8 导程 8 mm + 50 rpm 以上）。安装标定（端部也要伸长）一次性 66 s。"
+      "caption": "日常（12 cm→收衣）5 段都动、行程 120 mm：4 mm/s 校核 37.0 s（超 30 s）、7 mm/s 提速 24.1 s（达标）；安装标定（一次性）21 s。"
     },
     "v2-04-control": {
-      "caption": "长度闭环 40→100 mm：T8/8 @4 mm/s（校核） 上升 12.0 s、稳态误差 +0.02 mm、超调 0.02 mm；0.2 mm 反向间隙在负载侧只剩 ±72 µm；2 s 卡死时 295 ms 判出堵转。"
+      "caption": "长度闭环 100→160 mm：T8/8 @4 mm/s（校核） 上升 12.0 s、稳态误差 +0.02 mm、超调 0.02 mm；0.2 mm 反向间隙在负载侧只剩 ±72 µm；2 s 卡死时 295 ms 判出堵转。"
     },
     "v2-05-error-budget": {
       "caption": "净风道误差 RSS 0.53 mm（最坏叠加 0.87 mm），20000 次蒙特卡洛里 100.0% 落在 ±2 mm 内；最大项是衣架/端面定位公差 0.5 mm（占方差 90%），丝杆和编码器都不是瓶颈。"
     },
     "v2-06-vision-id": {
-      "caption": "真实 ArUco 检测器在 6–8 px 才掉识别率，1.5 m、30 mm 标记有 18 px，余量 2 倍以上；限制项是遮挡——3 帧去抖后 5 个 ID 全认全 100.0%、p95 0.30 s，认不出时用长度反馈 + 固定顺序降级。"
+      "caption": "真实 ArUco 检测器在 6–10 px 才掉识别率，1.5 m、30 mm 标记有 18 px，余量 2 倍以上；限制项是遮挡——3 帧去抖后 5 个 ID 全认全 100.0%、p95 0.30 s，认不出时用长度反馈 + 固定顺序降级。"
     }
   }
 }

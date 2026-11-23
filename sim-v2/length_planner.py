@@ -225,12 +225,16 @@ def plan_lengths(garment_count: int,
     n_inner = K - 1
     avail = available_length(rod_length, wall_margin)
     inner_max = float(np.clip(inner_max, INNER_MIN_MM, INNER_MAX_MM))
-    D = float(anchor_span) if anchor_span is not None else nominal_span(K)
+    D_explicit = anchor_span is not None
+    D = float(anchor_span) if D_explicit else nominal_span(K)
     if not np.isfinite(D) or D <= 0:
         raise ValueError("anchor_span 必须为有限正数（mm）")
     D_warn = ""
     if D > avail + 1e-9:
-        D_warn = (f"锚点间距 D={D:.0f} mm 超过可用杆长 {avail:.0f} mm，"
+        if D_explicit:
+            raise ValueError(
+                f"显式 anchor_span D={D:.0f} mm 超过可用杆长 {avail:.0f} mm")
+        D_warn = (f"名义锚点间距 D={D:.0f} mm 超过可用杆长 {avail:.0f} mm，"
                   f"已按 {avail:.0f} mm 布置（端部内端相应缩短）")
         D = avail
     if len(current_ends) != 2:
@@ -415,7 +419,7 @@ def demo_plans(garment_count: int = 4,
     return {
         "equal": equal,
         "weighted": plan_lengths(garment_count, mode="weighted",
-                                 target_gap=target_gap, moisture=q,
+                                 target_gap=max(target_gap, 120.0), moisture=q,
                                  current_inner=cur_inner, current_ends=cur_ends),
         "collect": plan_lengths(garment_count, mode="collect",
                                 current_inner=cur_inner, current_ends=cur_ends),
