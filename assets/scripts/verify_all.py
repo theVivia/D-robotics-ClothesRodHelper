@@ -27,13 +27,17 @@ def main() -> int:
     run("links", [py, "assets/scripts/check_links.py"])
 
     pdf = ROOT / "deck-v2" / "衣序-HangFlow-DDC2026.pdf"
+    prop = ROOT / "docs" / "v2" / "衣序-v2-完整方案书.pdf"
     try:
         import pymupdf
         pages = len(pymupdf.open(pdf))
+        ppages = len(pymupdf.open(prop))
     except Exception:
-        pages = 0
+        pages = ppages = 0
     print(f"\n== deck ==\n{pdf.name}: {pages} pages")
+    print(f"{prop.name}: {ppages} pages")
     CHECKS.append(("deck 10 pages", pages == 10))
+    CHECKS.append(("proposal 8 pages", ppages == 8))
 
     shots = [
         "app-v2/.verify/390x844-default.png",

@@ -9,7 +9,7 @@
 
 **参赛**：DDC2026 · 地瓜机器人黑客松（48H，2026.12.05—12.07，上海张江）
 **仓库**：`theVivia/D-robotics-ClothesRodHelper`
-**当前状态**：`v2.1`（2026-11-23）—— 11 份 v2 文档 + 机械/电控/算法/交互原型 + 固件骨架 + 10 页 deck；v1 已从工作区删除（git 历史可查）。
+**当前状态**：`v2.1`（2026-11-23）—— 13 份 v2 文档 + 完整方案书/48h 排期 + 机械/电控/算法/交互原型 + 固件骨架 + 10 页 deck；v1 已从工作区删除（git 历史可查）。
 
 ---
 
@@ -82,7 +82,7 @@
 | v2 算法与控制 | [docs/v2/03-算法与控制.md](docs/v2/03-算法与控制.md) |
 | v2 软件与协议 | [docs/v2/04-软件与协议.md](docs/v2/04-软件与协议.md) |
 | v2 成本与商业 | [docs/v2/05-成本与商业.md](docs/v2/05-成本与商业.md) |
-| v2 演示与答辩 | [docs/v2/06-演示与答辩.md](docs/v2/06-演示与答辩.md) |\n| v2 端点锚定/拖动规则 | [docs/v2/10-端点锚定模型.md](docs/v2/10-端点锚定模型.md) · [09](docs/v2/09-夹持约束与拖动规则.md) |\n| v2 差距分析与路线 | [docs/v2/11-差距分析与路线.md](docs/v2/11-差距分析与路线.md) |\n| v2 路演 deck（10 页） | [deck-v2/衣序-HangFlow-DDC2026.pdf](deck-v2/衣序-HangFlow-DDC2026.pdf) |\n| 软件模型/协议/mock | [software_v2/README.md](software_v2/README.md) |\n| 固件骨架 | [firmware-v2/esp32/README.md](firmware-v2/esp32/README.md) |\n| **v2 工业设计方向（白/灰/铝）** | [docs/v2/07-工业设计方向.md](docs/v2/07-工业设计方向.md) |
+| v2 演示与答辩 | [docs/v2/06-演示与答辩.md](docs/v2/06-演示与答辩.md) |\n| v2 端点锚定/拖动规则 | [docs/v2/10-端点锚定模型.md](docs/v2/10-端点锚定模型.md) · [09](docs/v2/09-夹持约束与拖动规则.md) |\n| v2 差距分析与路线 | [docs/v2/11-差距分析与路线.md](docs/v2/11-差距分析与路线.md) |\n| **v2 完整方案书（PDF）** | [docs/v2/衣序-v2-完整方案书.pdf](docs/v2/衣序-v2-完整方案书.pdf) |\n| **48 小时执行方案** | [docs/v2/13-48小时执行方案.md](docs/v2/13-48小时执行方案.md) |\n| v2 路演 deck（10 页） | [deck-v2/衣序-HangFlow-DDC2026.pdf](deck-v2/衣序-HangFlow-DDC2026.pdf) |\n| 软件模型/协议/mock | [software_v2/README.md](software_v2/README.md) |\n| 固件骨架 | [firmware-v2/esp32/README.md](firmware-v2/esp32/README.md) |\n| **v2 工业设计方向（白/灰/铝）** | [docs/v2/07-工业设计方向.md](docs/v2/07-工业设计方向.md) |
 | 概念图（SVG） | [assets/diagrams/concept-v2.svg](assets/diagrams/concept-v2.svg) |
 | 交互原型（v2） | [app-v2/index.html](app-v2/index.html) |
 | RDK 平台与开发环境 | [docs/17-RDK平台与开发环境.md](docs/17-RDK平台与开发环境.md) |
@@ -145,6 +145,7 @@
 - v2 的机械/电控/算法/交互文档正在由团队补全；已完成的部分会标注"已跑通/待验证"。
 - RDK X5 规格引用官方页面（40PIN 保守按 3.3V 800mA / 5V 500mA 设计；板卡 5V/5A），现场以实际板卡为准。
 - AI 辅助开发过程按赛事要求留痕，方法沿用 v1（git 历史可查）；v2 文档的 AI 使用记录待补。
+
 
 
 
