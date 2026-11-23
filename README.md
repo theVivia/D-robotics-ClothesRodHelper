@@ -82,7 +82,8 @@
 | v2 算法与控制 | [docs/v2/03-算法与控制.md](docs/v2/03-算法与控制.md) |
 | v2 软件与协议 | [docs/v2/04-软件与协议.md](docs/v2/04-软件与协议.md) |
 | v2 成本与商业 | [docs/v2/05-成本与商业.md](docs/v2/05-成本与商业.md) |
-| v2 演示与答辩 | [docs/v2/06-演示与答辩.md](docs/v2/06-演示与答辩.md) |\n| v2 端点锚定/拖动规则 | [docs/v2/10-端点锚定模型.md](docs/v2/10-端点锚定模型.md) · [09](docs/v2/09-夹持约束与拖动规则.md) |\n| v2 差距分析与路线 | [docs/v2/11-差距分析与路线.md](docs/v2/11-差距分析与路线.md) |\n| **v2 完整方案书（PDF）** | [docs/v2/衣序-v2-完整方案书.pdf](docs/v2/衣序-v2-完整方案书.pdf) |\n| **48 小时执行方案** | [docs/v2/13-48小时执行方案.md](docs/v2/13-48小时执行方案.md) |\n| v2 路演 deck（10 页） | [deck-v2/衣序-HangFlow-DDC2026.pdf](deck-v2/衣序-HangFlow-DDC2026.pdf) |\n| 软件模型/协议/mock | [software_v2/README.md](software_v2/README.md) |\n| 固件骨架 | [firmware-v2/esp32/README.md](firmware-v2/esp32/README.md) |\n| **v2 工业设计方向（白/灰/铝）** | [docs/v2/07-工业设计方向.md](docs/v2/07-工业设计方向.md) |
+| v2 演示与答辩 | [docs/v2/06-演示与答辩.md](docs/v2/06-演示与答辩.md) |\n| v2 端点锚定/拖动规则 | [docs/v2/10-端点锚定模型.md](docs/v2/10-端点锚定模型.md) · [09](docs/v2/09-夹持约束与拖动规则.md) |\n| v2 差距分析与路线 | [docs/v2/11-差距分析与路线.md](docs/v2/11-差距分析与路线.md) |\n| **v2 完整方案书（PDF）** | [docs/v2/衣序-v2-完整方案书.pdf](docs/v2/衣序-v2-完整方案书.pdf) |\n| **48 小时执行方案** | [docs/v2/13-48小时执行方案.md](docs/v2/13-48小时执行方案.md) |\n| v2 路演 deck（10 页） | [deck-v2/衣序-HangFlow-DDC2026.pdf](deck-v2/衣序-HangFlow-DDC2026.pdf) |\n| 软件模型/协议/mock | [software_v2/README.md](software_v2/README.md) |\n| 固件骨架 | [firmware-v2/esp32/README.md](firmware-v2/esp32/README.md) |
+| 其他比赛材料（归档） | [archive/2026-cumcm-b/](archive/2026-cumcm-b/README.md) |\n| **v2 工业设计方向（白/灰/铝）** | [docs/v2/07-工业设计方向.md](docs/v2/07-工业设计方向.md) |
 | 概念图（SVG） | [assets/diagrams/concept-v2.svg](assets/diagrams/concept-v2.svg) |
 | 交互原型（v2） | [app-v2/index.html](app-v2/index.html) |
 | RDK 平台与开发环境 | [docs/17-RDK平台与开发环境.md](docs/17-RDK平台与开发环境.md) |
