@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FAFBFC"/><stop offset="1" stop-color="#EEF1F5"/></linearGradient>
+    <linearGradient id="rod" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E7EAEE"/><stop offset=".45" stop-color="#B9C0CA"/><stop offset="1" stop-color="#7C8592"/></linearGradient>
+    <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#DCE6F5"/><stop offset="1" stop-color="#AFC2DE"/></linearGradient>
+    <linearGradient id="sleeve" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F7F8FA"/><stop offset="1" stop-color="#C9D1DB"/></linearGradient>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#1F2937" flood-opacity=".16"/></filter>
+    <marker id="red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#E05252"/></marker>
+    <marker id="blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#2F6FED"/></marker>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <text x="80" y="72" fill="#1F2937" font-family="Microsoft YaHei, sans-serif" font-size="34" font-weight="700">锥面收口夹头是什么</text>
+  <text x="80" y="110" fill="#6B7280" font-family="Microsoft YaHei, sans-serif" font-size="16">一个开槽的环 + 一个锥形套筒：套筒往里推，锥面把环压紧在杆上；拉出就松开。像钻夹头/ER 夹头，不是爪子。</text>
+
+  <!-- panel 1 -->
+  <g>
+    <rect x="60" y="150" width="460" height="560" rx="18" fill="#FFFFFF" stroke="#E1E5EA"/>
+    <text x="90" y="196" fill="#2F6FED" font-family="Microsoft YaHei, sans-serif" font-size="15" font-weight="700">1 · 松开</text>
+    <text x="90" y="222" fill="#6B7280" font-family="Microsoft YaHei, sans-serif" font-size="13">套筒拉出 → 开槽环弹开 → 可沿杆滑动</text>
+    <rect x="95" y="390" width="390" height="26" rx="13" fill="url(#rod)"/>
+    <!-- ring upper/lower -->
+    <path d="M170 320 L390 320 L370 378 L190 378 Z" fill="url(#ring)" stroke="#7D93B4" stroke-width="2"/>
+    <path d="M170 486 L390 486 L370 428 L190 428 Z" fill="url(#ring)" stroke="#7D93B4" stroke-width="2"/>
+    <g stroke="#5E7393" stroke-width="2">
+      <path d="M210 320 L210 378"/><path d="M250 320 L250 378"/><path d="M290 320 L290 378"/><path d="M330 320 L330 378"/>
+      <path d="M210 486 L210 428"/><path d="M250 486 L250 428"/><path d="M290 486 L290 428"/><path d="M330 486 L330 428"/>
+    </g>
+    <!-- sleeve out -->
+    <path d="M150 270 L410 270 L392 320 L168 320 Z" fill="url(#sleeve)" stroke="#94A3B8" stroke-width="2"/>
+    <path d="M150 536 L410 536 L392 486 L168 486 Z" fill="url(#sleeve)" stroke="#94A3B8" stroke-width="2"/>
+    <line x1="410" y1="245" x2="470" y2="245" stroke="#E05252" stroke-width="3" marker-end="url(#red)"/>
+    <text x="418" y="235" fill="#E05252" font-family="Microsoft YaHei, sans-serif" font-size="13">拉出</text>
+    <text x="250" y="600" text-anchor="middle" fill="#6B7280" font-family="Microsoft YaHei, sans-serif" font-size="13">夹头环与杆之间有 0.3 mm 间隙</text>
+  </g>
+
+  <!-- panel 2 -->
+  <g>
+    <rect x="550" y="150" width="460" height="560" rx="18" fill="#FFFFFF" stroke="#E1E5EA"/>
+    <text x="580" y="196" fill="#2F6FED" font-family="Microsoft YaHei, sans-serif" font-size="15" font-weight="700">2 · 锁紧</text>
+    <text x="580" y="222" fill="#6B7280" font-family="Microsoft YaHei, sans-serif" font-size="13">套筒推入 6 mm → 锥面把环径向压紧在杆上</text>
+    <rect x="585" y="390" width="390" height="26" rx="13" fill="url(#rod)"/>
+    <!-- ring pressed -->
+    <path d="M660 326 L880 326 L862 378 L678 378 Z" fill="url(#ring)" stroke="#2F6FED" stroke-width="2"/>
+    <path d="M660 480 L880 480 L862 428 L678 428 Z" fill="url(#ring)" stroke="#2F6FED" stroke-width="2"/>
+    <g stroke="#3B5B8C" stroke-width="2">
+      <path d="M700 326 L700 378"/><path d="M740 326 L740 378"/><path d="M780 326 L780 378"/><path d="M820 326 L820 378"/>
+      <path d="M700 480 L700 428"/><path d="M740 480 L740 428"/><path d="M780 480 L780 428"/><path d="M820 480 L820 428"/>
+    </g>
+    <!-- sleeve in -->
+    <path d="M620 270 L880 270 L862 326 L638 326 Z" fill="url(#sleeve)" stroke="#94A3B8" stroke-width="2"/>
+    <path d="M620 536 L880 536 L862 480 L638 480 Z" fill="url(#sleeve)" stroke="#94A3B8" stroke-width="2"/>
+    <line x1="880" y1="245" x2="820" y2="245" stroke="#2F6FED" stroke-width="3" marker-end="url(#blue)"/>
+    <text x="886" y="235" fill="#2F6FED" font-family="Microsoft YaHei, sans-serif" font-size="13">推入 6 mm</text>
+    <g fill="none" stroke="#E05252" stroke-width="3" marker-end="url(#red)">
+      <path d="M735 285 L735 322"/><path d="M805 285 L805 322"/>
+      <path d="M735 521 L735 484"/><path d="M805 521 L805 484"/>
+    </g>
+    <circle cx="725" cy="362" r="7" fill="#12A150"/>
+    <text x="740" y="367" fill="#12A150" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="700">锁死</text>
+    <text x="780" y="600" text-anchor="middle" fill="#6B7280" font-family="Microsoft YaHei, sans-serif" font-size="13">保持力 82N（设计值）；拉出套筒即松开</text>
+  </g>
+
+  <!-- panel 3 -->
+  <g>
+    <rect x="1040" y="150" width="500" height="560" rx="18" fill="#FFFFFF" stroke="#E1E5EA"/>
+    <text x="1070" y="196" fill="#2F6FED" font-family="Microsoft YaHei, sans-serif" font-size="15" font-weight="700">3 · 两种用法</text>
+    <text x="1070" y="222" fill="#6B7280" font-family="Microsoft YaHei, sans-serif" font-size="13">同一个夹头，锁左端或锁右端，决定往哪边伸缩</text>
+
+    <!-- one end locked -->
+    <rect x="1080" y="300" width="420" height="22" rx="11" fill="url(#rod)"/>
+    <rect x="1100" y="286" width="54" height="50" rx="12" fill="#FFFFFF" stroke="#CBD5E1"/>
+    <text x="1127" y="316" text-anchor="middle" fill="#1F2937" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="700">01</text>
+    <circle cx="1110" cy="311" r="7" fill="#12A150"/>
+    <line x1="1160" y1="311" x2="1240" y2="311" stroke="#2F6FED" stroke-width="3" marker-end="url(#blue)"/>
+    <text x="1200" y="290" text-anchor="middle" fill="#2F6FED" font-family="Microsoft YaHei, sans-serif" font-size="13">锁左端 → 右端单向伸</text>
+
+    <!-- both locked -->
+    <rect x="1080" y="430" width="420" height="22" rx="11" fill="url(#rod)"/>
+    <rect x="1100" y="416" width="54" height="50" rx="12" fill="#FFFFFF" stroke="#CBD5E1"/>
+    <text x="1127" y="446" text-anchor="middle" fill="#1F2937" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="700">02</text>
+    <circle cx="1110" cy="441" r="7" fill="#12A150"/>
+    <circle cx="1468" cy="441" r="7" fill="#12A150"/>
+    <rect x="1446" y="416" width="54" height="50" rx="12" fill="#FFFFFF" stroke="#CBD5E1"/>
+    <text x="1473" y="446" text-anchor="middle" fill="#1F2937" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="700">03</text>
+    <text x="1290" y="548" text-anchor="middle" fill="#6B7280" font-family="Microsoft YaHei, sans-serif" font-size="13">两端都锁 → 长度/位置固定，不伸缩</text>
+    <text x="1290" y="590" text-anchor="middle" fill="#6B7280" font-family="Microsoft YaHei, sans-serif" font-size="13">端部 01/05 只锁外端，内端 30—120mm 伸缩</text>
+  </g>
+
+  <text x="80" y="790" fill="#1F2937" font-family="Microsoft YaHei, sans-serif" font-size="17" font-weight="700">为什么不用爪子</text>
+  <text x="80" y="824" fill="#4B5563" font-family="Microsoft YaHei, sans-serif" font-size="15">爪子会外露、夹手、挡衣架；锥面收口是径向抱紧，外径只比管体大 2 mm，手和衣服都碰不到。</text>
+  <text x="80" y="858" fill="#6B7280" font-family="Microsoft YaHei, sans-serif" font-size="13">示意：6 片开槽环 / 12° 锥面 / 套筒行程 6 mm；设计值 82N，打样实测为准。对应 CAD：hardware/cad-v2/hangflow_v2.scad（cone_sleeve / collet_ring / push_knob）。</text>
+</svg>
