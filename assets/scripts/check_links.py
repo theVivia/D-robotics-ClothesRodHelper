@@ -12,7 +12,7 @@ bad = []
 total = 0
 
 for md in ROOT.rglob('*.md'):
-    if any(part in {'.git', 'node_modules', '__pycache__'} for part in md.parts):
+    if any(part in {'.git', '.pio', 'node_modules', '__pycache__'} for part in md.parts):
         continue
     text = md.read_text(encoding='utf-8', errors='ignore')
     for m in LINK.finditer(text):
@@ -35,4 +35,5 @@ if bad:
         print(f'  {md} -> {target}')
     sys.exit(1)
 print('all relative links OK')
+
 
