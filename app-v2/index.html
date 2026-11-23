@@ -806,6 +806,219 @@ input[type="range"]::-moz-range-thumb { background: #fff; border: 2px solid #2F6
   border-color: #CBD5E1; background: #FFFFFF; color: #1E2329;
   box-shadow: 0 8px 24px rgba(16,24,40,.16);
 }
+/* ==========================================================================
+   Taste pass：单一系统 / 平面白底 / 中性色 / 一个强调蓝
+   ========================================================================== */
+:root {
+  --accent: #2F6FED;
+  --radius: 12px;
+  --line: #E5E7EB;
+  --txt-2: #5B6675;
+  --txt-3: #6B7280;
+  color-scheme: light;
+}
+html, body { font-size: 16px; }
+body { line-height: 1.55; }
+.card, .stage-card, .panel, .log-card {
+  background: #fff; border: 1px solid var(--line);
+  border-radius: var(--radius); box-shadow: none;
+}
+.card::before { display: none; }
+.topbar { border-bottom: 1px solid var(--line); }
+.logo {
+  background: #fff; border: 1px solid var(--line);
+  border-radius: var(--radius); box-shadow: none; color: var(--accent);
+}
+.brand-title { font-size: 20px; font-weight: 600; }
+.brand-title .en {
+  font-family: inherit; font-size: 13px; font-weight: 500;
+  letter-spacing: 0; text-transform: none; color: var(--accent);
+}
+.brand-sub { font-size: 14px; color: var(--txt-2); }
+.tel-chip {
+  border: 1px solid var(--line); border-radius: var(--radius);
+  background: #fff; box-shadow: none; height: auto; min-height: 32px;
+  padding: 6px 10px; font-size: 13px; color: var(--txt-2);
+}
+.tel-chip em { font-size: 13px; color: var(--txt); }
+.dot { background: #0F9D8A; box-shadow: none; }
+.eyebrow { display: none; }
+.stage-title { font-size: 20px; font-weight: 600; }
+.stage-title .meta { font-size: 14px; color: var(--txt-2); }
+.stat-label {
+  font-family: inherit; font-size: 13px; letter-spacing: 0;
+  text-transform: none; color: var(--txt-2);
+}
+.stat-value { font-family: inherit; font-size: 20px; font-weight: 600; color: var(--txt); }
+.stat-value em { font-size: 13px; color: var(--txt-2); }
+.stat-value.ok, .stat-value.warn { color: var(--txt); }
+.stage-hint {
+  font-family: inherit; font-size: 13px; letter-spacing: 0;
+  color: var(--txt-2); right: 24px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.stage-note { font-size: 13px; color: var(--txt-2); line-height: 1.5; }
+.stage-note b { color: var(--txt); font-weight: 600; }
+.stage { background: #F8FAFC; border: 1px solid var(--line); border-radius: var(--radius); box-shadow: none; }
+.stage::before { display: none; }
+.hud { display: none; }
+.wall { background: #DDE2E8; box-shadow: none; border-radius: 2px; }
+.margin-zone { background: #F1F3F5; border-right: 1px dashed #CBD5E1; }
+.margin-zone.margin-right { border-left: 1px dashed #CBD5E1; border-right: 0; }
+.rod {
+  background: #C9CFD8; border: 1px solid #B8C0CA;
+  box-shadow: none; border-radius: 999px;
+}
+.rod::after { display: none; }
+.cyl {
+  background: #fff; border: 1px solid #CBD3DD;
+  border-radius: var(--radius); box-shadow: none;
+}
+.cyl-inner {
+  background: #EEF1F5; border: 1px solid #D8DEE6;
+  border-radius: 8px; box-shadow: none;
+}
+.cyl-id {
+  font-family: inherit; font-size: 13px; font-weight: 600;
+  color: var(--txt); text-shadow: none;
+}
+.cyl-len { font-size: 13px; color: var(--txt-2); }
+.cyl-tag {
+  font-size: 13px; color: var(--txt-2); background: #fff;
+  border: 1px solid var(--line); border-radius: var(--radius); padding: 2px 6px;
+}
+.cyl-tag .ico { font-size: 12px; }
+.seam { background: #B8C0CA; border-radius: 2px; box-shadow: none; }
+.seam::after { border-color: #64748B; box-shadow: none; }
+.seam::before { display: none; }
+.clamp {
+  width: 30px; height: 44px; border: 0; background: transparent;
+  box-shadow: none; display: grid; place-items: center; border-radius: var(--radius);
+}
+.clamp-left { left: -15px; }
+.clamp-right { right: -15px; }
+.clamp-icon {
+  width: 20px; height: 20px; display: grid; place-items: center;
+  border: 1px solid #CBD5E1; border-radius: var(--radius); background: #fff;
+  font-size: 14px; line-height: 1; color: #475569; box-shadow: none;
+}
+.clamp.locked .clamp-icon { background: #EAF1FF; border-color: var(--accent); color: #1D4ED8; }
+.clamp.locked { background: transparent; border: 0; box-shadow: none; }
+.clamp:hover .clamp-icon { border-color: var(--accent); }
+.clamp-sleeve, .clamp-ring { display: none !important; }
+.move-arrow { font-size: 14px; color: var(--accent); text-shadow: none; }
+.empty-rod { border-top: 2px dashed #CBD5E1; }
+.empty-rod span { font-size: 13px; color: var(--txt-2); white-space: nowrap; }
+.alert {
+  font-size: 13px; color: var(--txt); border-radius: var(--radius);
+  background: #fff; border: 1px solid var(--line);
+}
+.alert[data-level="error"], .alert[data-level="warn"] {
+  background: #fff; border-color: var(--line); color: var(--txt);
+}
+.alert-body b { font-size: 14px; color: var(--txt); }
+.alert-body span { font-size: 13px; color: var(--txt-2); }
+.alert[data-level="error"] .alert-dot { background: #DC2626; }
+.alert[data-level="warn"] .alert-dot { background: #D97706; }
+.alert-dot { box-shadow: none; }
+.rod-config { border-top: 1px solid var(--line); }
+.unit-count { border-top: 1px solid var(--line); }
+.panel-title {
+  font-family: inherit; font-size: 13px; font-weight: 600;
+  letter-spacing: 0; text-transform: none; color: var(--txt);
+}
+.panel-note { font-size: 13px; color: var(--txt-2); }
+.panel-section { border-bottom: 1px solid var(--line); }
+.mode, .stepper button, .log-clear {
+  min-height: 44px; border-radius: var(--radius);
+  border: 1px solid var(--line); background: #fff;
+  box-shadow: none; font-family: inherit;
+}
+.mode { padding: 10px 14px; }
+.mode .mode-cn { font-size: 16px; color: var(--txt); }
+.mode .mode-en { display: none; }
+.mode:hover { border-color: #CBD5E1; background: #F8FAFC; }
+.mode[aria-pressed="true"] { background: #EAF1FF; border-color: var(--accent); }
+.mode[aria-pressed="true"] .mode-cn { color: #1D4ED8; }
+.mode::after { display: none; }
+.stepper { gap: 8px; }
+.stepper button { width: 44px; height: 44px; font-size: 20px; color: var(--txt); }
+.stepper output { min-width: 28px; font-family: inherit; font-size: 16px; color: var(--txt); }
+.log-clear { font-size: 13px; padding: 0 12px; color: var(--txt-2); }
+.field-name { font-size: 14px; color: var(--txt-2); }
+.field-value { font-family: inherit; font-size: 16px; color: var(--txt); }
+.field-value em { font-size: 13px; color: var(--txt-2); }
+.field-note { font-size: 13px; color: var(--txt-2); line-height: 1.5; }
+.mini-readout { font-size: 13px; color: var(--txt-2); }
+.mini-readout b { font-family: inherit; color: var(--txt); }
+input[type="range"] { height: 44px; }
+input[type="range"]::-webkit-slider-runnable-track { height: 2px; background: #E5E7EB; }
+input[type="range"]::-webkit-slider-thumb {
+  width: 20px; height: 20px; margin-top: -9px;
+  background: #fff; border: 2px solid var(--accent); box-shadow: none;
+}
+input[type="range"]::-moz-range-track { height: 2px; background: #E5E7EB; }
+input[type="range"]::-moz-range-progress { height: 2px; background: var(--accent); }
+input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #fff; border: 2px solid var(--accent); }
+.cyl-range::-webkit-slider-runnable-track, .h-range::-webkit-slider-runnable-track { height: 2px; }
+.cyl-range::-webkit-slider-thumb, .h-range::-webkit-slider-thumb { width: 20px; height: 20px; margin-top: -9px; }
+.cyl-range::-moz-range-track, .h-range::-moz-range-track { height: 2px; }
+.cyl-range::-moz-range-thumb, .h-range::-moz-range-thumb { width: 18px; height: 18px; }
+.cyl-list, .hanger-list { display: flex; flex-direction: column; gap: 8px; }
+.cyl-row, .hanger-row {
+  border: 1px solid var(--line); border-radius: var(--radius); background: #fff;
+}
+.cyl-row.is-fixed { background: #fff; border-color: var(--line); }
+.row-id {
+  font-family: inherit; font-size: 13px; font-weight: 500;
+  letter-spacing: 0; text-transform: none; color: var(--txt-2);
+}
+.row-val { font-family: inherit; font-size: 14px; font-weight: 600; color: var(--txt); }
+.row-note { font-size: 13px; color: var(--txt-2); }
+.h-state {
+  font-family: inherit; font-size: 13px; color: var(--txt);
+  border: 1px solid var(--line); background: #fff; border-radius: var(--radius);
+  padding: 2px 8px; display: inline-flex; align-items: center; gap: 6px;
+}
+.h-state::before {
+  content: ""; width: 6px; height: 6px; border-radius: 50%;
+  background: #0F9D8A; flex: none;
+}
+.h-state[data-state="damp"]::before { background: #D97706; }
+.h-state[data-state="wet"]::before { background: #DC2626; }
+.h-batt span { font-size: 13px; color: var(--txt-2); }
+.batt { background: #E5E7EB; }
+.batt i { background: #0F9D8A; }
+.log { font-family: inherit; font-size: 13px; line-height: 1.55; color: var(--txt-2); }
+.log time { font-family: inherit; font-size: 13px; color: var(--txt-2); }
+.log li { grid-template-columns: 52px 8px minmax(0, 1fr); gap: 10px; }
+.log li.gold .msg, .log li.err .msg { color: var(--txt); }
+.foot { font-size: 13px; color: var(--txt-2); border-top: 1px solid var(--line); }
+.toast {
+  font-size: 14px; color: var(--txt); background: #fff;
+  border: 1px solid var(--line); border-radius: var(--radius); box-shadow: none;
+}
+.tech-details { margin-top: 10px; border-top: 1px solid var(--line); }
+.tech-details summary {
+  min-height: 44px; display: flex; align-items: center;
+  font-size: 14px; color: var(--txt-2); cursor: pointer;
+}
+.tech-details p { font-size: 14px; color: var(--txt-2); line-height: 1.55; margin: 0 0 10px; }
+
+
+
+.h-state[data-state] { color: var(--txt); background: #fff; border-color: var(--line); }
+.log li.gold .lvl { background: var(--accent); }
+.alert b { font-size: 16px; }
+.alert span { font-size: 14px; }
+
+
+.cyl-id,.cyl-len,.cyl-tag,.empty-rod span,.stat-value,.field-value,.row-val,.stepper output,.h-batt span,.log time,.mini-readout b { font-family: var(--font); }
+
+
+.eyebrow { font-size: 13px; }
+.mode-en { font-size: 13px; }
+.clamp { font-size: 14px; }
+
 </style>
 </head>
 <body>
@@ -821,13 +1034,13 @@ input[type="range"]::-moz-range-thumb { background: #fff; border: 2px solid #2F6
         </svg>
       </div>
       <div class="brand-text">
-        <div class="brand-title">衣序 <span class="en">HANGFLOW · V2</span></div>
+        <div class="brand-title">衣序 <span class="en">HangFlow V2</span></div>
         <div class="brand-sub">伸缩圆柱串在杆上，衣架挂在 10mm 接缝处</div>
       </div>
     </div>
     <div class="telemetry" aria-label="系统状态">
-      <span class="tel-chip"><i class="dot pulse"></i>MQTT 在线 <em id="latency">18ms</em></span>
-      <span class="tel-chip">视觉识别 <em id="visionTel">3/3</em></span>
+      <span class="tel-chip"><i class="dot pulse"></i>已连接<span id="latency" hidden>18ms</span></span>
+      <span class="tel-chip">识别 <em id="visionTel">3/3</em></span>
       <span class="tel-chip hide-sm">最低电量 <em id="battTel">64%</em></span>
     </div>
   </header>
@@ -837,14 +1050,14 @@ input[type="range"]::-moz-range-thumb { background: #fff; border: 2px solid #2F6
       <section class="card stage-card" aria-label="伸缩圆柱链俯视示意">
         <div class="stage-head">
           <div>
-            <div class="eyebrow">Rod View · V2 Chain</div>
+            <div class="eyebrow">晾衣杆</div>
             <div class="stage-title"><span id="rodTitle">1.20 m 晾衣杆</span><span class="sep"></span><span class="meta" id="chainMeta">4 衣架 · 3 伸缩圆柱 · 4 接缝</span></div>
           </div>
           <div class="stage-stats">
-            <div class="stat"><span class="stat-label">总链长 ΣL+K×10</span><span class="stat-value" id="statChain">340<em>mm</em></span></div>
-            <div class="stat"><span class="stat-label">可用长度</span><span class="stat-value" id="statAvail">1100<em>mm</em></span></div>
+            <div class="stat"><span class="stat-label">总长</span><span class="stat-value" id="statChain">340<em>mm</em></span></div>
+            <div class="stat"><span class="stat-label">可用</span><span class="stat-value" id="statAvail">1100<em>mm</em></span></div>
             <div class="stat"><span class="stat-label">剩余空杆</span><span class="stat-value" id="statSlack">640<em>mm</em></span></div>
-            <div class="stat"><span class="stat-label">视觉识别</span><span class="stat-value ok" id="statVision">3/3</span></div>
+            <div class="stat"><span class="stat-label">识别</span><span class="stat-value ok" id="statVision">3/3</span></div>
           </div>
         </div>
 
@@ -862,11 +1075,11 @@ input[type="range"]::-moz-range-thumb { background: #fff; border: 2px solid #2F6
         </div>
 
         <div class="alerts" id="alerts" hidden aria-live="polite"></div>
-        <div class="stage-note">两端 <b id="fixedEndsText">01 / 05</b> 固定端（锚在墙/杆、🔒 锁死） · 内部圆柱可拖动 · 夹头 🔒锁定 / 🔓松开 · 接缝 <b>10mm</b> = 衣架挂点 · 内部圆柱 = 净风道</div>
+        <div class="stage-note">两端 <b id="fixedEndsText">01 / 05</b> 是固定端，锁死不可拖；内部可拖动 · 夹头 🔒锁定 / 🔓松开 · 接缝 <b>10mm</b> 挂衣架 · 内部圆柱 = 间距</div>
 
         <section class="rod-config">
           <div class="panel-head">
-            <span class="panel-title">杆体参数 / Rod</span>
+            <span class="panel-title">晾衣杆参数</span>
             <span class="panel-note">两端有墙</span>
           </div>
           <label class="field">
@@ -879,16 +1092,16 @@ input[type="range"]::-moz-range-thumb { background: #fff; border: 2px solid #2F6
           </label>
           <label class="field">
             <span class="field-head">
-              <span class="field-name">杆离墙</span>
+              <span class="field-name">离墙距离</span>
               <span class="field-value" id="wallVal">150<em>mm</em></span>
             </span>
             <input id="wallRange" type="range" min="50" max="300" step="10" value="150" aria-label="杆中心到墙面的垂直距离，毫米">
-            <span class="field-note">杆中心到墙面的垂直距离 · 建议 ≥120 mm（与端部余量无关）</span>
+            <span class="field-note">杆中心到墙面的距离，建议不少于 120 mm</span>
           </label>
           <div class="unit-count">
             <div class="unit-count-text">
               <span class="field-name">衣架数 K</span>
-              <span class="field-note">K 件衣架配 K+1 个伸缩圆柱（两端各一夹头）</span>
+              <span class="field-note">K 件衣架配 K+1 个圆柱，两端固定</span>
             </div>
             <div class="stepper" role="group" aria-label="衣架数量">
               <button type="button" id="kMinus" aria-label="减少一件">−</button>
@@ -897,7 +1110,7 @@ input[type="range"]::-moz-range-thumb { background: #fff; border: 2px solid #2F6
             </div>
           </div>
           <div class="mini-readout">
-            <span>端部余量 <b>50 mm</b></span><span class="sep">·</span>
+            <span>两端留空 <b>50 mm</b></span><span class="sep">·</span>
             <span>可用 <b id="availText">1100 mm</b></span><span class="sep">·</span>
             <span>接缝 <b>10 mm/个</b></span>
           </div>
@@ -906,17 +1119,21 @@ input[type="range"]::-moz-range-thumb { background: #fff; border: 2px solid #2F6
 
       <section class="card log-card" aria-label="运行日志">
         <div class="log-head">
-          <span class="panel-title">运行日志 / Event Log</span>
+          <span class="panel-title">运行日志</span>
           <button class="log-clear" type="button" id="clearLog">清空</button>
         </div>
         <ol class="log" id="log" aria-live="polite"></ol>
+        <details class="tech-details">
+          <summary>技术详情</summary>
+          <p>总长 = ΣL（K+1 段）+ K × 10 mm。端部固定 60 mm，内部默认按目标间距；识别与电量均为页面模拟。</p>
+        </details>
       </section>
     </div>
 
     <aside class="card panel" aria-label="控制台">
       <section class="panel-section">
         <div class="panel-head">
-          <span class="panel-title">运行模式 / Mode</span>
+          <span class="panel-title">运行模式</span>
           <span class="panel-note">点击即执行</span>
         </div>
         <div class="modes" role="group" aria-label="运行模式">
@@ -930,26 +1147,26 @@ input[type="range"]::-moz-range-thumb { background: #fff; border: 2px solid #2F6
       <section class="panel-section">
         <label class="field">
           <span class="field-head">
-            <span class="field-name">目标净风道</span>
+            <span class="field-name">目标间距</span>
             <span class="field-value" id="targetVal">10.0<em>cm</em></span>
           </span>
-          <input id="targetRange" type="range" min="3" max="20" step="0.5" value="10" aria-label="目标净风道，厘米">
-          <span class="field-note">内部圆柱长度 = 净风道 · 等距/加权模式的目标值</span>
+          <input id="targetRange" type="range" min="3" max="20" step="0.5" value="10" aria-label="目标间距，厘米">
+          <span class="field-note">内部圆柱的间距目标，等距/加权时使用</span>
         </label>
       </section>
 
       <section class="panel-section">
         <div class="panel-head">
-          <span class="panel-title">伸缩圆柱 / Cylinders</span>
-          <span class="panel-note">K+1 个 · 内部=净风道 · 两端=夹头</span>
+          <span class="panel-title">伸缩圆柱</span>
+          <span class="panel-note">K+1 个 · 内部=间距 · 两端=固定</span>
         </div>
         <div class="cyl-list" id="cylList"></div>
       </section>
 
       <section class="panel-section">
         <div class="panel-head">
-          <span class="panel-title">衣架湿度 / Hangers</span>
-          <span class="panel-note">接缝挂点 · 加权模式用</span>
+          <span class="panel-title">衣架湿度</span>
+          <span class="panel-note">接缝挂点，加权时使用</span>
         </div>
         <div class="hanger-list" id="hangerList"></div>
       </section>
@@ -1245,8 +1462,8 @@ input[type="range"]::-moz-range-thumb { background: #fff; border: 2px solid #2F6
     var targets = state.lengths.slice();
     for (var i = 1; i < cylCount() - 1; i++) targets[i] = len;
     applyLengths(targets, true);
-    log('一键等距 · 内部圆柱目标净风道 ' + fmt(state.targetCm) + ' cm', 'info');
-    if (state.overLimit) log('总链长超限 · 已压缩圆柱到可用长度', 'warn');
+    log('一键等距 · 内部间距 ' + fmt(state.targetCm) + ' cm', 'info');
+    if (state.overLimit) log('杆上放不下：总长超过可用长度', 'warn');
   }
 
   function runWeighted() {
@@ -1267,8 +1484,8 @@ input[type="range"]::-moz-range-thumb { background: #fff; border: 2px solid #2F6
       free.forEach(function (idx, k) { targets[idx] = lens[k]; });
     }
     applyLengths(targets, true);
-    log('按湿度加权 · 湿的段更长 · 目标净风道 ' + fmt(state.targetCm) + ' cm', 'info');
-    if (state.overLimit) log('总链长超限 · 已压缩圆柱到可用长度', 'warn');
+    log('按湿度加权 · 湿的段更长 · 目标间距 ' + fmt(state.targetCm) + ' cm', 'info');
+    if (state.overLimit) log('杆上放不下：总长超过可用长度', 'warn');
   }
 
   function runCollect() {
@@ -1343,7 +1560,7 @@ input[type="range"]::-moz-range-thumb { background: #fff; border: 2px solid #2F6
     kCount.textContent = String(K());
     kMinus.disabled = K() <= K_MIN;
     kPlus.disabled = K() >= K_MAX;
-    chainMeta.textContent = K() + ' 衣架 · ' + cylCount() + ' 伸缩圆柱 · ' + K() + ' 接缝';
+    chainMeta.textContent = K() + ' 衣架 · ' + cylCount() + ' 圆柱 · ' + K() + ' 接缝';
     var fe = document.getElementById('fixedEndsText');
     if (fe) fe.textContent = '01 / ' + pad2(cylCount());
   }
@@ -1367,9 +1584,8 @@ input[type="range"]::-moz-range-thumb { background: #fff; border: 2px solid #2F6
     if (state.overLimit) {
       list.push({
         level: 'error',
-        title: '总链长超限：ΣL(' + cylCount() + '段)+K×10 = ' +
-          Math.round(state.requestedTotal) + ' mm > 可用 ' + Math.round(availableMm()) + ' mm',
-        detail: '请求总链长超过可用长度；请加长杆或减少衣架（页面不自动改段长）'
+        title: '杆上放不下：总长 ' + Math.round(state.requestedTotal) + ' mm，超过可用 ' + Math.round(availableMm()) + ' mm',
+        detail: '加长杆，或减少衣架'
       });
     }
     if (state.dWall < WALL_NEAR) {
@@ -1427,7 +1643,7 @@ input[type="range"]::-moz-range-thumb { background: #fff; border: 2px solid #2F6
     marginLeft.style.width = marginPx + 'px';
     marginRight.style.width = marginPx + 'px';
     ruler.style.display = 'none';
-    if (stageHint) stageHint.textContent = '视图缩放：链条 + 200mm 空杆 · 非整杆比例';
+    if (stageHint) stageHint.textContent = '长杆视图：链条 + 200mm 空杆';
 
     var cursor = MARGIN_MM;
     for (var i = 0; i < cylCount(); i++) {
@@ -1505,7 +1721,7 @@ input[type="range"]::-moz-range-thumb { background: #fff; border: 2px solid #2F6
     emptyRod.style.width = emptyWidth + 'px';
     emptyRod.style.display = (!state.overLimit && emptyWidth > 8) ? '' : 'none';
     emptyRod.firstChild.textContent = emptyWidth > 60
-      ? '剩余空杆 ' + Math.round(remaining) + 'mm'
+      ? '空杆 ' + Math.round(remaining) + 'mm'
       : '';
 
     updateStats();
@@ -1621,7 +1837,7 @@ input[type="range"]::-moz-range-thumb { background: #fff; border: 2px solid #2F6
       try { d.el.releasePointerCapture(d.pointerId); } catch (err) {}
     }
     log('拖动 · 圆柱 ' + pad2(d.index + 1) + ' = ' + (state.lengths[d.index] / 10).toFixed(1) +
-      ' cm · 总链长 ' + Math.round(chainTotal(state.lengths)) + ' mm', 'gold');
+      ' cm · 总长 ' + Math.round(chainTotal(state.lengths)) + ' mm', 'gold');
     render();
     updateAlerts();
   }
@@ -1700,7 +1916,7 @@ input[type="range"]::-moz-range-thumb { background: #fff; border: 2px solid #2F6
     var st = humidityState(h.humidity);
     row.state.dataset.state = st.key;
     row.state.textContent = st.label + ' ' + h.humidity + '%';
-    paintRange(row.range, h.humidity / 100, humidityColor(h.humidity).color);
+    paintRange(row.range, h.humidity / 100, '#2F6FED');
   }
 
   function paintAllHangerRows() {
@@ -1804,14 +2020,13 @@ input[type="range"]::-moz-range-thumb { background: #fff; border: 2px solid #2F6
   }
 
   function initLogs() {
-    log('V2 交互原型启动 · 圆柱链，前端模拟未接硬件', 'gold');
-    log('视觉识别：圆柱 01–' + pad2(cylCount()) + ' 已确认（模拟）', 'ok');
-    log(K() + ' 衣架 · ' + cylCount() + ' 伸缩圆柱（两端夹头 + 内部净风道） · ' + K() + ' 个 10mm 接缝', 'info');
-    log('总链长 ' + Math.round(chainTotal(state.lengths)) + ' mm = ΣL(' + cylCount() + '段)+' + K() + '×10mm', 'info');
-    log('可用 ' + Math.round(availableMm()) + ' mm · 剩余空杆 ' +
-      Math.round(Math.max(0, availableMm() - chainTotal(state.lengths))) + ' mm', 'info');
-    log('两端 01/0' + (cylCount()) + ' 固定端锁死；内部圆柱可拖动；夹头 🔒锁定 / 🔓松开', 'info');
-    log('夹头图标 🔒锁定 / 🔓松开；内部圆柱可拖动，两端固定端不可拖', 'info');
+    log('圆柱链控制台已启动（页面模拟）', 'gold');
+    log('识别：圆柱 01–' + pad2(cylCount()) + ' 已确认（模拟）', 'ok');
+    log(K() + ' 衣架 · ' + cylCount() + ' 圆柱 · ' + K() + ' 个接缝', 'info');
+    log('总长 ' + Math.round(chainTotal(state.lengths)) + ' mm，可用 ' + Math.round(availableMm()) +
+      ' mm，剩 ' + Math.round(Math.max(0, availableMm() - chainTotal(state.lengths))) + ' mm', 'info');
+    log('两端 01 / ' + pad2(cylCount()) + ' 固定端锁死；内部圆柱可拖动', 'info');
+    log('夹头图标 🔒锁定 / 🔓松开', 'info');
   }
 
   /* =========================================================================
@@ -1823,7 +2038,7 @@ input[type="range"]::-moz-range-thumb { background: #fff; border: 2px solid #2F6
         state.mode = btn.dataset.mode;
         updateModeUI();
         if (state.mode === 'manual') {
-          log('手动逐段 · 拖内部圆柱长度滑杆调整净风道', 'gold');
+          log('手动逐段 · 拖圆柱或滑杆调整间距', 'gold');
           render();
         } else {
           applyMode();
@@ -1838,12 +2053,12 @@ input[type="range"]::-moz-range-thumb { background: #fff; border: 2px solid #2F6
       if (state.mode === 'equal' || state.mode === 'weighted') scheduleApply();
     });
     targetRange.addEventListener('change', function () {
-      log('目标净风道设为 ' + fmt(state.targetCm) + ' cm', 'gold');
+      log('目标间距设为 ' + fmt(state.targetCm) + ' cm', 'gold');
     });
 
     rodRange.addEventListener('input', function () { setRod(rodRange.value); });
     rodRange.addEventListener('change', function () {
-      log('杆长设为 ' + Math.round(state.rodMm) + ' mm · 端部余量 50 mm', 'gold');
+      log('杆长设为 ' + Math.round(state.rodMm) + ' mm · 两端留空 50 mm', 'gold');
       updateAlerts();
     });
 
@@ -1853,7 +2068,7 @@ input[type="range"]::-moz-range-thumb { background: #fff; border: 2px solid #2F6
       updateAlerts();
     });
     wallRange.addEventListener('change', function () {
-      log('杆离墙设为 ' + state.dWall + ' mm' +
+      log('离墙距离设为 ' + state.dWall + ' mm' +
         (state.dWall < WALL_NEAR ? ' · 低于 120 mm，衣摆可能蹭墙' : ''), state.dWall < WALL_NEAR ? 'warn' : 'gold');
     });
 
