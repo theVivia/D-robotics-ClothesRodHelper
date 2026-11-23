@@ -40,13 +40,20 @@ PIN_OUT      = 5.0;     // 半销伸出端面长度 (mm)
 PIN_GAP      = 0.5;     // 两半销端面机械间隙 (mm) —— 防夹手硬限位，不许改 0
 HOOK_DROP    = 21.5;    // 销桥中心低于杆轴 (mm)：衣架钩环内 R18–22 的最佳位置
 
-/* [长度规格 —— N 窄距 / M 中距 / W 宽距 / E 端部段 / S 被动短套] */
-UNIT         = "N";     // [N, M, W, E, S]  N 窄距 / M 中距 / W 宽距 / E 端部段 / S 被动短套
-L_MIN        = 100;     // [45:5:230] 最短长度 (mm)；N 默认 100，M 130，W 190，E 90
-L_MAX        = 130;     // [55:5:240] 最长长度 (mm)；N 默认 130，M 190，W 220，E 110
+/* [长度规格 —— N 窄距 / M 中距 / W 宽距 / E 端部单元 / L Lite 被动端件] */
+UNIT         = "N";     // [N, M, W, E, L]  N 窄距 / M 中距 / W 宽距 / E 端部单元(外端锚定) / L Lite 被动端件
+L_MIN        = 100;     // [25:5:230] 最短长度 (mm)；N 100，M 130，W 190，E 30，L 30
+L_MAX        = 130;     // [30:5:240] 最长长度 (mm)；N 130，M 190，W 220，E 120，L 60
 STROKE       = L_MAX - L_MIN;
-C_L          = 70;      // 除行程外的固定长度 = 2×夹持环16 + 螺母12 + 轴承8 + 电机轴向14 + 余量4
+C_L          = 70;      // 中间段：除行程外固定长度 = 2×夹头16 + 螺母12 + 轴承8 + 电机轴向14 + 余量4
+C_POD        = 30;      // 端部单元：净距里除伸出量外的一切（内端头6 + 最小重叠24）
 CLAMP_W      = 16;      // 夹持端头轴向宽 (mm)：套筒行程 6 + 铰链 + 卡扣塞得下的下限
+
+/* [端部锚定挂包（仅 E）] */
+POD_EXTRA    = 30;      // 挂包比行程多出的轴向：螺母12 + 轴承8 + 余量10
+POD_CLEAR    = 20;      // 挂包前端到墙/障碍还要留的余量 (mm)
+ANCHOR_PAD_D = 40;      // 锚定橡胶垫直径 (mm)
+ANCHOR_PAD_T = 3.0;     // 锚定橡胶垫厚 (mm)
 
 /* [锥面收口夹头（Collet）] */
 CONE_ANGLE   = 12;      // [10:1:15] 锥半角 (deg)：越小放大越大，但太易自锁/卡死
@@ -65,7 +72,7 @@ FOOT_TRAVEL  = 25;      // 撑脚行程 (mm)
 FOOT_D       = 28;      // 撑脚垫直径 (mm)
 
 /* [零件选择] */
-PART         = "assembly";  // [assembly, clamp_half, clamp_ring, cone_sleeve, collet_ring, push_knob, end_head, barrel_half, sleeve, wall_foot, print_layout, dimensions]
+PART         = "assembly";  // [assembly, clamp_half, clamp_ring, cone_sleeve, collet_ring, push_knob, end_head, barrel_half, sleeve, wall_foot, anchor_pod, lite_end, print_layout, dimensions]
 $fn          = 64;
 
 // ---------------------------------------------------------------------------
@@ -79,17 +86,28 @@ R_OUT     = SCREW_OFF + NUT_HALF + WALL;             // 外管外半径
 BARREL_OD = 2 * R_OUT;
 SEAM_HALF = SEAM / 2;
 L_HALF    = L_MIN / 2;                               // 装配预览画最短态（最挤的工况）
+POD_LEN   = (UNIT == "E") ? (STROKE + POD_EXTRA) : (90 + POD_EXTRA);  // 挂包长（朝墙侧，不占净距 L）
+IS_END    = (UNIT == "E");
+IS_LITE   = (UNIT == "L");
 
 // 防呆：参数不对就在生成前报错，别打出一个装不上杆的件
 assert(ROD_D >= 20 && ROD_D <= 35,
        str("ROD_D 必须落在 20–35 mm，当前 ", ROD_D));
 assert(GUIDE_CLEAR >= 0.2 && GUIDE_CLEAR <= 0.8,
        "GUIDE_CLEAR 必须 0.2–0.8 mm：小于 0.2 是夹死，大于 0.8 会晃");
-assert(L_MIN >= 45 && L_MAX <= 230 && L_MAX > L_MIN,
-       str("L 超出 45–230 或 L_MAX<=L_MIN：L_MIN=", L_MIN, " L_MAX=", L_MAX));
-assert(STROKE <= L_MIN - C_L,
-       str("行程超结构下限：STROKE=", STROKE, " 必须 <= L_MIN-C_L=", L_MIN - C_L,
-           "（L_MIN = STROKE + 70）。改小行程或加长 L_MIN，否则丝杆/螺母/电机装不进外管"));
+assert(L_MIN >= 25 && L_MAX <= 240 && L_MAX > L_MIN,
+       str("L 超出 25–240 或 L_MAX<=L_MIN：L_MIN=", L_MIN, " L_MAX=", L_MAX));
+assert(STROKE <= (IS_END ? (POD_LEN - C_POD) : (L_MIN - C_L)),
+       str("行程装不下：STROKE=", STROKE,
+           "；中间段要 <= L_MIN-70=", L_MIN - C_L,
+           "，端部单元(E)要 <= 挂包长-30=", POD_LEN - C_POD,
+           "。改小行程或加长 L_MIN / 挂包"));
+assert(!(IS_END && L_MIN < 30),
+       str("端部单元净距 L_MIN 不能小于 30 mm（内端头 6 + 最小重叠 24），当前 ", L_MIN));
+assert(!(IS_END && STROKE > 90),
+       str("端部单元行程最大 90 mm（30→120），当前 ", STROKE));
+assert(!(IS_LITE && STROKE != 0),
+       "Lite 被动端件是定长的：L_MAX 必须等于 L_MIN（只有 30/45/60 三档）");
 assert(SEAM >= 8 && SEAM <= 14,
        str("SEAM 必须 8–14 mm（衣架厚 10 + 公差），当前 ", SEAM));
 assert(PIN_GAP >= 0.3,
@@ -106,7 +124,8 @@ assert(SLEEVE_STROKE >= 5 && SLEEVE_STROKE <= 8,
 assert(COLLET_SLOTS == 6,
        "夹头必须 6 段（5 条半槽 + 1 条全开缝）：少一条就掰不开、扣不上杆");
 echo(str("BARREL_OD=", BARREL_OD, "  SCREW_OFF=", SCREW_OFF,
-         "  STROKE=", STROKE, "  L=", L_MIN, "..", L_MAX));
+         "  STROKE=", STROKE, "  L=", L_MIN, "..", L_MAX,
+         "  UNIT=", UNIT, "  POD_LEN=", POD_LEN));
 echo(str("锥面放大比 cot(θ+φ)=", 1 / tan(CONE_ANGLE + atan(CONE_MU)),
          "  径向夹紧 N_r=", PUSH_F / tan(CONE_ANGLE + atan(CONE_MU)),
          " N  径向收口=", SLEEVE_STROKE * tan(CONE_ANGLE), " mm"));
@@ -348,31 +367,110 @@ module wall_foot() {
 }
 
 // ---------------------------------------------------------------------------
+// E2. 端部锚定挂包（仅 E 单元）：朝墙侧延伸，藏丝杆行程 + 螺母 + 电机
+//     外端面装 Ø40 橡胶垫；外端夹头常锁（不装推钮）
+// ---------------------------------------------------------------------------
+module anchor_pod() {
+    difference() {
+        union() {
+            // 挂包筒（只留 +Y 半，示意两半合模）
+            intersection() {
+                ring(R_OUT + 2, R_SLEEVE + 0.25, POD_LEN);
+                translate([0, (R_OUT + 12) / 2, 0])
+                    cube([2 * R_OUT + 24, R_OUT + 12, POD_LEN + 2], center = true);
+            }
+            // 外端法兰（锚定面）
+            translate([-POD_LEN / 2 + 3, 0, 0])
+                ring(R_OUT + 4, R_BORE, 6);
+            // 橡胶垫槽
+            translate([-POD_LEN / 2 - 1, 0, 0]) ring(ANCHOR_PAD_D / 2 + 1, ANCHOR_PAD_D / 2 - 6, ANCHOR_PAD_T);
+        }
+        // 电机仓（横置，径向）
+        translate([-POD_LEN / 2 + POD_EXTRA / 2, 0, R_SLEEVE + 9]) rotate([90, 0, 0])
+            cylinder(r = 7, h = 34, center = true);
+        // 丝杆通道
+        hull() for (sx = [-1, 1])
+            translate([sx * (POD_LEN / 2 - 8), 0, -SCREW_OFF])
+                rotate([0, 90, 0]) cylinder(r = 5.2, h = 0.2, center = true);
+        // 合模螺钉沉孔
+        for (sx = [-1, 1]) for (sy = [-1, 1])
+            translate([sx * (POD_LEN / 2 - 8), sy * (R_OUT - 4), 0])
+                rotate([90, 0, 0]) cylinder(r = 1.6, h = 26, center = true);
+    }
+    // 橡胶垫（示意）
+    translate([-POD_LEN / 2 - ANCHOR_PAD_T / 2, 0, 0]) rotate([0, 90, 0])
+        cylinder(r = ANCHOR_PAD_D / 2, h = ANCHOR_PAD_T, center = true, $fn = 48);
+}
+
+// ---------------------------------------------------------------------------
+// E3. Lite 被动端件（降本版）：无电机/丝杆/电池，手动预设后锁死
+// ---------------------------------------------------------------------------
+module lite_end() {
+    dlen = max(L_MIN, 30);
+    difference() {
+        union() {
+            // 定长外端管
+            intersection() {
+                ring(R_OUT, R_SLEEVE + 0.25, dlen);
+                translate([0, (R_OUT + 12) / 2, 0])
+                    cube([2 * R_OUT + 24, R_OUT + 12, dlen + 2], center = true);
+            }
+            // 外端锚定法兰 + 橡胶垫槽
+            translate([-dlen / 2 + 3, 0, 0]) ring(R_OUT + 4, R_BORE, 6);
+            translate([-dlen / 2 - 1, 0, 0]) ring(ANCHOR_PAD_D / 2 + 1, ANCHOR_PAD_D / 2 - 6, ANCHOR_PAD_T);
+        }
+        // 减重窗
+        for (sx = [-1, 1]) for (ay = [40, 90]) {
+            translate([sx * 10, 0, 0]) rotate([0, 0, -ay])
+                translate([0, R_OUT + 1, 0]) cylinder(r = 6, h = 26, center = true, $fn = 24);
+        }
+    }
+    // 定长内管 + 内端 U 托
+    translate([dlen / 2 - CLAMP_W, 0, 0]) sleeve(dlen * 0.5);
+    translate([dlen / 2 + 6.5, 0, 0]) end_head("R");
+}
+
+// ---------------------------------------------------------------------------
 // F. 单调节器（装配态，最短长度）
 // ---------------------------------------------------------------------------
 module unit(preview = true) {
-    // 两端夹持端环
-    translate([-L_HALF + CLAMP_W / 2, 0, 0]) clamp_ring();
-    translate([ L_HALF - CLAMP_W / 2, 0, 0]) clamp_ring();
-    // 外管两半（占满两夹持环之间的全长）
-    barrel_half(L_MIN - 2 * CLAMP_W);
-    translate([0, 0, 0]) rotate([0, 0, 180]) barrel_half(L_MIN - 2 * CLAMP_W);
-    // 内管（缩回态，整根藏在外管里）
-    sleeve((L_MIN - 2 * CLAMP_W) * 0.55);
-    // 丝杆 + 螺母（示意，长度 = 行程 + 34）
-    cyl_x(4, STROKE + 34, 0, 0, -SCREW_OFF);
-    // 端头
-    translate([ L_HALF + 6.5, 0, 0]) end_head("R");
-    translate([-L_HALF - 6.5, 0, 0]) end_head("L");
-    // 两端的锥面套筒 + 弹性夹头环（示意，装配态）
-    translate([-L_HALF + CLAMP_W / 2, 0, 0]) cone_sleeve();
-    translate([ L_HALF - CLAMP_W / 2, 0, 0]) cone_sleeve();
-    translate([-L_HALF + 4, 0, 0]) collet_ring();
-    translate([ L_HALF - 4, 0, 0]) collet_ring();
-    // 顶墙撑脚
-    if (preview && (UNIT == "E" || WALL_FOOT)) {
-        translate([-L_HALF + 4, 0, 0]) wall_foot();
-        translate([ L_HALF - 4, 0, 0]) wall_foot();
+    if (IS_LITE) {
+        lite_end();
+    } else if (IS_END) {
+        // 端部单元：外端锚定挂包（常锁）+ 内端自由伸缩
+        translate([-L_HALF - POD_LEN / 2 + 2, 0, 0]) anchor_pod();
+        translate([-L_HALF + CLAMP_W / 2, 0, 0]) clamp_ring();     // 外端常锁夹头
+        barrel_half(L_MIN - CLAMP_W);
+        translate([0, 0, 0]) rotate([0, 0, 180]) barrel_half(L_MIN - CLAMP_W);
+        sleeve(L_MIN * 0.6);
+        cyl_x(4, STROKE + 34, -POD_LEN / 2 + 10, 0, -SCREW_OFF);
+        translate([ L_HALF + 6.5, 0, 0]) end_head("R");            // 内端 U 托
+        translate([ L_HALF - 4, 0, 0]) cone_sleeve();              // 内端可锁
+        translate([ L_HALF - 4, 0, 0]) collet_ring();
+        if (preview && WALL_FOOT) translate([ L_HALF - 4, 0, 0]) wall_foot();
+    } else {
+        // 两端夹持端环
+        translate([-L_HALF + CLAMP_W / 2, 0, 0]) clamp_ring();
+        translate([ L_HALF - CLAMP_W / 2, 0, 0]) clamp_ring();
+        // 外管两半（占满两夹持环之间的全长）
+        barrel_half(L_MIN - 2 * CLAMP_W);
+        translate([0, 0, 0]) rotate([0, 0, 180]) barrel_half(L_MIN - 2 * CLAMP_W);
+        // 内管（缩回态，整根藏在外管里）
+        sleeve((L_MIN - 2 * CLAMP_W) * 0.55);
+        // 丝杆 + 螺母（示意，长度 = 行程 + 34）
+        cyl_x(4, STROKE + 34, 0, 0, -SCREW_OFF);
+        // 端头
+        translate([ L_HALF + 6.5, 0, 0]) end_head("R");
+        translate([-L_HALF - 6.5, 0, 0]) end_head("L");
+        // 两端的锥面套筒 + 弹性夹头环（示意，装配态）
+        translate([-L_HALF + CLAMP_W / 2, 0, 0]) cone_sleeve();
+        translate([ L_HALF - CLAMP_W / 2, 0, 0]) cone_sleeve();
+        translate([-L_HALF + 4, 0, 0]) collet_ring();
+        translate([ L_HALF - 4, 0, 0]) collet_ring();
+        if (preview && WALL_FOOT) {
+            translate([-L_HALF + 4, 0, 0]) wall_foot();
+            translate([ L_HALF - 4, 0, 0]) wall_foot();
+        }
     }
 }
 
@@ -427,7 +525,9 @@ else if (PART == "end_head")     end_head("L");
 else if (PART == "barrel_half")  barrel_half(L_MIN * 0.42);
 else if (PART == "sleeve")       sleeve(L_MIN * 0.5);
 else if (PART == "wall_foot")    wall_foot();
+else if (PART == "anchor_pod")   anchor_pod();
+else if (PART == "lite_end")     lite_end();
 else if (PART == "print_layout") print_layout();
 else if (PART == "dimensions")   unit(true);
 else assert(false, str("PART 取值无效：", PART,
-        "；可选 assembly/clamp_half/clamp_ring/cone_sleeve/collet_ring/push_knob/end_head/barrel_half/sleeve/wall_foot/print_layout/dimensions"));
+        "；可选 assembly/clamp_half/clamp_ring/cone_sleeve/collet_ring/push_knob/end_head/barrel_half/sleeve/wall_foot/anchor_pod/lite_end/print_layout/dimensions"));

@@ -1105,7 +1105,7 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
 
         <div class="stage" id="stage" aria-label="杆、伸缩圆柱、接缝与端部夹头俯视交互区">
           <div class="hud" aria-hidden="true"></div>
-          <div class="stage-hint" aria-hidden="true">夹头 🔒锁定 / 🔓松开 · 两端固定端不可拖</div>
+          <div class="stage-hint" aria-hidden="true">外端锚定 ⚓ · 内端可伸缩 · 拖动端部把手</div>
           <div class="wall wall-left" aria-hidden="true"></div>
           <div class="wall wall-right" aria-hidden="true"></div>
           <div class="margin-zone margin-left" id="marginLeft" aria-hidden="true"></div>
@@ -1117,7 +1117,7 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
         </div>
 
         <div class="alerts" id="alerts" hidden aria-live="polite"></div>
-        <div class="stage-note">两端 <b id="fixedEndsText">01 / 05</b> 是固定端，锁死不可拖；内部可拖动 · 夹头 🔒锁定 / 🔓松开 · 接缝 <b>10mm</b> 挂衣架 · 内部圆柱 = 间距</div>
+        <div class="stage-note">两端 <b id="fixedEndsText">01 / 05</b> 外端固定、内端可伸缩；内部可拖动 · 外端夹头 ⚓ 锚定，内端 🔒/🔓 · 接缝 <b>10mm</b> 挂衣架 · 内部圆柱 = 间距</div>
 
         <section class="rod-config">
           <div class="panel-head">
@@ -1233,7 +1233,7 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
   var ROD_MIN_MM = 800, ROD_MAX_MM = 2400, ROD_DEFAULT_MM = 1200;
   var MARGIN_MM = 50;          // 两端端部余量（墙/法兰）
   var T_H = 10;                // 接缝 / 衣架厚度 10mm
-  var CYL_MIN = 40, CYL_MAX = 220; // 圆柱长度范围
+  var CYL_MIN = 100, CYL_MAX = 220; // 内部动力段 100–220mm
   var K_MIN = 2, K_MAX = 8;    // 衣架数
   var TARGET_MIN_CM = 3, TARGET_MAX_CM = 20;
   var D_WALL_MIN = 50, D_WALL_MAX = 300, D_WALL_DEFAULT = 150, WALL_NEAR = 120;
@@ -1255,12 +1255,14 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
   function makeClamps(count) {
     var arr = [];
     for (var i = 0; i < count; i++) {
-      if (i === 0 || i === count - 1) {
-        arr.push({ l: true, r: true }); // 固定端：两端锁死
+      if (i === 0) {
+        arr.push({ l: true, r: false }); // 01：外端锚定，内端自由
+      } else if (i === count - 1) {
+        arr.push({ l: false, r: true }); // 05：内端自由，外端锚定
       } else if (i % 2 === 1) {
-        arr.push({ l: true, r: false }); // 单端锁：可拖右端
+        arr.push({ l: true, r: false });
       } else {
-        arr.push({ l: false, r: true }); // 单端锁：可拖左端
+        arr.push({ l: false, r: true });
       }
     }
     return arr;
@@ -1274,7 +1276,7 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
     hangers: HANGER_PROFILES.slice(0, 4).map(function (p) {
       return { humidity: p.humidity, battery: p.battery };
     }),
-    lengths: [60, 100, 100, 100, 60], // 端部 2 段 + 内部 K−1 段（K=4 时 5 段）
+    lengths: [45, 110, 110, 110, 45], // 默认 11cm 风道，端部 45mm；总长 460
     clamps: makeClamps(5),       // K+1 个圆柱，每个两端各一个夹头
     overLimit: false,
     requestedTotal: 0,
@@ -1434,6 +1436,67 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
   }
 
   // 应用 K+1 个圆柱的新长度；两端都锁定的圆柱保持定点，不随自动模式改变
+  function endInnerLocked(i) {
+    if (i === 0) return !!state.clamps[0].r;
+    return !!state.clamps[cylCount() - 1].l;
+  }
+  // desiredEndDelta：两端总长度要变化多少；prefer：优先吸收的一端；excluded：不变的一端
+  function allocateEnds(desiredEndDelta, prefer, excluded, baseLengths) {
+    var last = cylCount() - 1;
+    var base = baseLengths || state.lengths;
+    var e0 = base[0];
+    var eL = base[last];
+    var used = 0;
+    function add(i, amount) {
+      if (amount === 0) return;
+      if (i === excluded) return;
+      if (endInnerLocked(i)) return;
+      var cur = i === 0 ? e0 : eL;
+      var next = clamp(cur + amount, 30, 120);
+      if (i === 0) e0 = next; else eL = next;
+      used += next - cur;
+    }
+    if (prefer === 0 || prefer === last) {
+      add(prefer, desiredEndDelta);
+      add(prefer === 0 ? last : 0, desiredEndDelta - used);
+    } else {
+      add(0, desiredEndDelta / 2);
+      add(last, desiredEndDelta / 2);
+      add(0, desiredEndDelta - used);
+      add(last, desiredEndDelta - used);
+    }
+    var achieved = (e0 - base[0]) + (eL - base[last]);
+    if (Math.abs(achieved - desiredEndDelta) > 0.01) return { ok: false };
+    return { ok: true, e0: e0, eL: eL };
+  }
+
+  // 内部目标变化 Δ 全部由两个端部内端吸收（各 -Δ/2，一端到限位另一端补）
+  function applyInternalTargets(newInternal, prefer) {
+    var oldInternal = state.lengths.slice(1, -1);
+    var delta = sum(newInternal) - sum(oldInternal);
+    var alloc = allocateEnds(-delta, prefer, null);
+    if (!alloc.ok) {
+      showToast('端部行程不够，先减件或缩短目标');
+      log('端部行程不够 · 操作未生效', 'warn');
+      return false;
+    }
+    if (toastEl) { toastEl.classList.remove('show'); toastEl.textContent = ''; clearTimeout(toastTimer); }
+    // 自动模式：内部夹头临时松开，外端锚点不动；到位后恢复原锁态
+    var savedLocks = state.clamps.map(function (c) { return { l: c.l, r: c.r }; });
+    for (var i = 1; i < state.clamps.length - 1; i++) {
+      state.clamps[i] = { l: false, r: false };
+    }
+    state.lengths = [alloc.e0].concat(newInternal).concat([alloc.eL]);
+    var total = chainTotal(state.lengths);
+    state.overLimit = total > availableMm() + 0.001;
+    state.requestedTotal = total;
+    state.remaining = Math.max(0, availableMm() - total);
+    state.clamps = savedLocks;
+    render();
+    updateAlerts();
+    return true;
+  }
+
   function applyLengths(targets, animate) {
     var lengths = targets.slice();
     var fixed = 0;
@@ -1505,41 +1568,44 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
   }
 
   function runEqual() {
-    var len = clamp(state.targetCm * 10, CYL_MIN, CYL_MAX);
-    var targets = state.lengths.slice();
-    for (var i = 1; i < cylCount() - 1; i++) targets[i] = len;
-    applyLengths(targets, true);
-    log('一键等距 · 内部间距 ' + fmt(state.targetCm) + ' cm', 'info');
-    if (state.overLimit) log('杆上放不下：总长超过可用长度', 'warn');
+    var raw = state.targetCm * 10;
+    if (raw < CYL_MIN - 0.01) {
+      showToast('内部动力段最短 10cm，' + fmt(state.targetCm) + 'cm 只能被动短套');
+      return;
+    }
+    var len = clamp(raw, CYL_MIN, CYL_MAX);
+    var targets = state.lengths.slice(1, -1).map(function () { return len; });
+    if (applyInternalTargets(targets, null)) {
+      log('一键等距 · 内部间距 ' + fmt(state.targetCm) + ' cm', 'info');
+    }
   }
 
   function runWeighted() {
-    var targetMm = clamp(state.targetCm * 10, TARGET_MIN_CM * 10, TARGET_MAX_CM * 10);
+    var rawTarget = state.targetCm * 10;
+    if (rawTarget < CYL_MIN - 0.01) {
+      showToast('内部动力段最短 10cm，' + fmt(state.targetCm) + 'cm 只能被动短套');
+      return;
+    }
+    var targetMm = clamp(rawTarget, TARGET_MIN_CM * 10, TARGET_MAX_CM * 10);
     var free = [];
     var weights = [];
-    for (var i = 1; i < cylCount() - 1; i++) {
-      var c = state.clamps[i];
-      if (c && c.l && c.r) continue;
+    for (var i = 0; i < K() - 1; i++) {
       free.push(i);
-      weights.push((humidityWeight(state.hangers[i - 1].humidity) +
-        humidityWeight(state.hangers[i].humidity)) / 2);
+      weights.push((humidityWeight(state.hangers[i].humidity) +
+        humidityWeight(state.hangers[i + 1].humidity)) / 2);
     }
-    var targets = state.lengths.slice();
-    if (free.length) {
-      var budget = Math.max(targetMm * free.length, CYL_MIN * free.length);
-      var lens = distribute(weights, budget, CYL_MIN, CYL_MAX);
-      free.forEach(function (idx, k) { targets[idx] = lens[k]; });
+    var budget = Math.max(targetMm * free.length, CYL_MIN * free.length);
+    var lens = distribute(weights, budget, CYL_MIN, CYL_MAX);
+    if (applyInternalTargets(lens, null)) {
+      log('按湿度加权 · 目标间距 ' + fmt(state.targetCm) + ' cm', 'info');
     }
-    applyLengths(targets, true);
-    log('按湿度加权 · 湿的段更长 · 目标间距 ' + fmt(state.targetCm) + ' cm', 'info');
-    if (state.overLimit) log('杆上放不下：总长超过可用长度', 'warn');
   }
 
   function runCollect() {
-    var targets = state.lengths.slice();
-    for (var i = 1; i < cylCount() - 1; i++) targets[i] = CYL_MIN;
-    applyLengths(targets, true);
-    log('收衣 · 内部圆柱缩到最短 4cm；端部段保持 60mm', 'info');
+    var targets = state.lengths.slice(1, -1).map(function () { return CYL_MIN; });
+    if (applyInternalTargets(targets, null)) {
+      log('收衣 · 内部回到 10cm，端部内端收回', 'info');
+    }
   }
 
   function applyMode() {
@@ -1714,36 +1780,39 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
         }
         var lb = cyl.querySelector('.clamp-left');
         var rb = cyl.querySelector('.clamp-right');
+        var outerSide = i === 0 ? 'l' : (i === cylCount() - 1 ? 'r' : null);
         if (lb) {
+          var lOuter = outerSide === 'l';
           lb.classList.toggle('locked', c.l);
           var li = lb.querySelector('.clamp-icon');
-          if (li) li.textContent = c.l ? '🔒' : '🔓';
-          lb.title = '夹头 · 圆柱 ' + pad2(i + 1) + ' 左端：' + (c.l ? '锁定' : '松开') + (endCyl ? '（固定端）' : '');
+          if (li) li.textContent = lOuter ? '⚓' : (c.l ? '🔒' : '🔓');
+          lb.title = lOuter ? '外端锚定（固定）' : ('夹头 · 圆柱 ' + pad2(i + 1) + ' 左端：' + (c.l ? '锁定' : '松开'));
           lb.setAttribute('aria-label', lb.title);
+          lb.disabled = lOuter;
         }
         if (rb) {
+          var rOuter = outerSide === 'r';
           rb.classList.toggle('locked', c.r);
           var ri = rb.querySelector('.clamp-icon');
-          if (ri) ri.textContent = c.r ? '🔒' : '🔓';
-          rb.title = '夹头 · 圆柱 ' + pad2(i + 1) + ' 右端：' + (c.r ? '锁定' : '松开') + (endCyl ? '（固定端）' : '');
+          if (ri) ri.textContent = rOuter ? '⚓' : (c.r ? '🔒' : '🔓');
+          rb.title = rOuter ? '外端锚定（固定）' : ('夹头 · 圆柱 ' + pad2(i + 1) + ' 右端：' + (c.r ? '锁定' : '松开'));
           rb.setAttribute('aria-label', rb.title);
+          rb.disabled = rOuter;
         }
-        if (lb) lb.disabled = endCyl;
-        if (rb) rb.disabled = endCyl;
         var lh = cyl.querySelector('.handle-left');
         var rh = cyl.querySelector('.handle-right');
         if (lh) {
-          var lBlocked = endCyl || !!c.l;
+          var lBlocked = outerSide === 'l' || !!c.l;
           lh.classList.toggle('blocked', lBlocked);
           lh.disabled = lBlocked;
-          lh.title = endCyl ? '固定端不可拖' : (c.l ? '这端已锁定' : (c.r ? '拖动左端' : '先锁一端再拖'));
+          lh.title = outerSide === 'l' ? '外端锚定，不可拖' : (c.l ? '这端已锁定' : (c.r ? '拖动左端（内端）' : '先锁一端再拖'));
           lh.setAttribute('aria-label', lh.title);
         }
         if (rh) {
-          var rBlocked = endCyl || !!c.r;
+          var rBlocked = outerSide === 'r' || !!c.r;
           rh.classList.toggle('blocked', rBlocked);
           rh.disabled = rBlocked;
-          rh.title = endCyl ? '固定端不可拖' : (c.r ? '这端已锁定' : (c.l ? '拖动右端' : '先锁一端再拖'));
+          rh.title = outerSide === 'r' ? '外端锚定，不可拖' : (c.r ? '这端已锁定' : (c.l ? '拖动右端（内端）' : '先锁一端再拖'));
           rh.setAttribute('aria-label', rh.title);
         }
         var al = cyl.querySelector('.arrow-left');
@@ -1763,7 +1832,7 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
         if (document.activeElement !== cylRows[i].range) {
           cylRows[i].range.value = String(Math.round(len));
         }
-        cylRows[i].range.disabled = true;
+        cylRows[i].range.disabled = isEndCylinder(i);
         cylRows[i].root.classList.toggle('is-fixed', c.l && c.r);
       }
 
@@ -1862,10 +1931,16 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
     if (ev.button !== undefined && ev.button !== 0) return;
     ev.preventDefault();
     ev.stopPropagation();
-    if (isEndCylinder(index)) { showToast('端部固定，不可调'); return; }
-    if (endLocked(index, side)) { showToast('这端已锁定'); return; }
-    var c = state.clamps[index];
-    if (!c.l && !c.r) { showToast('先锁一端'); return; }
+    var endCyl = isEndCylinder(index);
+    if (endCyl) {
+      var innerSide = index === 0 ? 'r' : 'l';
+      if (side !== innerSide) { showToast('外端锚定，不可调'); return; }
+      if (endLocked(index, side)) { showToast('内端已锁定'); return; }
+    } else {
+      if (endLocked(index, side)) { showToast('这端已锁定'); return; }
+      var c0 = state.clamps[index];
+      if (!c0.l && !c0.r) { showToast('先锁一端'); return; }
+    }
     clearTimeout(applyTimer);
     stopMotion();
     state.mode = 'manual';
@@ -1877,10 +1952,18 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
       el: el,
       startX: ev.clientX,
       startLengths: state.lengths.slice(),
+      savedLocks: state.clamps.map(function (c) { return { l: c.l, r: c.r }; }),
       scale: view.scale || 0.2,
       pointerId: ev.pointerId,
       lastMsg: ''
     };
+    // 拖动期间临时松开内部夹头：外端锚点不动，内部段可随链滑动；
+    // 松手后按新位置恢复原来的锁态，避免“锁死端点被带着跑”。
+    for (var i = 1; i < state.clamps.length - 1; i++) {
+      state.clamps[i] = { l: false, r: false };
+    }
+    log('拖动：内部夹头临时松开（外端仍锚定），松手后恢复锁态', 'info');
+    render();
     el.classList.add('dragging');
     try { el.setPointerCapture(ev.pointerId); } catch (err) {}
   }
@@ -1889,15 +1972,49 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
     if (!dragState || dragState.kind !== 'handle') return;
     if (dragState.pointerId !== undefined && ev.pointerId !== dragState.pointerId) return;
     var delta = (ev.clientX - dragState.startX) / dragState.scale;
-    var res = computeDrag(dragState.startLengths, dragState.index, dragState.side, delta);
-    if (res.error) {
-      if (res.error !== dragState.lastMsg) {
-        dragState.lastMsg = res.error;
-        showToast(res.error);
+    var idx = dragState.index, side = dragState.side, last = cylCount() - 1;
+    var candidate = dragState.startLengths.slice();
+    var old = candidate[idx];
+    var next = old + (side === 'r' ? delta : -delta);
+    var lo = isEndCylinder(idx) ? 30 : CYL_MIN;
+    var hi = isEndCylinder(idx) ? 120 : CYL_MAX;
+    if (next < lo - 0.01 || next > hi + 0.01) {
+      if (dragState.lastMsg !== '行程到头了') {
+        dragState.lastMsg = '行程到头了';
+        showToast('圆柱 ' + pad2(idx + 1) + ' 行程到头了');
       }
       return;
     }
-    state.lengths = res.lengths;
+    candidate[idx] = next;
+    var change = next - old;
+    var alloc;
+    if (isEndCylinder(idx)) {
+      var other = idx === 0 ? last : 0;
+      alloc = allocateEnds(-change, other, idx, dragState.startLengths);
+      if (!alloc.ok) {
+        if (dragState.lastMsg !== '端部行程不够') {
+          dragState.lastMsg = '端部行程不够';
+          showToast('端部行程不够，先松另一端或缩短目标');
+        }
+        return;
+      }
+      candidate[0] = alloc.e0;
+      candidate[last] = alloc.eL;
+      candidate[idx] = next;
+    } else {
+      var prefer = side === 'r' ? last : 0;
+      alloc = allocateEnds(-change, prefer, null, dragState.startLengths);
+      if (!alloc.ok) {
+        if (dragState.lastMsg !== '端部行程不够') {
+          dragState.lastMsg = '端部行程不够';
+          showToast('端部行程不够，先缩短目标');
+        }
+        return;
+      }
+      candidate[0] = alloc.e0;
+      candidate[last] = alloc.eL;
+    }
+    state.lengths = candidate;
     var total = chainTotal(state.lengths);
     state.overLimit = total > availableMm() + 0.001;
     state.requestedTotal = total;
@@ -1913,6 +2030,7 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
       d.el.classList.remove('dragging');
       try { d.el.releasePointerCapture(d.pointerId); } catch (err) {}
     }
+    if (d.savedLocks) state.clamps = d.savedLocks;
     log('拖动 · 圆柱 ' + pad2(d.index + 1) + ' ' + (d.side === 'l' ? '左' : '右') +
       '端 · 总长 ' + Math.round(chainTotal(state.lengths)) + ' mm', 'gold');
     render();
@@ -1928,7 +2046,6 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
       '<i class="cyl-inner"></i>' +
       '<span class="cyl-id">' + pad2(index + 1) + '</span>' +
       '<span class="cyl-len"></span>' +
-      (isEnd ? '<span class="cyl-tag"><span class="ico">🔒</span> 固定端</span>' : '') +
       '<span class="move-arrow arrow-left">←</span>' +
       '<span class="move-arrow arrow-right">→</span>' +
       '<button type="button" class="drag-handle handle-left" aria-label="拖动左端"><span class="grip"></span></button>' +
@@ -1950,11 +2067,28 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
       h.addEventListener('pointercancel', endHandleDrag);
     });
     el.addEventListener('pointerdown', function (ev) {
-      if (isEndCylinder(index) && ev.target &&
-          !ev.target.closest('.clamp') && !ev.target.closest('.drag-handle')) {
-        showToast('端部固定，不可调');
+      if (ev.target && ev.target.closest('.clamp')) return;
+      if (ev.target && ev.target.closest('.drag-handle')) return;
+      var c = state.clamps[index];
+      var side = null;
+      if (isEndCylinder(index)) {
+        side = index === 0 ? 'r' : 'l';
+      } else if (c.l && !c.r) {
+        side = 'r';
+      } else if (c.r && !c.l) {
+        side = 'l';
+      } else if (c.l && c.r) {
+        showToast('两端锁定，先松一端');
+        return;
+      } else {
+        showToast('先锁一端再拖');
+        return;
       }
+      startHandleDrag(ev, index, side, el);
     });
+    el.addEventListener('pointermove', onHandleMove);
+    el.addEventListener('pointerup', endHandleDrag);
+    el.addEventListener('pointercancel', endHandleDrag);
     return el;
   }
 
@@ -1969,9 +2103,11 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
 
   function toggleClamp(index, side) {
     if (isEndCylinder(index)) {
-      showToast('端部固定，先解锁再调');
-      log('圆柱 ' + pad2(index + 1) + ' 是固定端 · 端部固定，先解锁再调', 'warn');
-      return;
+      var outerSide = index === 0 ? 'l' : 'r';
+      if (side === outerSide) {
+        showToast('外端锚定，不可调');
+        return;
+      }
     }
     var c = state.clamps[index];
     if (!c) return;
@@ -2050,12 +2186,12 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
       row.className = 'cyl-row';
       var isEnd = i === 0 || i === cylCount() - 1;
       var label = isEnd
-        ? '固定端 · 圆柱 ' + pad2(i + 1)
+        ? '外端固定 · 圆柱 ' + pad2(i + 1)
         : '第 ' + i + ' 段 · 圆柱 ' + pad2(i + 1);
       row.innerHTML =
         '<div class="row-head"><span class="row-id">' + label + '</span><span class="row-val"></span></div>' +
         '<input class="cyl-range" type="range" min="' + lenMinFor(i) + '" max="' + lenMaxFor(i) + '" step="5" value="' + Math.round(state.lengths[i]) + '" aria-label="' + label + ' 长度，毫米"' + (isEnd ? ' disabled' : '') + '>' +
-        (isEnd ? '<span class="row-note">🔒 锁死 · 固定端不可拖动</span>' : '<span class="row-note">拖动两端把手调整</span>');
+        (isEnd ? '<span class="row-note">外端锚定，内端 30–120mm</span>' : '<span class="row-note">拖把手调整 · 100–220mm</span>');
       cylList.appendChild(row);
       var obj = {
         root: row,
@@ -2067,9 +2203,11 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
         o.range.addEventListener('input', function () {
           state.mode = 'manual';
           updateModeUI();
-          var next = state.lengths.slice();
-          next[idx] = Number(o.range.value);
-          applyLengths(next, false);
+          var nextInternal = state.lengths.slice(1, -1);
+          nextInternal[idx - 1] = Number(o.range.value);
+          if (!applyInternalTargets(nextInternal, null)) {
+            o.range.value = String(Math.round(state.lengths[idx]));
+          }
           updateKUI();
         });
         o.range.addEventListener('change', function () {
@@ -2225,7 +2363,7 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
     log(K() + ' 衣架 · ' + cylCount() + ' 圆柱 · ' + K() + ' 个接缝', 'info');
     log('总长 ' + Math.round(chainTotal(state.lengths)) + ' mm，可用 ' + Math.round(availableMm()) +
       ' mm，剩 ' + Math.round(Math.max(0, availableMm() - chainTotal(state.lengths))) + ' mm', 'info');
-    log('两端 01 / ' + pad2(cylCount()) + ' 固定端锁死；内部圆柱可拖动', 'info');
+    log('两端 01 / ' + pad2(cylCount()) + ' 外端固定、内端可伸缩；内部圆柱可拖动', 'info');
     log('夹头图标 🔒锁定 / 🔓松开', 'info');
   }
 
@@ -2308,6 +2446,23 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
   initLogs();
   updateAlerts();
 
+  // 演示/截图入口：?demo=equal12 / collect / rod2400
+  var demo = new URLSearchParams(window.location.search).get('demo');
+  if (demo) {
+    setTimeout(function () {
+      if (demo === 'rod2400') { setRod(2400); }
+      else if (demo === 'equal10' || demo === 'equal12') {
+        state.targetCm = demo === 'equal10' ? 10 : 12;
+        targetRange.value = String(state.targetCm);
+        targetVal.innerHTML = fmt(state.targetCm) + '<em>cm</em>';
+        paintRange(targetRange, (state.targetCm - TARGET_MIN_CM) / (TARGET_MAX_CM - TARGET_MIN_CM));
+        state.mode = 'equal'; updateModeUI(); runEqual();
+      } else if (demo === 'collect') {
+        state.mode = 'collect'; updateModeUI(); runCollect();
+      }
+    }, 80);
+  }
+
   if (window.ResizeObserver) new ResizeObserver(measure).observe(stage);
   else window.addEventListener('resize', measure);
 
@@ -2325,3 +2480,6 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
 </script>
 </body>
 </html>
+
+
+

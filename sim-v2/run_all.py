@@ -50,7 +50,6 @@ def _timing(fn, n_repeat: int) -> dict:
 def collect_plans() -> dict:
     q = [0.55, 0.90, 0.35, 0.75]
     plans = lp.demo_plans(K_DEMO, q)
-    plans_fill = lp.demo_plans(K_DEMO, q, fill=True)
     timing = {
         "n4": _timing(lambda: lp.plan_lengths(K_DEMO, mode="weighted", moisture=q), 2000),
         "n10": _timing(lambda: lp.plan_lengths(10, mode="weighted",
@@ -58,14 +57,13 @@ def collect_plans() -> dict:
     }
     cases = []
     for label, kw in [
-        ("11 件 @10 cm（杆不够，压内部段）", dict(garment_count=11, target_gap=100.0)),
-        ("23 件（完全不可行）", dict(garment_count=23, target_gap=100.0)),
-        ("目标 300 mm（超内部上限）", dict(garment_count=4, target_gap=300.0)),
-        ("目标 20 mm（低于下限）", dict(garment_count=4, target_gap=20.0)),
-        ("fill 模式（端部补到 120 上限仍不满）", dict(garment_count=4, mode="collect",
-                                                    fill=True)),
-        ("收衣（内部缩到 40，端部不动）", dict(garment_count=4, mode="collect")),
-        ("端部配置改为 120 mm", dict(garment_count=4, end_lengths=(120.0, 120.0))),
+        ("等距 12 cm（Δ=+60 由端部吸收）", dict(garment_count=4, target_gap=120.0)),
+        ("收衣（内部回 100）", dict(garment_count=4, mode="collect")),
+        ("目标 8 cm（低于动力段下限 → 拒绝）", dict(garment_count=4, target_gap=80.0)),
+        ("目标 15 cm（端部超下限 → 拒绝）", dict(garment_count=4, target_gap=150.0)),
+        ("目标 20 cm（端部行程不够 → 拒绝）", dict(garment_count=4, target_gap=200.0)),
+        ("K=10（名义 D=1120 > 可用 1100 → 钳制）", dict(garment_count=10)),
+        ("锚点间距改为 500 mm", dict(garment_count=4, anchor_span=500.0)),
     ]:
         p = lp.plan_lengths(**kw)
         cases.append({
@@ -74,20 +72,23 @@ def collect_plans() -> dict:
             "inner_mm": [round(float(v), 1) for v in p.inner],
             "ends_mm": [round(float(v), 1) for v in p.ends],
             "chain_mm": round(float(p.chain_length_mm), 1),
-            "leftover_mm": round(float(p.leftover_mm), 1),
+            "gap_mm": round(float(p.gap_mm), 1),
+            "free_rod_mm": round(float(p.free_rod_mm), 1),
+            "anchor_mm": round(float(p.anchor_span_mm), 1),
             "warnings": list(p.warnings),
             "degradation": p.degradation,
             "drop_advice": int(p.drop_advice),
         })
     return {
         "plans": plans,
-        "plans_fill": plans_fill,
         "metrics": {k: lp.plan_metrics(v) for k, v in plans.items()},
         "timing": timing,
         "cases": cases,
         "capacity": {
-            "gap_mm": [40, 60, 80, 100, 140, 220],
-            "max_k": [lp.max_garments(ROD, g) for g in (40, 60, 80, 100, 140, 220)],
+            "gap_mm": [100, 120, 140, 180, 220],
+            "max_k": [lp.max_garments(ROD, g) for g in (100, 120, 140, 180, 220)],
+            "max_k_short_ends": [lp.max_garments(ROD, g, end_mm=30.0)
+                                 for g in (100, 120, 140, 180, 220)],
         },
         "params": {
             "rod_mm": ROD,
@@ -98,10 +99,10 @@ def collect_plans() -> dict:
             "inner_max_mm": lp.INNER_MAX_MM,
             "end_min_mm": lp.END_MIN_MM,
             "end_max_mm": lp.END_MAX_MM,
-            "end_config_mm": lp.END_CONFIG_MM,
+            "end_base_mm": lp.END_BASE_MM,
+            "anchor_span_mm": lp.nominal_span(K_DEMO),
+            "free_rod_mm": lp.available_length(ROD) - lp.nominal_span(K_DEMO),
             "target_gap_mm": lp.DEFAULT_GAP_MM,
-            "preload_mm": lp.PRELOAD_MM,
-            "preload_force_n": lp.PRELOAD_FORCE_N,
             "moisture": q,
         },
     }
@@ -179,7 +180,6 @@ def main() -> None:
             "note": "全部为仿真/估算值，不是实测数据",
         },
         "plans": plan["plans"],
-        "plans_fill": plan["plans_fill"],
         "plan_metrics": plan["metrics"],
         "planner_timing": plan["timing"],
         "plan_cases": plan["cases"],

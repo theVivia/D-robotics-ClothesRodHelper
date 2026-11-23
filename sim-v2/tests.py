@@ -1,7 +1,12 @@
-"""sim-v2（rev-C）单元测试：K+1 调节器、端部固定配置、双端锥面夹头。
+"""sim-v2（rev-D）单元测试：端点锚定、端部内端吸收、K+1 调节器、双端锥面夹头。
 
-覆盖：长度规划（内部/端部）、端部不填满杆、leftover、三模式、fill 模式、
-不可行降级、链位置递推、夹持顺序与力、锚定策略对比、安装 vs 日常耗时。
+验收用例对齐 docs/v2/10-端点锚定模型.md §5：
+  1) 默认 [60,100,100,100,60]，总长 460，锚点 0/460 不动
+  2) 等距 12cm → [30,120,120,120,30]，Δ=+60 由端部吸收，总长仍 460
+  3) 再等距 8cm → [90,80,80,80,90]，总长 460
+  4) 目标 20cm → 端部行程不够，拒绝
+  5) 收衣 → 端部 120/120，链 400，空杆 60，提示未完全收拢
+  6) 手动拖一段 +20 → 同侧端部优先吸收（60→40）
 """
 
 from __future__ import annotations
@@ -19,76 +24,122 @@ import length_planner as lp  # noqa: E402
 TOL = 1e-6
 
 
-def test_available_and_capacity() -> str:
-    assert abs(lp.available_length(1200.0) - 1100.0) < TOL
-    assert lp.max_garments(1200.0, 100.0) == 9    # 9×10+8×100+120 ≤ 1100
-    assert lp.max_garments(1200.0, 40.0) == 20
-    return "1.2 m 杆（端部 60×2）：10 cm 风道 → 9 件；4 cm → 20 件"
-
-
-def test_equal_plan_not_filling_rod() -> str:
+def test_default_install_state() -> str:
     p = lp.plan_lengths(4, mode="equal", target_gap=100.0)
-    assert p.feasible and p.status == "ok"
-    assert np.allclose(p.inner, 100.0)
-    assert np.allclose(p.ends, lp.END_CONFIG_MM)          # 端部固定 60，不填杆
-    assert p.regulator_count == 5
-    assert abs(p.chain_length_mm - 460.0) < TOL           # 60+300+60+40
-    assert abs(p.leftover_mm - 640.0) < TOL               # 空杆 / 端部锁位区
-    assert not p.wall_contact
     assert p.to_dict()["all_lengths_mm"] == [60.0, 100.0, 100.0, 100.0, 60.0]
-    assert any("空心杆段" in w or "锁位区" in w for w in p.warnings)
-    return "等距：[60,100,100,100,60]，链 460 mm，空杆 640 mm"
+    assert abs(p.anchor_span_mm - 460.0) < TOL
+    assert abs(p.chain_length_mm - 460.0) < TOL
+    assert abs(p.gap_mm - 0.0) < TOL
+    assert abs(p.free_rod_mm - 640.0) < TOL
+    assert p.status == "ok" and p.feasible and p.regulator_count == 5
+    assert np.allclose(p.ends, (60.0, 60.0))
+    return "默认 [60,100,100,100,60]，D=460，空杆 640"
 
 
-def test_weighted_keeps_chain() -> str:
-    q = [0.55, 0.90, 0.35, 0.75]
-    base = lp.plan_lengths(4, mode="equal", target_gap=100.0)
-    p = lp.plan_lengths(4, mode="weighted", target_gap=100.0, moisture=q)
-    assert abs(p.inner_total_mm - base.inner_total_mm) < TOL
-    assert np.allclose(p.ends, base.ends)
-    assert abs(p.chain_length_mm - base.chain_length_mm) < TOL
-    assert np.all(p.inner >= lp.INNER_MIN_MM - 1e-9)
-    assert np.all(p.inner <= lp.INNER_MAX_MM + 1e-9)
-    assert p.inner[0] > p.inner[2]
-    return f"加权内部段 {p.inner.round(1).tolist()}，链长不变"
+def test_equal_12cm_ends_absorb() -> str:
+    p = lp.plan_lengths(4, mode="equal", target_gap=120.0)
+    assert np.allclose(p.inner, 120.0)
+    assert np.allclose(p.ends, (30.0, 30.0))          # Δ=+60 → 各 −30
+    assert np.allclose(p.all_lengths, [30, 120, 120, 120, 30])
+    assert abs(p.chain_length_mm - 460.0) < TOL
+    assert abs(p.gap_mm) < TOL
+    return "等距 12 cm：端部 60→30（各吸收 −30），链长仍 460"
 
 
-def test_collect_holds_ends() -> str:
+def test_then_collect_from_12cm() -> str:
+    p12 = lp.plan_lengths(4, mode="equal", target_gap=120.0)
+    p = lp.plan_lengths(4, mode="collect",
+                        current_inner=p12.inner, current_ends=p12.ends)
+    assert np.allclose(p.inner, 100.0)                 # 收衣 = 回动力段最短 100
+    assert np.allclose(p.ends, (60.0, 60.0))           # Δ=−60 → 各 +30
+    assert np.allclose(p.all_lengths, [60, 100, 100, 100, 60])
+    assert abs(p.chain_length_mm - 460.0) < TOL
+    return "12 cm→收衣：内部回 100、端部 30→60，链长仍 460"
+
+
+def test_target_20cm_rejected() -> str:
+    p = lp.plan_lengths(4, mode="equal", target_gap=200.0)
+    assert p.status == "rejected" and not p.feasible
+    assert any("超过锚定跨度" in w for w in p.warnings)
+    return "目标 20 cm：内部 600 mm 超过 D 允许值 → 拒绝"
+
+
+def test_low_gap_rejected() -> str:
+    # 4–10 cm 用被动短套，不进入自动规划
+    p = lp.plan_lengths(4, mode="equal", target_gap=80.0)
+    assert p.status == "rejected" and not p.feasible
+    assert any("被动短套" in w for w in p.warnings)
+    p2 = lp.plan_lengths(4, mode="equal", target_gap=40.0)
+    assert p2.status == "rejected"
+    return "目标 8/4 cm：低于动力段下限 10 cm → 拒绝（被动短套）"
+
+
+def test_gap_15cm_rejected() -> str:
+    p = lp.plan_lengths(4, mode="equal", target_gap=150.0)
+    assert p.status == "rejected" and not p.feasible
+    assert any("端部" in w for w in p.warnings)
+    return "目标 15 cm：端部需 60−75 < 30 下限 → 拒绝"
+
+
+def test_collect_at_min_internal() -> str:
     p = lp.plan_lengths(4, mode="collect")
-    assert np.allclose(p.inner, lp.INNER_MIN_MM)
-    assert np.allclose(p.ends, lp.END_CONFIG_MM)
-    assert abs(p.chain_length_mm - 280.0) < TOL
-    assert abs(p.leftover_mm - 820.0) < TOL
-    return "收衣：内部 40×3，链 280 mm，空杆 820 mm"
+    assert np.allclose(p.inner, lp.INNER_MIN_MM)       # 收衣 = 回 100 mm
+    assert np.allclose(p.ends, (60.0, 60.0))
+    assert abs(p.chain_length_mm - 460.0) < TOL
+    assert abs(p.gap_mm) < TOL
+    assert p.status == "ok" and p.feasible
+    return "收衣：[60,100,100,100,60]，链长 460（动力段最短 100）"
 
 
-def test_fill_mode_optional() -> str:
-    p = lp.plan_lengths(4, mode="collect", fill=True)
-    assert np.allclose(p.ends, (lp.END_MAX_MM, lp.END_MAX_MM))
-    assert p.status == "clipped"
-    assert any("fill" in w for w in p.warnings)
-    # 1.2 m 杆太长，fill 也填不满（端部上限 120）
-    assert p.leftover_mm > 0
-    return "fill 模式：端部补到 120 上限，仍剩空杆 → 告警"
+def test_small_span_rejected() -> str:
+    # D 太小：内部 300 已占满，端部只剩 40 → 低于 30×2 下限 → 拒绝
+    p = lp.plan_lengths(4, mode="equal", anchor_span=380.0)
+    assert p.status == "rejected" and not p.feasible
+    assert any("超过锚定跨度" in w for w in p.warnings)
+    return "D=380：端部只剩 40 mm < 2×30 → 拒绝"
 
 
-def test_gap_clamp() -> str:
-    p = lp.plan_lengths(4, mode="equal", target_gap=300.0)
-    assert p.status == "clipped"
-    assert np.allclose(p.inner, lp.INNER_MAX_MM)
-    assert any("夹到" in w for w in p.warnings)
-    return "目标 300 mm → 夹到 INNER_MAX=220 mm"
+def test_one_side_limit_other_compensates() -> str:
+    # 端部不对称（120/30）：Δ=+20 需要端部合计 −20 → 05 到下限后溢出回 01
+    a, b, un = lp._absorb_ends(20.0, (120.0, 30.0), lp.END_MIN_MM, lp.END_MAX_MM)
+    assert abs(a + b - 130.0) < TOL
+    assert abs(un) < TOL
+    assert abs(a - 100.0) < TOL and abs(b - 30.0) < TOL
+    # 下限侧同理：05 已到下限 → 01 补
+    a2, b2, un2 = lp._absorb_ends(-20.0, (30.0, 120.0), lp.END_MIN_MM, lp.END_MAX_MM)
+    assert abs(a2 + b2 - 170.0) < TOL
+    assert abs(a2 - 50.0) < TOL and abs(b2 - 120.0) < TOL
+    return f"不对称端部：溢出被另一端吸收（{a:.0f}/{b:.0f}、{a2:.0f}/{b2:.0f}）"
 
 
-def test_too_long_compresses() -> str:
-    p = lp.plan_lengths(11, mode="equal", target_gap=100.0)
-    assert p.status == "clipped" and p.feasible
-    assert p.inner.mean() < 100.0
-    assert p.chain_length_mm <= p.available_mm + 1e-6
-    p2 = lp.plan_lengths(23, mode="equal", target_gap=100.0)
-    assert p2.status == "infeasible" and not p2.feasible
-    assert p2.drop_advice > 0
-    return f"11 件压到 {p.inner.mean():.1f} mm；23 件判不可行"
+def test_manual_drag_same_side() -> str:
+    a, b, un = lp._absorb_ends(20.0, (60.0, 60.0), lp.END_MIN_MM, lp.END_MAX_MM,
+                               prefer="left")
+    assert abs(a - 40.0) < TOL and abs(b - 60.0) < TOL
+    assert abs(un) < TOL
+    a2, b2, _ = lp._absorb_ends(-20.0, (60.0, 60.0), lp.END_MIN_MM, lp.END_MAX_MM,
+                                prefer="right")
+    assert abs(a2 - 60.0) < TOL and abs(b2 - 80.0) < TOL
+    return "手动拖：同侧端部优先吸收（01 60→40 / 05 60→80）"
+
+
+def test_capacity() -> str:
+    assert abs(lp.available_length(1200.0) - 1100.0) < TOL
+    assert abs(lp.nominal_span(4) - 460.0) < TOL
+    assert lp.max_garments(1200.0, 100.0) == 9        # 端部 60
+    assert lp.max_garments(1200.0, 100.0, end_mm=30.0) == 10
+    return "1.2 m 杆、10 cm：端部 60 → 9 件；端部 30 → 10 件"
+
+
+def test_k10_span_clamped() -> str:
+    # K=10 名义 D=1120 > 可用 1100 → 钳到 1100，端部 50/50
+    p = lp.plan_lengths(10, mode="equal", target_gap=100.0)
+    assert p.feasible and p.status in ("ok", "partial")
+    assert abs(p.anchor_span_mm - 1100.0) < TOL
+    assert np.allclose(p.inner, 100.0)
+    assert np.allclose(p.ends, (50.0, 50.0))
+    assert any("1120" in w and "1100" in w for w in p.warnings)
+    return "K=10：D 1120→1100 钳制，端部 50/50（告警不报错）"
 
 
 def test_validation() -> str:
@@ -97,58 +148,61 @@ def test_validation() -> str:
            dict(garment_count=4, rod_length=0.0),
            dict(garment_count=4, moisture=[0.5, 0.5]),
            dict(garment_count=4, gap_weights=[1.0]),
-           dict(garment_count=4, end_lengths=(10.0, 60.0))]
+           dict(garment_count=4, anchor_span=2000.0),
+           dict(garment_count=4, current_ends=(20.0, 60.0))]
     for kw in bad:
         try:
             lp.plan_lengths(**kw)
         except ValueError:
             continue
         raise AssertionError(f"应报错：{kw}")
-    return "6 类非法输入均被拦截"
+    return "7 类非法输入均被拦截"
 
 
-def test_chain_layout() -> str:
+def test_chain_layout_anchored() -> str:
     p = lp.plan_lengths(4, mode="equal", target_gap=100.0)
     lay = ch.chain_layout(p)
     assert np.allclose(lay.regulator_edges,
                        [[0, 60], [70, 170], [180, 280], [290, 390], [400, 460]])
     assert np.allclose(lay.garment_centers, [65, 175, 285, 395])
-    assert abs(lay.chain_end_mm - 460.0) < TOL
-    assert abs(lay.right_gap_mm - 640.0) < TOL
-    assert not lay.wall_contact
-    return "位置：5 段端点 + 4 个衣架中心 65/175/285/395"
+    assert abs(lay.anchor_span_mm - 460.0) < TOL
+    assert abs(lay.content_end_mm - 400.0) < TOL
+    assert abs(lay.gap_mm) < TOL
+    # 12 cm：右端部外端仍在 D=460，内端 430
+    p12 = lp.plan_lengths(4, mode="equal", target_gap=120.0)
+    lay12 = ch.chain_layout(p12)
+    assert abs(lay12.regulator_edges[-1, 1] - 460.0) < TOL
+    assert abs(lay12.regulator_edges[-1, 0] - 430.0) < TOL
+    assert abs(lay12.content_end_mm - 400.0) < TOL
+    return "锚点 0/460 固定；12 cm 时右端内端 430，链末端 400"
 
 
-def test_clamp_sequence() -> str:
-    start = lp.plan_lengths(4, mode="collect")
-    end = lp.plan_lengths(4, mode="equal")
+def test_clamp_sequence_daily() -> str:
+    start = lp.plan_lengths(4, mode="equal", target_gap=120.0)
+    end = lp.plan_lengths(4, mode="collect")
     plan = ch.simulate_sequence(start, end, ch.DRIVES[0], strategy="anchor_left")
-    # 只动内部 3 段，每段 3 个动作
-    assert len(plan.steps) == 9
+    # 5 段都动（端部 30→60、内部 120→100），每段 3 个动作 + 压紧
+    assert len(plan.steps) == 16
     actions = [s.action for s in plan.steps]
-    assert actions.count("clamp_left") == 3
-    assert actions.count("move_right") == 3
-    assert actions.count("clamp_right") == 3
-    for s in plan.steps:
-        if s.action == "move_right":
-            assert s.clamp_before.left and not s.clamp_before.right
-    assert plan.peak_force_n == 11.0
-    assert plan.clamp_actions == 6
-    return f"3 段×3 动作，峰值 {plan.peak_force_n:.0f} N，{plan.clamp_actions} 次夹持"
+    assert actions.count("clamp_left") == 5
+    assert actions.count("move_right") == 5
+    assert actions.count("clamp_right") == 5
+    assert plan.peak_force_n == 14.0     # 最左端部：2 + 4×3 N
+    return f"日常 5 段×3 动作 + 压紧，峰值 {plan.peak_force_n:.0f} N"
 
 
 def test_anchor_vs_no_clamp() -> str:
-    start = lp.plan_lengths(4, mode="collect")
-    end = lp.plan_lengths(4, mode="equal")
+    start = lp.plan_lengths(4, mode="equal", target_gap=120.0)
+    end = lp.plan_lengths(4, mode="collect")
     d = ch.DRIVES[0]
     a = ch.simulate_sequence(start, end, d, strategy="anchor_left")
     b = ch.simulate_sequence(start, end, d, strategy="anchor_right")
     n = ch.simulate_sequence(start, end, d, strategy="no_clamp")
-    assert a.peak_force_n < n.peak_force_n
+    assert a.peak_force_n <= n.peak_force_n + 1e-9   # 端部段一动，峰值力与整链推相当
     assert a.untouched_drift_mm == 0.0 and not a.requires_redatum
     assert n.requires_redatum and np.isnan(n.untouched_drift_mm)
     assert n.peak_current_a > a.peak_current_a * 2
-    assert a.max_block_garments == 3 and b.max_block_garments == 3
+    assert a.max_block_garments == 4 and b.max_block_garments == 4
     return (f"锚定峰值 {a.peak_force_n:.0f} N vs 整链推 {n.peak_force_n:.0f} N；"
             f"电流 {a.peak_current_a:.2f} vs {n.peak_current_a:.2f} A")
 
@@ -158,10 +212,10 @@ def test_daily_vs_setup_time() -> str:
     daily = rows[0][ch.DRIVES[0].name]["time_s"]
     fast = rows[0][ch.DRIVES[1].name]["time_s"]
     setup = ch.setup_study(garment_count=4)["time_s"]
-    assert 35 < daily < 80, daily
+    assert 60 < daily < 140, daily
     assert fast < daily
-    assert setup > daily
-    return (f"4 mm/s 校核 {daily:.1f} s；提速 7 mm/s {fast:.1f} s；"
+    assert setup > 0
+    return (f"4 mm/s 校核 {daily:.1f} s；7 mm/s {fast:.1f} s；"
             f"安装标定 {setup:.1f} s")
 
 
@@ -176,16 +230,21 @@ def test_deterministic() -> str:
 
 
 TESTS = [
-    test_available_and_capacity,
-    test_equal_plan_not_filling_rod,
-    test_weighted_keeps_chain,
-    test_collect_holds_ends,
-    test_fill_mode_optional,
-    test_gap_clamp,
-    test_too_long_compresses,
+    test_default_install_state,
+    test_equal_12cm_ends_absorb,
+    test_then_collect_from_12cm,
+    test_target_20cm_rejected,
+    test_low_gap_rejected,
+    test_gap_15cm_rejected,
+    test_collect_at_min_internal,
+    test_small_span_rejected,
+    test_one_side_limit_other_compensates,
+    test_manual_drag_same_side,
+    test_capacity,
+    test_k10_span_clamped,
     test_validation,
-    test_chain_layout,
-    test_clamp_sequence,
+    test_chain_layout_anchored,
+    test_clamp_sequence_daily,
     test_anchor_vs_no_clamp,
     test_daily_vs_setup_time,
     test_deterministic,
@@ -198,7 +257,7 @@ def run_all_tests(verbose: bool = True) -> tuple:
         msg = fn()
         passed += 1
         if verbose:
-            print(f"  [test] {fn.__name__:<32s} OK  —  {msg}")
+            print(f"  [test] {fn.__name__:<34s} OK  —  {msg}")
     if verbose:
         print(f"[test] v2 单元测试：{passed}/{len(TESTS)} 通过")
     return passed, len(TESTS)

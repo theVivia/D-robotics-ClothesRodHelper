@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>衣序 HangFlow · DDC2026</title>
+<style>
+  :root{
+    --bg:#F4F5F7; --card:#FFFFFF; --ink:#1F2937; --muted:#6B7280;
+    --line:#E2E6EB; --accent:#2F6FED; --green:#12A150; --warm:#D97706;
+    --radius:18px;
+    --font:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei","PingFang SC",sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font)}
+  .slide{
+    width:1280px;height:720px;margin:0 auto;padding:64px 72px;
+    background:var(--bg);position:relative;overflow:hidden;
+    page-break-after:always;break-after:page;
+  }
+  .slide:last-child{page-break-after:auto}
+  .eyebrow{font-size:14px;letter-spacing:.14em;color:var(--accent);font-weight:600;text-transform:uppercase}
+  h1{font-size:74px;line-height:1.02;letter-spacing:-.03em;margin:16px 0 0}
+  h2{font-size:46px;line-height:1.12;letter-spacing:-.02em;margin:12px 0 0}
+  h3{font-size:22px;margin:0 0 8px}
+  p{font-size:18px;line-height:1.65;color:var(--muted);margin:14px 0 0}
+  .lead{font-size:22px;color:var(--ink);line-height:1.55}
+  .muted{color:var(--muted)}
+  .accent{color:var(--accent)}
+  .big{font-size:96px;line-height:1;letter-spacing:-.04em;font-weight:700}
+  .row{display:flex;gap:40px;align-items:center}
+  .col{flex:1;min-width:0}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:28px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:24px}
+  .card h3{font-size:18px;color:var(--ink)}
+  .card p{font-size:15px;line-height:1.6;margin-top:6px}
+  .chip{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:9px 14px;font-size:14px;color:var(--muted);margin:6px 8px 0 0}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block}
+  .tag{display:inline-block;background:#EAF1FE;color:var(--accent);border-radius:8px;padding:5px 10px;font-size:13px;font-weight:600}
+  .num{font-size:64px;line-height:1;letter-spacing:-.04em;font-weight:700}
+  .unit{font-size:20px;color:var(--muted);font-weight:500;margin-left:4px}
+  .rule{height:1px;background:var(--line);margin:26px 0}
+  .img{width:100%;display:block;border-radius:16px;border:1px solid var(--line);background:#fff}
+  .phone{width:236px;border-radius:28px;border:6px solid #1F2937;background:#fff;overflow:hidden;box-shadow:0 18px 40px rgba(31,41,55,.16);flex:none}
+  .phone img{width:100%;display:block}
+  .kicker{font-size:13px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+  .foot{position:absolute;left:72px;right:72px;bottom:28px;display:flex;justify-content:space-between;font-size:12px;color:#9CA3AF}
+  .metric{display:flex;align-items:baseline;gap:10px}
+  table{border-collapse:collapse;width:100%;margin-top:18px;font-size:16px}
+  th,td{text-align:left;padding:14px 12px;border-bottom:1px solid var(--line)}
+  th{font-size:13px;color:var(--muted);font-weight:600;letter-spacing:.04em}
+  td b{font-size:20px}
+  .timeline{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:30px}
+  .step{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px}
+  .step .n{font-size:13px;color:var(--accent);font-weight:700;letter-spacing:.08em}
+  .quote{font-size:26px;line-height:1.45;letter-spacing:-.01em}
+  .cover-img{width:720px;flex:none}
+  .cover-img img{width:100%;display:block;border-radius:20px}
+  .list{margin:16px 0 0;padding:0;list-style:none}
+  .list li{font-size:17px;line-height:1.6;color:var(--muted);margin:10px 0;padding-left:24px;position:relative}
+  .list li:before{content:"";position:absolute;left:0;top:10px;width:8px;height:8px;border-radius:50%;background:var(--accent)}
+  .note{font-size:13px;color:#9CA3AF;margin-top:18px}
+  @media print{
+    html,body{background:#fff}
+    .slide{margin:0;box-shadow:none}
+    @page{size:1280px 720px;margin:0}
+  }
+</style>
+</head>
+<body>
+
+<section class="slide">
+  <div style="display:flex;gap:56px;align-items:center;height:100%">
+    <div style="flex:1">
+      <div class="eyebrow">DDC2026 · 地瓜机器人黑客松</div>
+      <h1>衣序<br>HangFlow</h1>
+      <p class="lead" style="margin-top:26px;font-size:26px;color:var(--ink)">不换晾衣杆，<br>让衣服自己让出风道。</p>
+      <div style="margin-top:26px">
+        <span class="chip"><span class="dot"></span>K+1 伸缩圆柱</span>
+        <span class="chip">10 mm 接缝</span>
+        <span class="chip">锥面收口夹头</span>
+        <span class="chip">RDK X5</span>
+      </div>
+      <p style="font-size:14px;margin-top:34px">方案 / 设计值 · 2026-11-23 · 上海张江</p>
+    </div>
+    <div class="cover-img">
+      <img src="../assets/diagrams/product-design-v3-clean.png" alt="衣序产品形态">
+    </div>
+  </div>
+  <div class="foot"><span>衣序 HangFlow</span><span>1 / 10</span></div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow">问题</div>
+  <h2>衣服不是没地方挂，<br>是中间没有风。</h2>
+  <div class="row" style="margin-top:44px;align-items:flex-end">
+    <div class="col">
+      <div class="kicker">现在的间距</div>
+      <div class="metric"><span class="big">3—5</span><span class="unit">cm</span></div>
+      <p>梅雨季 / 回南天，衣服挤在杆上，贴着的那面干不了，返潮、发臭。</p>
+    </div>
+    <div class="col">
+      <div class="kicker">需要的间距</div>
+      <div class="metric"><span class="big" style="color:var(--accent)">10—15</span><span class="unit">cm</span></div>
+      <p>有风道才能干。可手推很烦：够不着、推不齐、湿衣服还重。</p>
+    </div>
+  </div>
+  <div class="rule"></div>
+  <p class="quote">解决它只需要一个动作：把衣服分开。<br>难的是每天做、每次都做。</p>
+  <div class="foot"><span>问题</span><span>2 / 10</span></div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow">产品</div>
+  <h2>衣服还挂在原来的杆上。</h2>
+  <p class="lead" style="max-width:980px">杆上串 K+1 个抱箍式伸缩圆柱；衣架卡在相邻两个圆柱端头的 10mm 接缝里。圆柱伸长，把两边衣服推开；缩短，让它们靠拢。</p>
+  <img class="img" style="margin-top:20px;height:268px;object-fit:cover;object-position:center;background:#fff" src="../assets/diagrams/product-design-v3-clean.png" alt="产品结构">
+  <div class="grid" style="margin-top:14px">
+    <div class="card" style="padding:18px 20px"><h3>不承重</h3><p>杆承重，调节器只推 10—20N；湿衣服不压在电机上。</p></div>
+    <div class="card" style="padding:18px 20px"><h3>不换杆</h3><p>抱箍两半扣上，不打孔、不拆杆；租房也能用。</p></div>
+    <div class="card" style="padding:18px 20px"><h3>K+1 段</h3><p>4 件衣服 = 5 个圆柱；加一件就加一个接缝 + 一个圆柱。</p></div>
+  </div>
+  <div class="foot"><span>产品</span><span>3 / 10</span></div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow">结构</div>
+  <h2>一个圆柱 = 一段风道。</h2>
+  <div class="row" style="margin-top:34px;align-items:flex-start">
+    <div class="col">
+      <div class="card" style="padding:26px">
+        <div class="tag">核心</div>
+        <h3 style="font-size:24px;margin-top:14px">外端锚定，内端伸缩</h3>
+        <p style="font-size:16px">端部 01/05 的外端锁在杆/墙上，坐标不动；内端 30—220mm 自由伸缩，吸收整条链的长度变化。所以等距、收衣都成立。</p>
+      </div>
+      <div class="card" style="padding:26px;margin-top:16px">
+        <div class="tag">夹头</div>
+        <h3 style="font-size:24px;margin-top:14px">锥面收口，不用爪子</h3>
+        <p style="font-size:16px">开槽夹头环 + 外套筒，套筒内滑 6mm，锥面把环径向压紧在杆上；拉出即松。设计保持力 82N，是需求的 2 倍。</p>
+      </div>
+    </div>
+    <div class="col" style="flex:1.05">
+      <div class="card" style="padding:26px">
+        <div class="kicker">链公式</div>
+        <p style="font-size:19px;color:var(--ink);line-height:1.7;margin-top:12px">
+          总链长 = ΣL + K × 10mm<br>
+          净风道 g<sub>i</sub> = L<sub>i</sub><br>
+          中心距 = L<sub>i</sub> + 10mm
+        </p>
+        <div class="rule"></div>
+        <div class="kicker">锁/松</div>
+        <p style="font-size:16px">锁一端 → 单向伸缩；锁两端 → 定点固定；两端都松 → 可滑动/取下。锁死端坐标<b style="color:var(--ink)">绝对不动</b>。</p>
+      </div>
+      <img class="img" style="margin-top:16px;max-height:210px;object-fit:contain;background:#fff" src="../assets/diagrams/mech-v2-clamp.svg" alt="夹头剖面">
+    </div>
+  </div>
+  <div class="foot"><span>结构</span><span>4 / 10</span></div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow">演示</div>
+  <div class="row" style="margin-top:22px;align-items:center">
+    <div class="col">
+      <h2>按一下，<br>衣服排开。</h2>
+      <p class="lead" style="margin-top:18px">手机网页控制，离线也能开。演示 4 件衣服 / 5 个圆柱 / 1.2m 杆：收拢 → 一键等距 10cm → 单段拖到 12cm。</p>
+      <ul class="list">
+        <li>RDK 视觉读每个圆柱的唯一编码，知道谁在哪</li>
+        <li>长度闭环 ±2mm，视觉再校一遍</li>
+        <li>锁死端绝对不动，拖不过去会提示先松哪端</li>
+      </ul>
+      <div style="margin-top:22px">
+        <span class="chip"><span class="dot"></span>5/5 识别</span>
+        <span class="chip">总长 460mm</span>
+        <span class="chip">空杆 640mm</span>
+      </div>
+    </div>
+    <div class="phone"><img src="../app-v2/.verify/390x844-equal10.png" alt="手机控制页"></div>
+  </div>
+  <div class="foot"><span>演示</span><span>5 / 10</span></div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow">技术</div>
+  <h2>不是几个电机瞎转。</h2>
+  <div class="grid" style="margin-top:30px">
+    <div class="card"><div class="kicker">01 · 链模型</div><h3 style="margin-top:10px">外端锚定</h3><p>外端坐标 0/D 不动；内部变长由端部内端吸收。等距 12cm 时端部 60→30，总长仍 460。</p></div>
+    <div class="card"><div class="kicker">02 · 长度闭环</div><h3 style="margin-top:10px">T8 + AS5600</h3><p>导程 8mm，AS5600 多圈计数；稳态误差 +0.02mm，堵转 295ms 判出；断电位置存 NVS。</p></div>
+    <div class="card"><div class="kicker">03 · 视觉</div><h3 style="margin-top:10px">ArUco 唯一编码</h3><p>每个圆柱一个 ID；1.5m / 30mm 标签 18px，3 帧去抖后 5/5 识别，p95 0.30s。</p></div>
+  </div>
+  <div class="card" style="margin-top:20px;background:#EAF1FE;border-color:#D6E2FC">
+    <p style="font-size:18px;color:var(--ink);margin:0"><b>约束：</b>锁死的端点绝不被布局带着跑；拖动只改自由端，沿接缝传播，遇到锁死点就停；传不过去就拒绝。</p>
+  </div>
+  <div class="foot"><span>技术</span><span>6 / 10</span></div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow">指标</div>
+  <h2>设计值，不是吹的。</h2>
+  <table>
+    <tr><th>项目</th><th>目标</th><th>说明</th></tr>
+    <tr><td>结构</td><td><b>4 衣架 / 5 圆柱 / 0.6m 杆</b></td><td>K+1，两端外锚定</td></tr>
+    <tr><td>净风道</td><td><b>10—22 cm</b></td><td>4—10cm 用被动短套</td></tr>
+    <tr><td>长度精度</td><td><b>±2 mm</b></td><td>AS5600 闭环；视觉校正 ±3mm</td></tr>
+    <tr><td>伸缩速度</td><td><b>7 mm/s</b></td><td>日常调整约 30s</td></tr>
+    <tr><td>夹头保持力</td><td><b>82 N</b></td><td>设计值；需求 ≥40N</td></tr>
+    <tr><td>单圆柱成本</td><td><b>¥100 打样 / ¥83 量产</b></td><td>内部段；端部同硬件</td></tr>
+  </table>
+  <p class="note">所有数字为设计/仿真值；打样后替换实测。P0 五个单元都电动，Lite 端部被动降本。</p>
+  <div class="foot"><span>指标</span><span>7 / 10</span></div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow">成本与价格</div>
+  <h2>按“段”卖。</h2>
+  <div class="row" style="margin-top:34px;align-items:flex-start">
+    <div class="col">
+      <div class="kicker">工程打样（不含 RDK）</div>
+      <div class="metric"><span class="num" style="color:var(--accent)">¥890</span><span class="unit">/ 套</span></div>
+      <p>5 个单元 + 中枢配件 + 杆/墙板；含 RDK 约 ¥1,440。</p>
+      <div class="rule"></div>
+      <div class="kicker">量产物料（1 万台）</div>
+      <div class="metric"><span class="num">¥601</span><span class="unit">/ 套</span></div>
+      <p>纯物料 ¥575；毛利按物料口径算，偏乐观。</p>
+    </div>
+    <div class="col">
+      <div class="card"><h3>Pro Core · ¥899</h3><p>5 个调节器 + 网关，覆盖 4 件衣服；毛利约 48%。</p></div>
+      <div class="card" style="margin-top:14px"><h3>Pro Vision · ¥1,599</h3><p>加 RDK X5 + 相机，视觉识别编码；毛利约 44%。</p></div>
+      <div class="card" style="margin-top:14px"><h3>加购段 · ¥149</h3><p>加一件衣服就加一段；端部件一对 ¥259。</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>成本与价格</span><span>8 / 10</span></div>
+</section>
+
+<section class="slide">
+  <div class="eyebrow">路线</div>
+  <h2>先证明，再卖。</h2>
+  <div class="timeline">
+    <div class="step"><div class="n">2026 Q4</div><h3 style="margin-top:10px">打样验证</h3><p>夹头摩擦、丝杆寿命、长度闭环；3 套样机，真实阳台测试。</p></div>
+    <div class="step"><div class="n">2027 H1</div><h3 style="margin-top:10px">小批量 / 众筹</h3><p>Lite 端部被动版；先上海潮湿地区，100—300 套；收集返修与噪音数据。</p></div>
+    <div class="step"><div class="n">2027 H2</div><h3 style="margin-top:10px">量产</h3><p>模具/认证；目标单段 ¥65；渠道：家居家电、租房平台、阳台改造。</p></div>
+  </div>
+  <div class="rule"></div>
+  <p class="quote">卖的不是晾衣杆，是“可调间距的挂点”。<br>同一套结构可以进衣柜、阳台、摄影棚。</p>
+  <div class="foot"><span>路线</span><span>9 / 10</span></div>
+</section>
+
+<section class="slide">
+  <div style="height:100%;display:flex;flex-direction:column;justify-content:center">
+    <div class="eyebrow">衣序 HangFlow</div>
+    <h1 style="font-size:66px">不换晾衣杆，<br>让衣服自己让出风道。</h1>
+    <p class="lead" style="margin-top:26px;max-width:900px">DDC2026 · 地瓜机器人黑客松 · 上海张江<br>2026.12.05—12.07</p>
+    <div style="margin-top:34px">
+      <span class="chip">系统 / 视觉</span>
+      <span class="chip">机械</span>
+      <span class="chip">电控</span>
+      <span class="chip">交互 / 产品</span>
+    </div>
+    <p style="margin-top:40px;font-size:14px">方案与设计值；实物打样与实测数据赛后补充。谢谢。</p>
+  </div>
+  <div class="foot"><span>衣序 HangFlow</span><span>10 / 10</span></div>
+</section>
+
+</body>
+</html>
+
+
+

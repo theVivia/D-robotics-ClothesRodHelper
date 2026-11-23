@@ -146,10 +146,10 @@
     <!-- length math -->
     <rect x="720" y="676" width="320" height="104" rx="8" fill="#101a12" stroke="#4fbf7b" stroke-width="1"/>
     <text x="738" y="698" fill="#4fbf7b" font-size="12" font-weight="700">长度换算（固件注释）</text>
-    <text x="738" y="720" fill="#d8e6dc" font-size="12">L_mm = 40 + counts ÷ 512</text>
-    <text x="738" y="740" fill="#9fb5a6" font-size="11">512 counts/mm = 4096/转 ÷ 8mm 导程</text>
-    <text x="738" y="758" fill="#9fb5a6" font-size="11">满行程 92,160 counts；多圈计数存 NVS</text>
-    <text x="738" y="774" fill="#9fb5a6" font-size="11">上电与限位交叉校验，不一致→自动归零</text>
+    <text x="738" y="720" fill="#d8e6dc" font-size="12">L = L_MIN + counts ÷ 512</text>
+    <text x="738" y="740" fill="#9fb5a6" font-size="11">L_MIN：端部 30 / 内部 40</text>
+    <text x="738" y="758" fill="#9fb5a6" font-size="11">满行程：端部 46,080 / 内部 92,160</text>
+    <text x="738" y="774" fill="#9fb5a6" font-size="11">多圈计数存 NVS；上电校验限位，不一致归零</text>
 
     <!-- strapping warning inside -->
     <rect x="720" y="800" width="320" height="88" rx="8" fill="#1d1410" stroke="#e05a5a" stroke-width="1.2"/>
@@ -194,11 +194,12 @@
     <!-- LIMITS + CLAMPS -->
     <rect x="1240" y="672" width="310" height="142" rx="10" fill="url(#panelU)" stroke="#38424f"/>
     <text x="1395" y="696" fill="#eef2f8" font-size="14" text-anchor="middle" font-weight="700">限位 + 套筒锁位（4× 微动）</text>
-    <text x="1256" y="720" fill="#4fbf7b" font-size="11.5">LIM_MIN → GPIO3（L=40mm，触发=低）</text>
-    <text x="1256" y="738" fill="#4fbf7b" font-size="11.5">LIM_MAX → GPIO20（L=220mm，触发=低）</text>
+    <text x="1256" y="720" fill="#4fbf7b" font-size="11.5">LIM_MIN → GPIO3（端部30 / 内部40，低=触发）</text>
+    <text x="1256" y="738" fill="#4fbf7b" font-size="11.5">LIM_MAX → GPIO20（端部120 / 内部220，低=触发）</text>
     <text x="1256" y="756" fill="#b07be0" font-size="11.5">LOCK_A → GPIO1（套筒锁位，锁=低）</text>
     <text x="1256" y="774" fill="#b07be0" font-size="11.5">LOCK_B → GPIO21（串 1k，套筒锁位）</text>
-    <text x="1256" y="792" fill="#98a4b5" font-size="11.5">COM → GND · 100nF · 断线=未锁=禁动</text>
+    <text x="1256" y="790" fill="#98a4b5" font-size="11">COM→GND · 100nF · 断线=未锁=禁动</text>
+    <text x="1256" y="807" fill="#b07be0" font-size="11">端部：A 常锁 / B 自由；内部：按需</text>
 
     <!-- WS2812 -->
     <rect x="1240" y="838" width="310" height="74" rx="10" fill="url(#panelU)" stroke="#38424f"/>
@@ -223,13 +224,15 @@
     <rect x="880" y="1002" width="22" height="6" rx="3" fill="#4a9de0"/><text x="910" y="1010" fill="#c3ccd8" font-size="12">控制信号</text>
     <rect x="1010" y="1002" width="22" height="6" rx="3" fill="#e8d24a"/><text x="1040" y="1010" fill="#c3ccd8" font-size="12">电机相线（AWG26 双绞）</text>
     <rect x="80" y="1028" width="22" height="6" rx="3" fill="#b07be0"/><text x="110" y="1036" fill="#c3ccd8" font-size="12">夹持状态 LOCK_A/B（锁=低；断线=高=未锁=禁动）</text>
-    <text x="420" y="1036" fill="#98a4b5" font-size="12">夹持联锁：恰好一端锁才允许伸缩；两端都锁/都松 → 禁止运动（E13）</text>
+    <text x="420" y="1036" fill="#98a4b5" font-size="12">夹持联锁：恰好一端锁才允许伸缩；端部只认外端锚定；free/fixed → 禁止运动（E13）</text>
     <text x="80" y="1058" fill="#98a4b5" font-size="12">同名网络标签即相互连接；本图省略 3V3/GND 的总线走线，实际按短距离就近连接。完整逐网络表见 netlist-unit-v2.csv。</text>
   </g>
 
   <!-- footer -->
   <text x="60" y="1088" fill="#5b6779" font-family="Microsoft YaHei, sans-serif" font-size="11">衣序 HangFlow v2 · hardware/wiring-v2/diagram-unit-v2.svg · 2026-11-23 · 与 docs/v2/02-电控与BOM.md §3/§4 对应</text>
 </svg>
+
+
 
 
 

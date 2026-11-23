@@ -110,15 +110,15 @@ class ClampState:
 
 @dataclass
 class ChainLayout:
-    """一条链的几何（mm，x 从墙/杆左端算起）。"""
+    """一条链的几何（mm，x 从左侧锚点 0 算起）。"""
 
     inner: np.ndarray
     ends: tuple
     regulator_edges: np.ndarray     # (K+1, 2)
     garment_centers: np.ndarray     # (K,)
-    chain_end_mm: float
-    right_gap_mm: float             # 链末端到右墙的距离
-    wall_contact: bool
+    content_end_mm: float           # 左锚点到最后一个衣架右侧
+    anchor_span_mm: float           # D：外端锚点间距（固定）
+    gap_mm: float                   # 右端部内端与链末端之间的空杆（未收拢量）
     available_mm: float
     t_h: float = T_H_MM
 
@@ -133,34 +133,35 @@ class ChainLayout:
             "regulator_edges_mm": [[round(float(a), 2), round(float(b), 2)]
                                    for a, b in self.regulator_edges],
             "garment_centers_mm": [round(float(v), 2) for v in self.garment_centers],
-            "chain_end_mm": round(float(self.chain_end_mm), 2),
-            "right_gap_mm": round(float(self.right_gap_mm), 2),
-            "wall_contact": bool(self.wall_contact),
+            "content_end_mm": round(float(self.content_end_mm), 2),
+            "anchor_span_mm": round(float(self.anchor_span_mm), 2),
+            "gap_mm": round(float(self.gap_mm), 2),
         }
 
 
 def chain_layout(plan: LengthPlan) -> ChainLayout:
-    """由规划结果算每个调节器与每件衣物的位置。"""
+    """算位置：左锚点 0 固定、右端部外端 D 固定，链内端吸收长度变化。"""
     ends = (float(plan.ends[0]), float(plan.ends[1]))
     inner = np.asarray(plan.inner, dtype=float)
     K = plan.K
+    D = float(plan.anchor_span_mm)
     lengths = np.concatenate([[ends[0]], inner, [ends[1]]])
     edges = np.zeros((K + 1, 2))
     centers = np.zeros(K)
     cursor = 0.0
-    for i, L in enumerate(lengths):
-        edges[i] = (cursor, cursor + L)
-        cursor += L
-        if i < K:
-            centers[i] = cursor + T_H_MM / 2.0
-            cursor += T_H_MM
-    chain_end = float(cursor)
+    for i in range(K):
+        edges[i] = (cursor, cursor + lengths[i])
+        cursor += lengths[i]
+        centers[i] = cursor + T_H_MM / 2.0
+        cursor += T_H_MM
+    content_end = cursor
+    edges[K] = (D - lengths[K], D)      # 右端部：外端锚在 D，内端朝左
+    gap = float(edges[K, 0] - content_end)
     return ChainLayout(
         inner=inner, ends=ends, regulator_edges=edges, garment_centers=centers,
-        chain_end_mm=chain_end,
-        right_gap_mm=float(plan.available_mm - chain_end),
-        wall_contact=bool(abs(chain_end - plan.available_mm) < 1e-6),
-        available_mm=float(plan.available_mm), t_h=T_H_MM)
+        content_end_mm=float(content_end), anchor_span_mm=float(D),
+        gap_mm=float(max(0.0, gap)), available_mm=float(plan.available_mm),
+        t_h=T_H_MM)
 
 
 # ---------------------------------------------------------------------------
@@ -372,9 +373,9 @@ def simulate_sequence(start: LengthPlan, end: LengthPlan, drive: Drive,
         clamp_actions += 1
         a[i] = b[i]
 
-    # 端部有动作、且目标贴墙 → 补一个"顶墙预紧"动作（最后 0.5 mm 压紧）
+    # 端部有动作 → 补一个"压紧锚点"动作（最后 0.5 mm 压紧）
     ends_changed = any(abs(b[j] - a0[j]) > 1e-9 for j in (0, a.size - 1))
-    if ends_changed and end.wall_contact:
+    if ends_changed:
         steps.append(AdjustStep(
             unit=int(a.size - 1), role=roles[-1], action="preload",
             clamp_before=ClampState(True, True), clamp_after=ClampState(True, True),
@@ -413,12 +414,13 @@ def daily_cycle_study(rod_length: float = DEFAULT_ROD_MM,
                       garment_counts: Sequence[int] = (3, 4, 5, 6, 8),
                       drives: Optional[Sequence[Drive]] = None,
                       budget_s: float = 30.0) -> dict:
-    """日常工况：收衣 → 一键等距（只动内部段，端部保持安装值）。"""
+    """日常工况：12 cm → 收衣（内部回 100、端部回 60）。"""
     drives = list(drives or DRIVES)
     rows = []
     for K in garment_counts:
-        start = plan_lengths(K, rod_length=rod_length, mode="collect")
-        end = plan_lengths(K, rod_length=rod_length, mode="equal")
+        start = plan_lengths(K, rod_length=rod_length, mode="equal",
+                             target_gap=120.0)
+        end = plan_lengths(K, rod_length=rod_length, mode="collect")
         row = {"K": int(K), "regulators": int(K + 1),
                "travel_mm": float(np.abs(end.inner - start.inner).sum()),
                "start_chain_mm": float(start.chain_length_mm),
@@ -447,18 +449,18 @@ def setup_study(rod_length: float = DEFAULT_ROD_MM,
     from copy import copy
     start_all_min = copy(start)
     start_all_min.ends = (30.0, 30.0)
-    start_all_min.inner = np.full(K - 1, 40.0)
-    start_all_min.chain_length_mm = 30.0 * 2 + 40.0 * (K - 1) + K * T_H_MM
+    start_all_min.inner = np.full(K - 1, 100.0)
+    start_all_min.chain_length_mm = 30.0 * 2 + 100.0 * (K - 1) + K * T_H_MM
     end = plan_lengths(K, rod_length=rod_length, mode="equal")
     p = simulate_sequence(start_all_min, end, d, strategy="anchor_left",
                           skip_unchanged=False)
     return {
         "K": K,
         "start_lengths_mm": [round(float(v), 1) for v in
-                             np.concatenate([[30.0], np.full(K - 1, 40.0), [30.0]])],
+                             np.concatenate([[30.0], np.full(K - 1, 100.0), [30.0]])],
         "end_lengths_mm": [round(float(v), 1) for v in end.all_lengths],
         "total_travel_mm": float(np.abs(end.all_lengths - np.concatenate(
-            [[30.0], np.full(K - 1, 40.0), [30.0]])).sum()),
+            [[30.0], np.full(K - 1, 100.0), [30.0]])).sum()),
         "time_s": float(p.total_time_s),
         "peak_force_n": float(p.peak_force_n),
         "peak_current_a": float(p.peak_current_a),

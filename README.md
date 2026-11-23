@@ -94,7 +94,7 @@
 ## 快速体验
 
 1. **看交互**：双击 [`app-v2/index.html`](app-v2/index.html)（单文件，离线可用）。改杆长、增删衣架/圆柱、拖圆柱长度、一键等距/收衣。
-2. **跑算法**：`python sim-v2/run_all.py`（规划/链位置/长度闭环/误差图）。
+2. **跑算法**：`python sim-v2/run_all.py`（规划/链位置/长度闭环/误差图）；`python -m software_v2.mock_hub --demo`（端点锚定 + MQTT 命令）。
 3. **看概念**：打开 [assets/diagrams/concept-v2.svg](assets/diagrams/concept-v2.svg)。
 4. **读方案**：从 [docs/v2/00-总览与架构.md](docs/v2/00-总览与架构.md) 开始。
 
@@ -145,6 +145,7 @@
 - v2 的机械/电控/算法/交互文档正在由团队补全；已完成的部分会标注"已跑通/待验证"。
 - RDK X5 规格引用官方页面（40PIN 保守按 3.3V 800mA / 5V 500mA 设计；板卡 5V/5A），现场以实际板卡为准。
 - AI 辅助开发过程按赛事要求留痕，方法沿用 v1（git 历史可查）；v2 文档的 AI 使用记录待补。
+
 
 
 

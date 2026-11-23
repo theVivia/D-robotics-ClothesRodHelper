@@ -23,5 +23,11 @@ jobs:
       - name: v2 simulation + figures + tests
         run: python sim-v2/run_all.py
 
+      - name: software_v2 model/protocol tests
+        run: |
+          python -m pytest software_v2 -q
+          python -m software_v2.mock_hub --demo
+
       - name: Markdown relative links
         run: python assets/scripts/check_links.py
+

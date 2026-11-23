@@ -1,4 +1,4 @@
-"""衣序 HangFlow v2（rev-B）结果图（300 dpi，宽 9–10 英寸）。"""
+"""衣序 HangFlow v2（rev-D）结果图（300 dpi，宽 9–10 英寸）。"""
 
 from __future__ import annotations
 
@@ -19,14 +19,30 @@ import vision_id as vi
 def _draw_chain(ax, plan: lp.LengthPlan, y: float = 0.58,
                 show_len: bool = True, color: str = "#2f6fb3",
                 annotate_clamps: bool = False, label_units: bool = True) -> None:
-    """画墙 + K+1 个调节器 + K 件衣物。"""
+    """画锚点 0/D、K+1 个调节器、K 件衣物；端部内端按规划值。"""
     lay = ch.chain_layout(plan)
     avail = plan.available_mm
+    D = plan.anchor_span_mm
     box_h = 0.12
     ax.plot([0, avail], [y, y], color="#c9ced6", lw=5,
             solid_capstyle="round", zorder=1)
-    for x in (0.0, avail):
-        ax.plot([x, x], [y - 0.22, y + 0.22], color="#5b6779", lw=4, zorder=4)
+    for x, name in ((0.0, L("左锚点 0", "anchor 0")),
+                    (D, L(f"右锚点 D={D:.0f}", f"anchor D={D:.0f}"))):
+        ax.plot([x, x], [y - 0.24, y + 0.24], color="#5b6779", lw=4, zorder=4)
+        ax.text(x, y + 0.27, name, ha="center", va="bottom", fontsize=6.2,
+                color="#5b6779")
+    if avail > D + 5:
+        ax.axvspan(D, avail, color="#eef1f5", zorder=0)
+        ax.text((D + avail) / 2, y + 0.10,
+                L(f"自由杆 {avail - D:.0f} mm（锚点外）",
+                  f"free rod {avail - D:.0f} mm"), ha="center", va="bottom",
+                fontsize=6.4, color="#7a7f87")
+    if lay.gap_mm > 0.5:
+        ax.axvspan(lay.content_end_mm, lay.regulator_edges[-1, 0],
+                   color="#f6e2c8", zorder=0)
+        ax.text((lay.content_end_mm + lay.regulator_edges[-1, 0]) / 2, y - 0.18,
+                L(f"空杆 {lay.gap_mm:.0f}", f"gap {lay.gap_mm:.0f}"),
+                ha="center", va="top", fontsize=6.4, color="#a06a2a")
     for i, (l, r) in enumerate(lay.regulator_edges):
         role = "end" if (i == 0 or i == plan.K) else "inner"
         c = color if role == "inner" else "#8a6d3b"
@@ -42,17 +58,17 @@ def _draw_chain(ax, plan: lp.LengthPlan, y: float = 0.58,
                     va="bottom")
             ax.text(r - 5.0, y + 0.075, "R", fontsize=6.0, color="#4a4a4a",
                     va="bottom")
-        if label_units and (r - l) > 60:
-            ax.text((l + r) / 2, y - 0.30, f"调{i}", ha="center", va="top",
+        if label_units and (r - l) > 55:
+            ax.text((l + r) / 2, y - 0.32, f"调{i}", ha="center", va="top",
                     fontsize=6.2, color="#666")
     for j, cx in enumerate(lay.garment_centers):
         ax.add_patch(Rectangle((cx - 2.2, y - 0.17), 4.4, 0.34,
                                facecolor="#f2d18b", edgecolor="#8a6d3b",
                                lw=0.9, zorder=5))
-        ax.text(cx, y - 0.50, f"衣{j + 1}", ha="center", va="top", fontsize=6.2,
+        ax.text(cx, y - 0.52, f"衣{j + 1}", ha="center", va="top", fontsize=6.0,
                 color="#8a6d3b")
     ax.set_xlim(-25, avail + 25)
-    ax.set_ylim(0.05, 1.02)
+    ax.set_ylim(-0.02, 1.02)
     ax.set_yticks([])
     ax.grid(True, axis="x", ls="--", lw=0.5, alpha=0.4)
     ax.set_axisbelow(True)
@@ -66,33 +82,25 @@ def fig_length_plan(plans: Dict[str, lp.LengthPlan]) -> str:
                   wspace=0.24, hspace=0.62)
     axes = [fig.add_subplot(gs[i, 0]) for i in range(3)]
     axb = fig.add_subplot(gs[:, 1])
-    modes = [("equal", L("① 一键等距：内部 100 mm，链长 460 mm（空杆 640 mm）",
-                         "① equal: inner 100 mm, chain 460 mm"), PALETTE[0]),
-             ("weighted", L("② 按湿度加权：只重分内部段，链长不变",
-                            "② weighted: same chain length"), PALETTE[1]),
-             ("collect", L("③ 收衣：内部全 40 mm，端部不动 → 链长 280 mm",
-                           "③ collect: inner 40 mm, chain 280 mm"), PALETTE[4])]
+    eq, wt, co = plans["equal"], plans["weighted"], plans["collect"]
+    modes = [("equal", L(f"① 一键等距：端部 {eq.ends[0]:.0f}/{eq.ends[1]:.0f}，"
+                         "内部 100 mm，链 460 mm", "① equal"), PALETTE[0]),
+             ("weighted", L("② 按湿度加权：内部重分配，端部自动补/收",
+                            "② weighted"), PALETTE[1]),
+             ("collect", L(f"③ 收衣：端部到 {co.ends[0]:.0f} 限位，链 400 mm、"
+                           f"空杆 {co.gap_mm:.0f} mm（未完全收拢）", "③ collect"),
+              PALETTE[4])]
     for i, (key, title, color) in enumerate(modes):
-        plan = plans[key]
-        lay = ch.chain_layout(plan)
-        ax = axes[i]
-        # 空杆 / 端部夹头锁位区
-        if plan.leftover_mm > 5:
-            ax.axvspan(lay.chain_end_mm, plan.available_mm, color="#eceff3", zorder=0)
-            ax.text((lay.chain_end_mm + plan.available_mm) / 2, 0.86,
-                    L(f"空杆 {plan.leftover_mm:.0f} mm（夹头锁位区）",
-                      f"free rod {plan.leftover_mm:.0f} mm"),
-                    ha="center", va="top", fontsize=6.8, color="#7a7f87")
-        _draw_chain(ax, plan, y=0.62, color=color)
-        ax.set_title(title, fontsize=8.4, loc="left", pad=2)
+        _draw_chain(axes[i], plans[key], y=0.60, color=color)
+        axes[i].set_title(title, fontsize=7.8, loc="left", pad=2)
         if i == 2:
-            ax.set_xlabel(L("沿杆位置（mm，0 = 左墙）",
-                                 "position (mm, 0 = left wall)"), fontsize=9)
-    fig.suptitle(L("4 件衣物 = 5 个调节器（两端各 1、内部 3）",
-                   "4 garments = 5 regulators (2 end + 3 inner)"),
-                 fontsize=10.5, y=0.99)
+            axes[i].set_xlabel(L("沿杆位置（mm，0 = 左锚点）",
+                                 "position (mm, 0 = left anchor)"), fontsize=9)
+    fig.suptitle(L("4 件衣物 = 5 个调节器；外端锚定 0/D，端部内端吸收总长变化",
+                   "4 garments = 5 regulators; outer ends anchored"),
+                 fontsize=10.2, y=0.99)
 
-    x = np.arange(len(plans["equal"].all_lengths))
+    x = np.arange(len(eq.all_lengths))
     w = 0.26
     for k, (key, _, color) in enumerate(modes):
         axb.bar(x + (k - 1) * w, plans[key].all_lengths, width=w, color=color,
@@ -103,7 +111,7 @@ def fig_length_plan(plans: Dict[str, lp.LengthPlan]) -> str:
     axb.set_xticks(x)
     axb.set_xticklabels(["L0", "L1", "L2", "L3", "L4"], fontsize=8.5)
     axb.set_ylabel(L("长度（mm）", "length (mm)"), fontsize=9.5)
-    axb.set_title(L("各段：L0/L4 端部，L1–L3 净风道", "segment lengths"),
+    axb.set_title(L("各段：L0/L4 端部内端，L1–L3 净风道", "segment lengths"),
                   fontsize=9.5)
     axb.legend(fontsize=7.2, ncol=3, loc="upper right")
     axb.set_ylim(0, 230)
@@ -117,33 +125,24 @@ def fig_chain_order(demo: dict) -> str:
     fig, (ax1, ax2) = plt.subplots(
         1, 2, figsize=(10.0, 4.3), gridspec_kw={"width_ratios": [1.55, 1.0]})
 
-    _draw_chain(ax1, plan, y=0.62, color=PALETTE[0], annotate_clamps=True)
+    _draw_chain(ax1, plan, y=0.60, color=PALETTE[0], annotate_clamps=True)
     lay = ch.chain_layout(plan)
-    ax1.axvspan(lay.chain_end_mm, plan.available_mm, color="#eceff3", zorder=0)
-    ax1.text((lay.chain_end_mm + plan.available_mm) / 2, 0.86,
-             L(f"空杆 {plan.leftover_mm:.0f} mm（端部夹头锁位区）",
-               f"free rod {plan.leftover_mm:.0f} mm"),
-             ha="center", va="top", fontsize=7.0, color="#7a7f87")
     for i, (l, r) in enumerate(lay.regulator_edges):
         if 0 < i < plan.K:
-            ax1.annotate("", xy=(l, 0.34), xytext=(r, 0.34),
+            ax1.annotate("", xy=(l, 0.32), xytext=(r, 0.32),
                          arrowprops=dict(arrowstyle="<->", color=PALETTE[1],
                                          lw=1.0))
-            ax1.text((l + r) / 2, 0.26, f"L{i}", ha="center", va="top",
+            ax1.text((l + r) / 2, 0.24, f"L{i}", ha="center", va="top",
                      fontsize=7.0, color=PALETTE[1])
-    ax1.text(-22, 0.99, L("每个调节器两端都有夹持（L/R）：锁一端→单向伸缩；锁两端→绝对锁长",
-                          "double-end clamps"), ha="left", va="top", fontsize=7.2,
-             color="#333")
-    ax1.set_ylim(-0.08, 1.02)
-    ax1.set_xlabel(L("沿杆位置（mm）", "position (mm)"), fontsize=9.5)
+    ax1.set_xlabel(L("沿杆位置（mm，0 = 左锚点）", "position (mm)"), fontsize=9.5)
     centers = " / ".join(f"{v:.0f}" for v in lay.garment_centers)
-    ax1.set_title(L(f"等距工况：衣架中心 {centers} mm",
-                    "equal layout: garment centers"), fontsize=10)
+    ax1.set_title(L(f"等距安装态：衣架中心 {centers} mm（D=460 固定）",
+                    "equal layout: centers"), fontsize=9.8)
 
     cmp = demo["comparison"]
     ax2.set_title(L("每次伸缩动作的轴向力", "axial force per move"), fontsize=10)
     for key, color, marker, label in (
-            ("锚定左墙（推荐）", PALETTE[0], "o", L("锚定左墙（推荐）", "anchor")),
+            ("锚定左墙（推荐）", PALETTE[0], "o", L("锚定左锚点（推荐）", "anchor")),
             ("不锁端（整链推）", PALETTE[4], "s", L("不锁端（反例）", "no clamp"))):
         moves = [s for s in cmp[key]["steps"]
                  if s["action"] in ("move_right", "move_left", "preload",
@@ -152,10 +151,10 @@ def fig_chain_order(demo: dict) -> str:
         ax2.plot(xs, [s["force_n"] for s in moves], marker + "-", color=color,
                  lw=1.7, ms=5, label=label)
     ax2.axhline(ch.F_UNIT_N, color="#888", ls=":", lw=1.0)
-    ax2.text(2.45, 3.0, L("伸缩副自身 2 N", "unit drag 2 N"), fontsize=7)
+    ax2.text(2.3, ch.F_UNIT_N + 0.4, L("伸缩副自身 2 N", "unit drag 2 N"),
+             fontsize=7)
     ax2.set_xlabel(L("第几次伸缩动作", "move index"), fontsize=9.5)
     ax2.set_ylabel(L("轴向力（N）", "axial force (N)"), fontsize=9.5)
-    ax2.set_xticks([1, 2, 3])
     ax2.legend(fontsize=7.4, loc="upper right")
     a = cmp["锚定左墙（推荐）"]
     b = cmp["不锁端（整链推）"]
@@ -168,7 +167,7 @@ def fig_chain_order(demo: dict) -> str:
     ax2.text(0.02, 0.05, txt, transform=ax2.transAxes, ha="left", va="bottom",
              fontsize=6.8, color="#444",
              bbox=dict(boxstyle="round,pad=0.3", fc="#f7f7f7", ec="#ccc"))
-    ax2.set_ylim(0, 17)
+    ax2.set_ylim(0, 18)
     style_axis(ax2)
     fig.tight_layout()
     return str(save_fig(fig, "v2-02-chain-order"))
@@ -186,22 +185,21 @@ def fig_timing(timing: dict, setup: dict) -> str:
         ax.plot(K, t, marker=markers[i], color=colors[i], lw=1.8, ms=5,
                 label=name)
     ax.axhline(timing["budget_s"], color="#333", ls="--", lw=1.2)
-    ax.text(K[0], timing["budget_s"] + 1.0,
+    ax.text(K[0], timing["budget_s"] + 2.0,
             L("需求：单次调整 ≤30 s", "budget 30 s"), fontsize=7.6)
     ax.scatter([setup["K"]], [setup["time_s"]], marker="*", s=150,
                color=PALETTE[3], zorder=5,
                label=L(f"安装标定（一次性）{setup['time_s']:.0f} s",
                        f"setup {setup['time_s']:.0f} s"))
-    ax.annotate(L("日常工况：收衣→等距，只动内部段",
-                  "daily: inner segments only"),
+    ax.annotate(L("日常：收衣→等距，5 段都动", "daily: 5 units move"),
                 xy=(4, rows[1][timing["drives"][0]]["time_s"]),
-                xytext=(4.9, 9.0), fontsize=7.2, color=PALETTE[0],
+                xytext=(4.9, 20.0), fontsize=7.2, color=PALETTE[0],
                 arrowprops=dict(arrowstyle="->", lw=0.8, color=PALETTE[0]))
     ax.set_xlabel(L("衣物件数 K（件）", "garments K"), fontsize=9.5)
     ax.set_ylabel(L("耗时（s）", "time (s)"), fontsize=9.5)
-    ax.set_title(L("日常调节耗时 vs K（串行、锚定左墙、每段夹持 2 次）",
+    ax.set_title(L("日常调节耗时 vs K（串行、锚定左端、端部也参与）",
                    "daily cycle time vs K"), fontsize=10.5)
-    ax.legend(fontsize=7.6, loc="upper left")
+    ax.legend(fontsize=7.4, loc="upper left")
     ax.set_xticks(K)
     ax.set_ylim(0, max(max(r[d]["time_s"] for d in timing["drives"]) for r in rows) * 1.12)
     style_axis(ax)
