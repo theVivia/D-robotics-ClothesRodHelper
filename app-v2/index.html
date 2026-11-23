@@ -1040,13 +1040,13 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
   width: 20px; height: 20px; border-radius: 12px;
 }
 .drag-handle {
-  position: absolute; top: -46px; width: 30px; height: 44px;
+  position: absolute; top: -46px; width: 18px; height: 44px;
   padding: 0; border: 0; background: transparent; z-index: 9;
   display: grid; place-items: center; cursor: ew-resize;
   touch-action: none;
 }
-.handle-left { left: -15px; }
-.handle-right { right: -15px; }
+.handle-left { left: 8%; }
+.handle-right { right: 8%; }
 .grip {
   display: block; width: 4px; height: 20px; border: 1px solid #94A3B8;
   border-radius: 2px; background: #E2E8F0;
@@ -1061,7 +1061,7 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
 .clamp:disabled { opacity: 1; cursor: not-allowed; }
 .drag-handle:disabled { opacity: .28; cursor: not-allowed; }
 
-</style>
+\n</style>
 </head>
 <body>
 <div class="shell">
@@ -1805,6 +1805,7 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
           var lBlocked = outerSide === 'l' || !!c.l;
           lh.classList.toggle('blocked', lBlocked);
           lh.disabled = lBlocked;
+          lh.style.display = lBlocked ? 'none' : '';
           lh.title = outerSide === 'l' ? '外端锚定，不可拖' : (c.l ? '这端已锁定' : (c.r ? '拖动左端（内端）' : '先锁一端再拖'));
           lh.setAttribute('aria-label', lh.title);
         }
@@ -1812,6 +1813,7 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
           var rBlocked = outerSide === 'r' || !!c.r;
           rh.classList.toggle('blocked', rBlocked);
           rh.disabled = rBlocked;
+          rh.style.display = rBlocked ? 'none' : '';
           rh.title = outerSide === 'r' ? '外端锚定，不可拖' : (c.r ? '这端已锁定' : (c.l ? '拖动右端（内端）' : '先锁一端再拖'));
           rh.setAttribute('aria-label', rh.title);
         }
@@ -2480,6 +2482,9 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
 </script>
 </body>
 </html>
+
+
+
 
 
 
