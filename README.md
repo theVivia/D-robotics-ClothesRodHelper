@@ -5,7 +5,7 @@
 > ⚠️ **v2 概念（2026-11-23 修正）**：调节器不是衣架，而是**套在杆上的抱箍式伸缩圆柱**；衣服仍然挂在原来的晾衣杆上，衣架卡在两个圆柱端头的 **10mm 接缝**里；圆柱长度 = 两件衣服之间的净风道。v1（衣架挂在自走模块上）已废弃，文档保留作历史。
 > 详见 [docs/v2/00-总览与架构.md](docs/v2/00-总览与架构.md)。
 
-![衣序 v2 概念](assets/diagrams/concept-v2.svg)
+![衣序 v2 产品形态（白色家居五金语言）](assets/diagrams/product-design-v3.svg)
 
 **参赛**：DDC2026 · 地瓜机器人黑客松（48H，2026.12.05—12.07，上海张江）
 **仓库**：`theVivia/D-robotics-ClothesRodHelper`
@@ -82,7 +82,7 @@
 | v2 算法与控制 | [docs/v2/03-算法与控制.md](docs/v2/03-算法与控制.md) |
 | v2 软件与协议 | [docs/v2/04-软件与协议.md](docs/v2/04-软件与协议.md) |
 | v2 成本与商业 | [docs/v2/05-成本与商业.md](docs/v2/05-成本与商业.md) |
-| v2 演示与答辩 | [docs/v2/06-演示与答辩.md](docs/v2/06-演示与答辩.md) |
+| v2 演示与答辩 | [docs/v2/06-演示与答辩.md](docs/v2/06-演示与答辩.md) |\n| **v2 工业设计方向（白/灰/铝）** | [docs/v2/07-工业设计方向.md](docs/v2/07-工业设计方向.md) |
 | 概念图（SVG） | [assets/diagrams/concept-v2.svg](assets/diagrams/concept-v2.svg) |
 | 交互原型（v2） | [app-v2/index.html](app-v2/index.html) |
 | RDK 平台与开发环境 | [docs/17-RDK平台与开发环境.md](docs/17-RDK平台与开发环境.md) |
@@ -145,6 +145,7 @@
 - v2 的机械/电控/算法/交互文档正在由团队补全；已完成的部分会标注"已跑通/待验证"。
 - RDK X5 规格引用官方页面（40PIN 保守按 3.3V 800mA / 5V 500mA 设计；板卡 5V/5A），现场以实际板卡为准。
 - AI 辅助开发过程按赛事要求留痕，方法沿用 v1（git 历史可查）；v2 文档的 AI 使用记录待补。
+
 
 
 

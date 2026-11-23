@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="color-scheme" content="dark">
-<meta name="theme-color" content="#06080b">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#F4F5F7">
 <title>衣序 HangFlow · V2 伸缩圆柱链交互原型</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230a0d13'/%3E%3Crect x='5' y='14' width='22' height='4' rx='2' fill='%23d6b173'/%3E%3Crect x='9' y='10' width='6' height='12' rx='3' fill='none' stroke='%23d6b173'/%3E%3Crect x='17' y='10' width='6' height='12' rx='3' fill='none' stroke='%23d6b173'/%3E%3C/svg%3E">
 <style>
@@ -590,6 +590,222 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
 }
+
+/* ==========================================================================
+   浅色家电 / 家居五金工业设计覆盖层
+   白底、哑光外壳、阳极氧化铝管、灰色接缝；去金色/深色/发光科技线。
+   ========================================================================== */
+:root {
+  --bg: #F4F5F7;
+  --card: #FFFFFF;
+  --line: #E3E6EA;
+  --line-soft: #EEF0F3;
+  --txt: #1E2329;
+  --txt-2: #6B7280;
+  --txt-3: #9CA3AF;
+  --gold: #2F6FED;
+  --gold-hi: #2F6FED;
+  --gold-dim: rgba(47,111,237,.08);
+  --gold-line: rgba(47,111,237,.25);
+  --teal: #0F9D8A;
+  --amber: #B45309;
+  --coral: #DC2626;
+  color-scheme: light;
+}
+html { background: var(--bg); }
+body {
+  background: var(--bg);
+  color: var(--txt);
+}
+.topbar { border-bottom-color: var(--line); }
+.logo {
+  border-color: #D6E4FF; color: #2F6FED;
+  background: #EAF1FF; box-shadow: none;
+}
+.brand-title { color: var(--txt); }
+.brand-title .en { color: #2F6FED; }
+.brand-sub { color: var(--txt-2); }
+.tel-chip {
+  border-color: var(--line); background: #fff; color: var(--txt-2);
+  box-shadow: 0 1px 2px rgba(16,24,40,.03);
+}
+.tel-chip em { color: var(--txt); }
+.dot { background: #0F9D8A; box-shadow: none; }
+.card {
+  background: var(--card); border-color: var(--line);
+  box-shadow: 0 1px 3px rgba(16,24,40,.05);
+}
+.card::before { display: none; }
+.eyebrow { color: var(--txt-3); }
+.stage-title { color: var(--txt); }
+.stage-title .meta { color: var(--txt-2); }
+.stat-label { color: var(--txt-3); }
+.stat-value { color: var(--txt); }
+.stat-value.ok { color: #0F9D8A; }
+.stat-value.gold { color: #2F6FED; }
+.stat-value.warn { color: #DC2626; }
+
+.stage {
+  background: #F8FAFC;
+  border-color: #E2E8F0;
+}
+.stage::before { display: none; }
+.hud::before, .hud::after { border-color: #D8DEE7; }
+.stage-hint { color: #94A3B8; }
+.wall {
+  background: repeating-linear-gradient(135deg, #CBD2DB 0 2px, #F4F5F7 2px 6px);
+  box-shadow: 0 0 0 1px rgba(100,116,139,.14);
+}
+.margin-zone {
+  background: repeating-linear-gradient(135deg, rgba(148,163,184,.18) 0 2px, transparent 2px 7px);
+  border-right-color: #CBD5E1;
+}
+.margin-zone.margin-right { border-left-color: #CBD5E1; }
+.rod {
+  background: linear-gradient(180deg, #DDE2E8 0%, #AEB6C0 38%, #8E97A2 58%, #D3D8DE 100%);
+  border: 1px solid #C4CBD5;
+  box-shadow: 0 1px 2px rgba(16,24,40,.12), inset 0 1px 0 rgba(255,255,255,.65);
+}
+.rod::after { display: none; }
+
+/* 圆柱：白色 / 浅灰哑光外壳 */
+.cyl {
+  background: #FFFFFF;
+  border: 1px solid #CBD3DD;
+  border-radius: 9px;
+  box-shadow: 0 1px 2px rgba(16,24,40,.10);
+}
+.cyl.preload { border-color: #CBD3DD; box-shadow: 0 1px 2px rgba(16,24,40,.10); }
+.cyl.fixed-end { border-color: #94A3B8; background: #F8FAFC; }
+.cyl.fixed { border-color: #94A3B8; }
+.cyl.fixed .cyl-id { color: #334155; }
+.cyl-inner {
+  background: #EEF2F6;
+  border: 1px solid #D5DCE5;
+  border-radius: 6px;
+  box-shadow: none;
+}
+.cyl-id { color: #334155; text-shadow: none; }
+.cyl-len { color: #64748B; }
+.cyl.dragging { border-color: #2F6FED; box-shadow: 0 0 0 2px rgba(47,111,237,.18); }
+.cyl-tag {
+  position: absolute; left: 50%; top: calc(100% + 5px);
+  transform: translateX(-50%); z-index: 5;
+  padding: 1px 4px; border: 1px solid #CBD5E1; border-radius: 3px;
+  background: #F1F5F9; color: #475569; font-size: 7px; line-height: 1.2;
+  white-space: nowrap; pointer-events: none;
+}
+.cyl-tag .ico { font-size: 8px; }
+
+/* 接缝 / 衣架钩：灰色金属，无金色 */
+.seam {
+  background: linear-gradient(180deg, #C7CDD6 0%, #AAB2BD 55%, #8B95A1 100%);
+  box-shadow: 0 1px 2px rgba(16,24,40,.12);
+}
+.seam::after {
+  border-color: #4B5563;
+  box-shadow: none;
+}
+.seam::before { display: none; }
+
+/* 夹头：只保留很小的扳手/夹头按钮 + 🔒/🔓，无圆环、无发光 */
+.clamp {
+  width: 18px; height: 20px; border-radius: 5px;
+  border: 1px solid #CBD5E1; background: #FFFFFF; color: #475569;
+  box-shadow: 0 1px 2px rgba(16,24,40,.10);
+  display: grid; place-items: center;
+  font-size: 9px; line-height: 1; padding: 0;
+}
+.clamp-left { left: -9px; }
+.clamp-right { right: -9px; }
+.clamp:hover { border-color: #2F6FED; }
+.clamp.locked {
+  background: #EAF1FF; border-color: #2F6FED; color: #1D4ED8;
+  box-shadow: none;
+}
+.clamp.locked .clamp-icon { color: #1D4ED8; }
+.clamp-sleeve, .clamp-ring { display: none !important; }
+.clamp-icon { font-size: 9px; line-height: 1; }
+.move-arrow { color: #2F6FED; text-shadow: none; }
+
+/* 空杆 */
+.empty-rod { border-top-color: #CBD5E1; }
+.empty-rod span { color: #94A3B8; }
+.stage-note { color: var(--txt-2); }
+.stage-note b { color: #2F6FED; }
+
+/* 告警：浅色底 + 深色字 */
+.alert[data-level="error"] { border-color: #FCA5A5; background: #FEF2F2; color: #991B1B; }
+.alert[data-level="warn"] { border-color: #FCD34D; background: #FFFBEB; color: #92400E; }
+.alert-body span { color: var(--txt-2); }
+.alert-dot { box-shadow: none; }
+
+/* 面板 / 控件 */
+.rod-config { border-top-color: var(--line-soft); }
+.unit-count { border-top-color: var(--line-soft); }
+.mini-readout { color: var(--txt-3); }
+.mini-readout b { color: var(--txt-2); }
+.stepper button {
+  border-color: var(--line); background: #fff; color: var(--txt);
+  box-shadow: 0 1px 2px rgba(16,24,40,.04);
+}
+.stepper button:hover:not(:disabled) { border-color: #2F6FED; background: #EAF1FF; color: #2F6FED; }
+.stepper output { color: #2F6FED; }
+.panel { background: #fff; }
+.panel-title { color: var(--txt-2); }
+.panel-note { color: var(--txt-3); }
+.panel-section { border-bottom-color: var(--line-soft); }
+.mode {
+  border-color: var(--line); background: #fff; color: var(--txt-2);
+  box-shadow: 0 1px 2px rgba(16,24,40,.03);
+}
+.mode:hover { border-color: #CBD5E1; background: #F8FAFC; }
+.mode .mode-cn { color: var(--txt); }
+.mode .mode-en { color: var(--txt-3); }
+.mode::after { display: none; }
+.mode[aria-pressed="true"] {
+  border-color: #2F6FED; background: #EAF1FF;
+}
+.mode[aria-pressed="true"] .mode-cn { color: #1D4ED8; }
+.mode[aria-pressed="true"] .mode-en { color: #2F6FED; }
+.field-name { color: var(--txt-2); }
+.field-value { color: #2F6FED; }
+.field-note { color: var(--txt-3); }
+.field-note b { color: #2F6FED; }
+input[type="range"]::-webkit-slider-runnable-track {
+  background: linear-gradient(90deg, #2F6FED 0 var(--p, 50%), #E5E7EB var(--p, 50%) 100%);
+}
+input[type="range"]::-webkit-slider-thumb {
+  background: #FFFFFF; border: 2px solid #2F6FED;
+  box-shadow: 0 1px 2px rgba(16,24,40,.18);
+}
+input[type="range"]::-moz-range-track { background: #E5E7EB; }
+input[type="range"]::-moz-range-progress { background: #2F6FED; }
+input[type="range"]::-moz-range-thumb { background: #fff; border: 2px solid #2F6FED; }
+.cyl-row, .hanger-row { border-color: var(--line); background: #fff; }
+.cyl-row.is-fixed { border-color: #CBD5E1; background: #F8FAFC; }
+.row-note { color: var(--txt-3); }
+.row-id { color: #64748B; }
+.row-val { color: #1E2329; }
+.h-state[data-state="dry"] { color: #0F766E; border-color: #99F6E4; background: #F0FDFA; }
+.h-state[data-state="damp"] { color: #92400E; border-color: #FCD34D; background: #FFFBEB; }
+.h-state[data-state="wet"] { color: #991B1B; border-color: #FCA5A5; background: #FEF2F2; }
+.batt { background: #E5E7EB; }
+.batt i { background: #0F9D8A; }
+.h-batt span { color: var(--txt-3); }
+.log-card { background: #fff; }
+.log-clear { color: var(--txt-3); }
+.log-clear:hover { color: #2F6FED; background: #EAF1FF; }
+.log li { color: var(--txt-2); }
+.log time { color: var(--txt-3); }
+.log li.gold .msg { color: #1D4ED8; }
+.log li.err .msg { color: #B91C1C; }
+.foot { border-top-color: var(--line-soft); color: var(--txt-3); }
+.foot .gold { color: #2F6FED; }
+.toast {
+  border-color: #CBD5E1; background: #FFFFFF; color: #1E2329;
+  box-shadow: 0 8px 24px rgba(16,24,40,.16);
+}
 </style>
 </head>
 <body>
@@ -634,7 +850,7 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
 
         <div class="stage" id="stage" aria-label="杆、伸缩圆柱、接缝与端部夹头俯视交互区">
           <div class="hud" aria-hidden="true"></div>
-          <div class="stage-hint" aria-hidden="true">向内缩紧夹头 · 套筒推入=锁 / 拉出=松</div>
+          <div class="stage-hint" aria-hidden="true">夹头 🔒锁定 / 🔓松开 · 两端固定端不可拖</div>
           <div class="wall wall-left" aria-hidden="true"></div>
           <div class="wall wall-right" aria-hidden="true"></div>
           <div class="margin-zone margin-left" id="marginLeft" aria-hidden="true"></div>
@@ -646,7 +862,7 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
         </div>
 
         <div class="alerts" id="alerts" hidden aria-live="polite"></div>
-        <div class="stage-note">端部夹头可锁在杆任意位置；能顶墙时顶墙预紧，够不到就锁杆 · 向内缩紧夹头（锥面收口） · 接缝 <b>10mm</b> = 衣架挂点 · 内部圆柱 = 净风道</div>
+        <div class="stage-note">两端 <b id="fixedEndsText">01 / 05</b> 固定端（锚在墙/杆、🔒 锁死） · 内部圆柱可拖动 · 夹头 🔒锁定 / 🔓松开 · 接缝 <b>10mm</b> = 衣架挂点 · 内部圆柱 = 净风道</div>
 
         <section class="rod-config">
           <div class="panel-head">
@@ -776,16 +992,12 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
     { humidity: 85, battery: 70 }
   ];
 
-  // 默认夹持点：端部默认锁杆、内部交替锁左/右，演示单向伸缩
+  // 两端 01/05 固定端：两个夹头默认都锁死；内部 02/03/04 默认松开可拖
   function makeClamps(count) {
     var arr = [];
     for (var i = 0; i < count; i++) {
-      var l = true, r = false;
-      if (i === 0) { l = true; r = false; }
-      else if (i === count - 1) { l = false; r = true; }
-      else if (i % 2 === 1) { l = false; r = true; }
-      else { l = true; r = false; }
-      arr.push({ l: l, r: r });
+      var isEnd = i === 0 || i === count - 1;
+      arr.push(isEnd ? { l: true, r: true } : { l: false, r: false });
     }
     return arr;
   }
@@ -1132,6 +1344,8 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
     kMinus.disabled = K() <= K_MIN;
     kPlus.disabled = K() >= K_MAX;
     chainMeta.textContent = K() + ' 衣架 · ' + cylCount() + ' 伸缩圆柱 · ' + K() + ' 接缝';
+    var fe = document.getElementById('fixedEndsText');
+    if (fe) fe.textContent = '01 / ' + pad2(cylCount());
   }
 
   function updateBattery() {
@@ -1224,7 +1438,9 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
         cyl.style.left = X(cursor) + 'px';
         cyl.style.width = widthPx + 'px';
         var c = state.clamps[i] || { l: true, r: true };
+        var endCyl = isEndCylinder(i);
         cyl.classList.toggle('fixed', c.l && c.r);
+        cyl.classList.toggle('fixed-end', endCyl);
         var idEl = cyl.querySelector('.cyl-id');
         var lenEl = cyl.querySelector('.cyl-len');
         if (idEl) idEl.style.display = widthPx >= 14 ? '' : 'none';
@@ -1237,12 +1453,16 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
         var rb = cyl.querySelector('.clamp-right');
         if (lb) {
           lb.classList.toggle('locked', c.l);
-          lb.title = '向内缩紧夹头 · 圆柱 ' + pad2(i + 1) + ' 左端：' + (c.l ? '套筒推入 / 已锁' : '套筒拉出 / 松开');
+          var li = lb.querySelector('.clamp-icon');
+          if (li) li.textContent = c.l ? '🔒' : '🔓';
+          lb.title = '夹头 · 圆柱 ' + pad2(i + 1) + ' 左端：' + (c.l ? '锁定' : '松开') + (endCyl ? '（固定端）' : '');
           lb.setAttribute('aria-label', lb.title);
         }
         if (rb) {
           rb.classList.toggle('locked', c.r);
-          rb.title = '向内缩紧夹头 · 圆柱 ' + pad2(i + 1) + ' 右端：' + (c.r ? '套筒推入 / 已锁' : '套筒拉出 / 松开');
+          var ri = rb.querySelector('.clamp-icon');
+          if (ri) ri.textContent = c.r ? '🔒' : '🔓';
+          rb.title = '夹头 · 圆柱 ' + pad2(i + 1) + ' 右端：' + (c.r ? '锁定' : '松开') + (endCyl ? '（固定端）' : '');
           rb.setAttribute('aria-label', rb.title);
         }
         var al = cyl.querySelector('.arrow-left');
@@ -1299,14 +1519,16 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
     var el = document.createElement('div');
     el.className = 'cyl';
     el.dataset.index = String(index);
+    var isEnd = isEndCylinder(index);
     el.innerHTML =
       '<i class="cyl-inner"></i>' +
       '<span class="cyl-id">' + pad2(index + 1) + '</span>' +
       '<span class="cyl-len"></span>' +
+      (isEnd ? '<span class="cyl-tag"><span class="ico">🔒</span> 固定端</span>' : '') +
       '<span class="move-arrow arrow-left">←</span>' +
       '<span class="move-arrow arrow-right">→</span>' +
-      '<button type="button" class="clamp clamp-left"><i class="clamp-sleeve"></i><i class="clamp-ring"></i></button>' +
-      '<button type="button" class="clamp clamp-right"><i class="clamp-sleeve"></i><i class="clamp-ring"></i></button>';
+      '<button type="button" class="clamp clamp-left"><span class="clamp-icon">🔒</span></button>' +
+      '<button type="button" class="clamp clamp-right"><span class="clamp-icon">🔒</span></button>';
     chainEl.appendChild(el);
     var lb = el.querySelector('.clamp-left');
     var rb = el.querySelector('.clamp-right');
@@ -1330,11 +1552,16 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
   }
 
   function toggleClamp(index, side) {
+    if (isEndCylinder(index)) {
+      showToast('端部固定，先解锁再调');
+      log('圆柱 ' + pad2(index + 1) + ' 是固定端 · 端部固定，先解锁再调', 'warn');
+      return;
+    }
     var c = state.clamps[index];
     if (!c) return;
     c[side] = !c[side];
-    log('圆柱 ' + pad2(index + 1) + ' ' + (side === 'l' ? '左' : '右') + '端向内缩紧夹头 · ' +
-      (c[side] ? '套筒推入，环收紧' : '套筒拉出，松开'), 'gold');
+    log('圆柱 ' + pad2(index + 1) + ' ' + (side === 'l' ? '左' : '右') + '端夹头 · ' +
+      (c[side] ? '锁定' : '松开'), 'gold');
     render();
   }
 
@@ -1342,6 +1569,11 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
   function startDrag(ev, index, el) {
     if (ev.button !== undefined && ev.button !== 0) return;
     if (ev.target && ev.target.closest && ev.target.closest('.clamp')) return;
+    if (isEndCylinder(index)) {
+      showToast('端部固定，先解锁再调');
+      log('圆柱 ' + pad2(index + 1) + ' 是固定端 · 端部固定，先解锁再调', 'warn');
+      return;
+    }
     var c = state.clamps[index];
     if (c && c.l && c.r) {
       showToast('先松一端');
@@ -1402,12 +1634,12 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
       row.className = 'cyl-row';
       var isEnd = i === 0 || i === cylCount() - 1;
       var label = isEnd
-        ? '端部夹头 · 圆柱 ' + pad2(i + 1)
+        ? '固定端 · 圆柱 ' + pad2(i + 1)
         : '第 ' + i + ' 段 · 圆柱 ' + pad2(i + 1);
       row.innerHTML =
         '<div class="row-head"><span class="row-id">' + label + '</span><span class="row-val"></span></div>' +
-        '<input class="cyl-range" type="range" min="' + lenMinFor(i) + '" max="' + lenMaxFor(i) + '" step="5" value="' + Math.round(state.lengths[i]) + '" aria-label="' + label + ' 长度，毫米">' +
-        (isEnd ? '<span class="row-note">端部 60mm · 30–120mm 可调</span>' : '');
+        '<input class="cyl-range" type="range" min="' + lenMinFor(i) + '" max="' + lenMaxFor(i) + '" step="5" value="' + Math.round(state.lengths[i]) + '" aria-label="' + label + ' 长度，毫米"' + (isEnd ? ' disabled' : '') + '>' +
+        (isEnd ? '<span class="row-note">🔒 锁死 · 固定端不可拖动</span>' : '<span class="row-note">可拖动 / 滑杆调整</span>');
       cylList.appendChild(row);
       var obj = {
         root: row,
@@ -1516,7 +1748,7 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
       state.hangers.push({ humidity: p.humidity, battery: p.battery });
       // 在最后一个端部夹头之前插入一个内部圆柱 + 接缝
       state.lengths.splice(state.lengths.length - 1, 0, clamp(state.targetCm * 10, CYL_MIN, CYL_MAX));
-      state.clamps.splice(oldK, 0, { l: true, r: false });
+      state.clamps.splice(oldK, 0, { l: false, r: false });
       var fit = fitLengths(state.lengths);
       state.lengths = fit.lengths.slice();
       state.overLimit = fit.compressed;
@@ -1578,8 +1810,8 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
     log('总链长 ' + Math.round(chainTotal(state.lengths)) + ' mm = ΣL(' + cylCount() + '段)+' + K() + '×10mm', 'info');
     log('可用 ' + Math.round(availableMm()) + ' mm · 剩余空杆 ' +
       Math.round(Math.max(0, availableMm() - chainTotal(state.lengths))) + ' mm', 'info');
-    log('端部夹头可锁杆任意位置；能顶墙时顶墙预紧，够不到就锁杆 · 无卷簧', 'info');
-    log('向内缩紧夹头（锥面收口）：套筒向内推入=锁，拉出=松；锁一端=单向伸缩，锁两端=定点', 'info');
+    log('两端 01/0' + (cylCount()) + ' 固定端锁死；内部圆柱可拖动；夹头 🔒锁定 / 🔓松开', 'info');
+    log('夹头图标 🔒锁定 / 🔓松开；内部圆柱可拖动，两端固定端不可拖', 'info');
   }
 
   /* =========================================================================
