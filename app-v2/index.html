@@ -1019,6 +1019,48 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
 .mode-en { font-size: 13px; }
 .clamp { font-size: 14px; }
 
+
+.cyl-range:disabled { opacity: .55; cursor: not-allowed; }
+.cyl-range:disabled::-webkit-slider-runnable-track { background: #E5E7EB; }
+.cyl-range:disabled::-webkit-slider-thumb { background: #F3F4F6; border-color: #CBD5E1; }
+.cyl-range:disabled::-moz-range-track { background: #E5E7EB; }
+.cyl-range:disabled::-moz-range-thumb { background: #F3F4F6; border-color: #CBD5E1; }
+
+
+.mode .mode-en { font-size: 13px; }
+
+/* 物理拖动：44px 锁按钮 + 独立的左右把手 */
+.clamp {
+  width: 44px; height: 44px; border: 0; background: transparent;
+  box-shadow: none; display: grid; place-items: center; border-radius: var(--radius);
+}
+.clamp-left { left: -22px; }
+.clamp-right { right: -22px; }
+.clamp-icon {
+  width: 20px; height: 20px; border-radius: 12px;
+}
+.drag-handle {
+  position: absolute; top: -46px; width: 30px; height: 44px;
+  padding: 0; border: 0; background: transparent; z-index: 9;
+  display: grid; place-items: center; cursor: ew-resize;
+  touch-action: none;
+}
+.handle-left { left: -15px; }
+.handle-right { right: -15px; }
+.grip {
+  display: block; width: 4px; height: 20px; border: 1px solid #94A3B8;
+  border-radius: 2px; background: #E2E8F0;
+}
+.drag-handle:hover .grip { border-color: var(--accent); background: #DBEAFE; }
+.drag-handle.blocked { opacity: .28; cursor: not-allowed; }
+.drag-handle.blocked .grip { border-color: #CBD5E1; background: #F1F5F9; }
+.drag-handle.dragging .grip { border-color: var(--accent); background: var(--accent); }
+.cyl-range { display: none; }
+
+
+.clamp:disabled { opacity: 1; cursor: not-allowed; }
+.drag-handle:disabled { opacity: .28; cursor: not-allowed; }
+
 </style>
 </head>
 <body>
@@ -1213,8 +1255,13 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
   function makeClamps(count) {
     var arr = [];
     for (var i = 0; i < count; i++) {
-      var isEnd = i === 0 || i === count - 1;
-      arr.push(isEnd ? { l: true, r: true } : { l: false, r: false });
+      if (i === 0 || i === count - 1) {
+        arr.push({ l: true, r: true }); // 固定端：两端锁死
+      } else if (i % 2 === 1) {
+        arr.push({ l: true, r: false }); // 单端锁：可拖右端
+      } else {
+        arr.push({ l: false, r: true }); // 单端锁：可拖左端
+      }
     }
     return arr;
   }
@@ -1592,7 +1639,7 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
       list.push({
         level: 'warn',
         title: '离墙太近，衣摆可能蹭墙（当前 ' + state.dWall + ' mm，建议 ≥120mm）',
-        detail: '杆中心到墙面的垂直距离 · 与两端端部余量无关'
+        detail: '杆中心到墙面的距离，与两端留空无关'
       });
     }
     var key = list.map(function (a) { return a.level + '|' + a.title; }).join('||');
@@ -1681,6 +1728,24 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
           rb.title = '夹头 · 圆柱 ' + pad2(i + 1) + ' 右端：' + (c.r ? '锁定' : '松开') + (endCyl ? '（固定端）' : '');
           rb.setAttribute('aria-label', rb.title);
         }
+        if (lb) lb.disabled = endCyl;
+        if (rb) rb.disabled = endCyl;
+        var lh = cyl.querySelector('.handle-left');
+        var rh = cyl.querySelector('.handle-right');
+        if (lh) {
+          var lBlocked = endCyl || !!c.l;
+          lh.classList.toggle('blocked', lBlocked);
+          lh.disabled = lBlocked;
+          lh.title = endCyl ? '固定端不可拖' : (c.l ? '这端已锁定' : (c.r ? '拖动左端' : '先锁一端再拖'));
+          lh.setAttribute('aria-label', lh.title);
+        }
+        if (rh) {
+          var rBlocked = endCyl || !!c.r;
+          rh.classList.toggle('blocked', rBlocked);
+          rh.disabled = rBlocked;
+          rh.title = endCyl ? '固定端不可拖' : (c.r ? '这端已锁定' : (c.l ? '拖动右端' : '先锁一端再拖'));
+          rh.setAttribute('aria-label', rh.title);
+        }
         var al = cyl.querySelector('.arrow-left');
         var ar = cyl.querySelector('.arrow-right');
         var showL = false, showR = false;
@@ -1698,7 +1763,7 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
         if (document.activeElement !== cylRows[i].range) {
           cylRows[i].range.value = String(Math.round(len));
         }
-        cylRows[i].range.disabled = c.l && c.r;
+        cylRows[i].range.disabled = true;
         cylRows[i].root.classList.toggle('is-fixed', c.l && c.r);
       }
 
@@ -1731,6 +1796,129 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
   /* =========================================================================
      11. DOM 重建
      ========================================================================= */
+  /* ---------------- 物理拖动：端点锁 + 传播 ----------------
+     只移动被拖端点；接缝和相邻自由端跟随；
+     碰到锁死端点立即拒绝；太长/太短也拒绝。 */
+  function endLocked(i, side) {
+    var c = state.clamps[i];
+    return side === 'l' ? c.l : c.r;
+  }
+  function lenInRange(i, value) {
+    return value >= lenMinFor(i) - 0.01 && value <= lenMaxFor(i) + 0.01;
+  }
+  function blockedMsg(j, side, target) {
+    var sw = side === 'l' ? '左' : '右';
+    return '圆柱 ' + pad2(j + 1) + ' ' + sw + '端固定挡住了，先松 ' + pad2(j + 1) +
+      ' ' + sw + '端，或缩短 ' + pad2(target + 1);
+  }
+  function tooLongMsg(i) {
+    return '圆柱 ' + pad2(i + 1) + ' 行程到头了，先缩短 ' + pad2(i + 1);
+  }
+
+  // 返回 {lengths} 或 {error}
+  function computeDrag(startLengths, index, side, deltaMm) {
+    var arr = startLengths.slice();
+    var c = state.clamps;
+    if (isEndCylinder(index)) return { error: '端部固定，不可调' };
+    if (side === 'l') {
+      if (c[index].l) return { error: '这端已锁定' };
+      if (!c[index].r) return { error: '先锁一端' };
+      arr[index] -= deltaMm;
+      if (!lenInRange(index, arr[index])) return { error: tooLongMsg(index) };
+      var shift = deltaMm;
+      var j = index - 1;
+      while (j >= 0) {
+        if (c[j].r) return { error: blockedMsg(j, 'r', index) };
+        if (c[j].l) {
+          arr[j] += shift;
+          if (!lenInRange(j, arr[j])) return { error: tooLongMsg(j) };
+          return { lengths: arr };
+        }
+        // 两端都松：整段平移，长度不变，继续往左传播
+        j--;
+      }
+      return { error: '左侧固定端挡住了，先松固定端或缩短 ' + pad2(index + 1) };
+    }
+    if (c[index].r) return { error: '这端已锁定' };
+    if (!c[index].l) return { error: '先锁一端' };
+    arr[index] += deltaMm;
+    if (!lenInRange(index, arr[index])) return { error: tooLongMsg(index) };
+    var shift2 = deltaMm;
+    var k = index + 1;
+    while (k < cylCount()) {
+      if (c[k].l) return { error: blockedMsg(k, 'l', index) };
+      if (c[k].r) {
+        arr[k] -= shift2;
+        if (!lenInRange(k, arr[k])) return { error: tooLongMsg(k) };
+        return { lengths: arr };
+      }
+      // 两端都松：整段平移，长度不变，继续往右传播
+      k++;
+    }
+    return { error: '右侧固定端挡住了，先松固定端或缩短 ' + pad2(index + 1) };
+  }
+
+  function startHandleDrag(ev, index, side, el) {
+    if (ev.button !== undefined && ev.button !== 0) return;
+    ev.preventDefault();
+    ev.stopPropagation();
+    if (isEndCylinder(index)) { showToast('端部固定，不可调'); return; }
+    if (endLocked(index, side)) { showToast('这端已锁定'); return; }
+    var c = state.clamps[index];
+    if (!c.l && !c.r) { showToast('先锁一端'); return; }
+    clearTimeout(applyTimer);
+    stopMotion();
+    state.mode = 'manual';
+    updateModeUI();
+    dragState = {
+      kind: 'handle',
+      index: index,
+      side: side,
+      el: el,
+      startX: ev.clientX,
+      startLengths: state.lengths.slice(),
+      scale: view.scale || 0.2,
+      pointerId: ev.pointerId,
+      lastMsg: ''
+    };
+    el.classList.add('dragging');
+    try { el.setPointerCapture(ev.pointerId); } catch (err) {}
+  }
+
+  function onHandleMove(ev) {
+    if (!dragState || dragState.kind !== 'handle') return;
+    if (dragState.pointerId !== undefined && ev.pointerId !== dragState.pointerId) return;
+    var delta = (ev.clientX - dragState.startX) / dragState.scale;
+    var res = computeDrag(dragState.startLengths, dragState.index, dragState.side, delta);
+    if (res.error) {
+      if (res.error !== dragState.lastMsg) {
+        dragState.lastMsg = res.error;
+        showToast(res.error);
+      }
+      return;
+    }
+    state.lengths = res.lengths;
+    var total = chainTotal(state.lengths);
+    state.overLimit = total > availableMm() + 0.001;
+    state.requestedTotal = total;
+    state.remaining = Math.max(0, availableMm() - total);
+    render();
+  }
+
+  function endHandleDrag(ev) {
+    if (!dragState || dragState.kind !== 'handle') return;
+    var d = dragState;
+    dragState = null;
+    if (d.el) {
+      d.el.classList.remove('dragging');
+      try { d.el.releasePointerCapture(d.pointerId); } catch (err) {}
+    }
+    log('拖动 · 圆柱 ' + pad2(d.index + 1) + ' ' + (d.side === 'l' ? '左' : '右') +
+      '端 · 总长 ' + Math.round(chainTotal(state.lengths)) + ' mm', 'gold');
+    render();
+    updateAlerts();
+  }
+
   function createCylEl(index) {
     var el = document.createElement('div');
     el.className = 'cyl';
@@ -1743,6 +1931,8 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
       (isEnd ? '<span class="cyl-tag"><span class="ico">🔒</span> 固定端</span>' : '') +
       '<span class="move-arrow arrow-left">←</span>' +
       '<span class="move-arrow arrow-right">→</span>' +
+      '<button type="button" class="drag-handle handle-left" aria-label="拖动左端"><span class="grip"></span></button>' +
+      '<button type="button" class="drag-handle handle-right" aria-label="拖动右端"><span class="grip"></span></button>' +
       '<button type="button" class="clamp clamp-left"><span class="clamp-icon">🔒</span></button>' +
       '<button type="button" class="clamp clamp-right"><span class="clamp-icon">🔒</span></button>';
     chainEl.appendChild(el);
@@ -1750,11 +1940,21 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
     var rb = el.querySelector('.clamp-right');
     lb.addEventListener('click', function (ev) { ev.stopPropagation(); toggleClamp(index, 'l'); });
     rb.addEventListener('click', function (ev) { ev.stopPropagation(); toggleClamp(index, 'r'); });
-
-    el.addEventListener('pointerdown', function (ev) { startDrag(ev, index, el); });
-    el.addEventListener('pointermove', onDragMove);
-    el.addEventListener('pointerup', endDrag);
-    el.addEventListener('pointercancel', endDrag);
+    var lh = el.querySelector('.handle-left');
+    var rh = el.querySelector('.handle-right');
+    lh.addEventListener('pointerdown', function (ev) { startHandleDrag(ev, index, 'l', lh); });
+    rh.addEventListener('pointerdown', function (ev) { startHandleDrag(ev, index, 'r', rh); });
+    [lh, rh].forEach(function (h) {
+      h.addEventListener('pointermove', onHandleMove);
+      h.addEventListener('pointerup', endHandleDrag);
+      h.addEventListener('pointercancel', endHandleDrag);
+    });
+    el.addEventListener('pointerdown', function (ev) {
+      if (isEndCylinder(index) && ev.target &&
+          !ev.target.closest('.clamp') && !ev.target.closest('.drag-handle')) {
+        showToast('端部固定，不可调');
+      }
+    });
     return el;
   }
 
@@ -1855,7 +2055,7 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
       row.innerHTML =
         '<div class="row-head"><span class="row-id">' + label + '</span><span class="row-val"></span></div>' +
         '<input class="cyl-range" type="range" min="' + lenMinFor(i) + '" max="' + lenMaxFor(i) + '" step="5" value="' + Math.round(state.lengths[i]) + '" aria-label="' + label + ' 长度，毫米"' + (isEnd ? ' disabled' : '') + '>' +
-        (isEnd ? '<span class="row-note">🔒 锁死 · 固定端不可拖动</span>' : '<span class="row-note">可拖动 / 滑杆调整</span>');
+        (isEnd ? '<span class="row-note">🔒 锁死 · 固定端不可拖动</span>' : '<span class="row-note">拖动两端把手调整</span>');
       cylList.appendChild(row);
       var obj = {
         root: row,
@@ -2038,7 +2238,7 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
         state.mode = btn.dataset.mode;
         updateModeUI();
         if (state.mode === 'manual') {
-          log('手动逐段 · 拖圆柱或滑杆调整间距', 'gold');
+          log('手动逐段 · 拖两端把手调整间距', 'gold');
           render();
         } else {
           applyMode();
