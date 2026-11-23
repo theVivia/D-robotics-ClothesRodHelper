@@ -1,0 +1,173 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="980" viewBox="0 0 1600 980">
+  <defs>
+    <linearGradient id="bgS" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#06080b"/><stop offset="1" stop-color="#0b1017"/>
+    </linearGradient>
+    <linearGradient id="panelS" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#141b23"/><stop offset="1" stop-color="#0d131a"/>
+    </linearGradient>
+    <linearGradient id="rodS" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d7dbe2"/><stop offset="1" stop-color="#4a505a"/>
+    </linearGradient>
+    <marker id="arS" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#d6b173"/>
+    </marker>
+  </defs>
+  <rect width="1600" height="980" fill="url(#bgS)"/>
+  <g opacity=".045" stroke="#ffffff">
+    <path d="M0 150H1600M0 300H1600M0 450H1600M0 600H1600M0 750H1600M0 900H1600"/>
+    <path d="M200 0V980M400 0V980M600 0V980M800 0V980M1000 0V980M1200 0V980M1400 0V980"/>
+  </g>
+
+  <text x="60" y="58" fill="#d6b173" font-family="Microsoft YaHei, sans-serif" font-size="14" letter-spacing="4">HANDFLOW · V2 SYSTEM WIRING (K+1)</text>
+  <text x="60" y="100" fill="#eef2f8" font-family="Microsoft YaHei, sans-serif" font-size="30" font-weight="700">系统拓扑：一个中枢 + K+1 个伸缩圆柱（两端也有）</text>
+  <text x="60" y="132" fill="#98a4b5" font-family="Microsoft YaHei, sans-serif" font-size="14">墙/边缘 — 调节器 — 衣物 — 调节器 — … — 调节器 — 墙/边缘 · 每个调节器两端锥面收口夹头（套筒 5—8mm）· 端部顶墙预紧 · 无卷簧</text>
+
+  <!-- camera -->
+  <rect x="600" y="165" width="400" height="80" rx="10" fill="url(#panelS)" stroke="#38424f"/>
+  <text x="800" y="191" fill="#eef2f8" font-family="Microsoft YaHei, sans-serif" font-size="14" text-anchor="middle" font-weight="700">USB UVC 相机</text>
+  <text x="800" y="213" fill="#98a4b5" font-family="Microsoft YaHei, sans-serif" font-size="12" text-anchor="middle">1080p30 · 广角 100—120° · 正前方 1.2—1.5m</text>
+  <text x="800" y="232" fill="#98a4b5" font-family="Microsoft YaHei, sans-serif" font-size="12" text-anchor="middle">读 ArUco ID 01—07 + 圆柱位置</text>
+  <path d="M800 245V280" stroke="#d6b173" stroke-width="2.5" marker-end="url(#arS)"/>
+  <text x="810" y="266" fill="#98a4b5" font-family="Microsoft YaHei, sans-serif" font-size="11">USB3.0</text>
+
+  <!-- adapter -->
+  <rect x="1120" y="165" width="400" height="90" rx="10" fill="#1c1a12" stroke="#d6b173"/>
+  <text x="1320" y="191" fill="#f1d69a" font-family="Microsoft YaHei, sans-serif" font-size="14" text-anchor="middle" font-weight="700">5V/5A 适配器（25W）</text>
+  <text x="1320" y="213" fill="#c3ccd8" font-family="Microsoft YaHei, sans-serif" font-size="12" text-anchor="middle">Type-C 5A 线 · 满载 5V 轨 ≥4.75V</text>
+  <text x="1320" y="233" fill="#e08a8a" font-family="Microsoft YaHei, sans-serif" font-size="12" text-anchor="middle">✗ 笔记本 USB 口供电会反复重启</text>
+  <path d="M1120 210H950" stroke="#e05a5a" stroke-width="2.5" marker-end="url(#arS)"/>
+  <text x="958" y="201" fill="#e08a8a" font-family="Microsoft YaHei, sans-serif" font-size="11">USB-C 5V/5A</text>
+
+  <!-- phone -->
+  <rect x="40" y="300" width="250" height="180" rx="10" fill="url(#panelS)" stroke="#38424f"/>
+  <text x="165" y="330" fill="#eef2f8" font-family="Microsoft YaHei, sans-serif" font-size="15" text-anchor="middle" font-weight="700">手机网页</text>
+  <text x="165" y="356" fill="#98a4b5" font-family="Microsoft YaHei, sans-serif" font-size="12" text-anchor="middle">免安装 · 扫码打开</text>
+  <text x="165" y="382" fill="#98a4b5" font-family="Microsoft YaHei, sans-serif" font-size="12" text-anchor="middle">手动 / 一键等距 / 湿度 / 收衣</text>
+  <text x="165" y="408" fill="#98a4b5" font-family="Microsoft YaHei, sans-serif" font-size="12" text-anchor="middle">夹持状态提示 + 急停按钮</text>
+  <text x="165" y="452" fill="#d6b173" font-family="Microsoft YaHei, sans-serif" font-size="12" text-anchor="middle">http://10.42.0.1:8000</text>
+  <path d="M290 390H380" stroke="#4a9de0" stroke-width="2.5" marker-end="url(#arS)"/>
+  <text x="296" y="380" fill="#4a9de0" font-family="Microsoft YaHei, sans-serif" font-size="11">2.4G Wi-Fi</text>
+  <text x="296" y="414" fill="#4a9de0" font-family="Microsoft YaHei, sans-serif" font-size="11">HTTP + WS</text>
+
+  <!-- RDK hub -->
+  <rect x="380" y="280" width="560" height="400" rx="16" fill="url(#panelS)" stroke="#d6b173" stroke-width="2"/>
+  <text x="660" y="316" fill="#f1d69a" font-family="Microsoft YaHei, sans-serif" font-size="20" text-anchor="middle" font-weight="700">RDK X5 4GB 中枢</text>
+  <text x="660" y="342" fill="#98a4b5" font-family="Microsoft YaHei, sans-serif" font-size="12" text-anchor="middle">Ubuntu 22.04 · 8×A55@1.5GHz · 不用 BPU（P0）</text>
+  <g font-family="Microsoft YaHei, sans-serif" font-size="13">
+    <text x="408" y="382" fill="#c3ccd8">2.4G 热点 HangFlow → 10.42.0.1</text>
+    <text x="408" y="410" fill="#c3ccd8">mosquitto :1883（MQTT broker）</text>
+    <text x="408" y="438" fill="#c3ccd8">FastAPI :8000（手机网页）</text>
+    <text x="408" y="466" fill="#c3ccd8">ArUco 识别 ID 01—07 → 规划 L_i*</text>
+    <text x="408" y="494" fill="#c3ccd8">链模型：x_(i+1) = x_i + 10 + L_i</text>
+    <text x="408" y="522" fill="#c3ccd8">单元上限：K≤6（7 个单元）；演示 K=4 → 5 个</text>
+    <text x="408" y="550" fill="#c3ccd8">夹持联锁：free/fixed 时拒绝下发运动</text>
+    <text x="408" y="578" fill="#c3ccd8">USB 相机 · MicroSD 32GB · 日志/回放</text>
+    <text x="408" y="614" fill="#98a4b5" font-size="11.5">单元静态 IP：01→.11 … 07→.17；心跳 hangflow/hub/status 1Hz</text>
+    <text x="408" y="636" fill="#98a4b5" font-size="11.5">断线/断网由单元本地保持，不依赖中枢</text>
+  </g>
+
+  <!-- units -->
+  <g font-family="Microsoft YaHei, sans-serif">
+    <rect x="1090" y="268" width="440" height="78" rx="10" fill="url(#panelS)" stroke="#38424f"/>
+    <text x="1110" y="292" fill="#f1d69a" font-size="15" font-weight="700">调节器 01（端部）</text>
+    <text x="1110" y="313" fill="#c3ccd8" font-size="12">ESP32-C3 · N20+丝杆 · AS5600 · 双端夹持 · 1000mAh</text>
+    <text x="1110" y="333" fill="#98a4b5" font-size="12">hangflow/unit/01/… · 10.42.0.11</text>
+
+    <rect x="1090" y="358" width="440" height="78" rx="10" fill="url(#panelS)" stroke="#38424f"/>
+    <text x="1110" y="382" fill="#f1d69a" font-size="15" font-weight="700">调节器 02</text>
+    <text x="1110" y="403" fill="#c3ccd8" font-size="12">ESP32-C3 · N20+丝杆 · AS5600 · 双端夹持 · 1000mAh</text>
+    <text x="1110" y="423" fill="#98a4b5" font-size="12">hangflow/unit/02/… · 10.42.0.12</text>
+
+    <rect x="1090" y="448" width="440" height="78" rx="10" fill="url(#panelS)" stroke="#38424f"/>
+    <text x="1110" y="472" fill="#f1d69a" font-size="15" font-weight="700">调节器 03</text>
+    <text x="1110" y="493" fill="#c3ccd8" font-size="12">ESP32-C3 · N20+丝杆 · AS5600 · 双端夹持 · 1000mAh</text>
+    <text x="1110" y="513" fill="#98a4b5" font-size="12">hangflow/unit/03/… · 10.42.0.13</text>
+
+    <rect x="1090" y="538" width="440" height="78" rx="10" fill="url(#panelS)" stroke="#38424f"/>
+    <text x="1110" y="562" fill="#f1d69a" font-size="15" font-weight="700">调节器 04</text>
+    <text x="1110" y="583" fill="#c3ccd8" font-size="12">ESP32-C3 · N20+丝杆 · AS5600 · 双端夹持 · 1000mAh</text>
+    <text x="1110" y="603" fill="#98a4b5" font-size="12">hangflow/unit/04/… · 10.42.0.14</text>
+
+    <rect x="1090" y="628" width="440" height="78" rx="10" fill="url(#panelS)" stroke="#38424f"/>
+    <text x="1110" y="652" fill="#f1d69a" font-size="15" font-weight="700">调节器 05（端部）</text>
+    <text x="1110" y="673" fill="#c3ccd8" font-size="12">ESP32-C3 · N20+丝杆 · AS5600 · 双端夹持 · 1000mAh</text>
+    <text x="1110" y="693" fill="#98a4b5" font-size="12">hangflow/unit/05/… · 10.42.0.15</text>
+
+    <path d="M940 307H1090" stroke="#4a9de0" stroke-width="2" stroke-dasharray="6 5"/>
+    <path d="M940 397H1090" stroke="#4a9de0" stroke-width="2" stroke-dasharray="6 5"/>
+    <path d="M940 487H1090" stroke="#4a9de0" stroke-width="2" stroke-dasharray="6 5"/>
+    <path d="M940 577H1090" stroke="#4a9de0" stroke-width="2" stroke-dasharray="6 5"/>
+    <path d="M940 667H1090" stroke="#4a9de0" stroke-width="2" stroke-dasharray="6 5"/>
+    <text x="1015" y="300" fill="#4a9de0" font-size="11" text-anchor="middle">Wi-Fi 2.4G / MQTT</text>
+    <text x="1015" y="710" fill="#98a4b5" font-size="11" text-anchor="middle">ID 01—07 支持 K≤6</text>
+  </g>
+
+  <!-- chain -->
+  <g font-family="Microsoft YaHei, sans-serif">
+    <text x="60" y="748" fill="#d6b173" font-size="15" font-weight="700">链结构（俯视）：K 件衣服 = K+1 个调节器，两端顶墙预紧，无卷簧</text>
+    <rect x="70" y="800" width="960" height="14" rx="7" fill="url(#rodS)"/>
+
+    <!-- walls -->
+    <rect x="70" y="772" width="26" height="74" rx="4" fill="#b08a45"/>
+    <text x="83" y="866" fill="#98a4b5" font-size="11.5" text-anchor="middle">墙/边缘</text>
+    <rect x="985" y="772" width="26" height="74" rx="4" fill="#b08a45"/>
+    <text x="998" y="866" fill="#98a4b5" font-size="11.5" text-anchor="middle">墙/边缘</text>
+
+    <!-- adjusters 01..05 -->
+    <g>
+      <rect x="110" y="776" width="140" height="62" rx="18" fill="#232931" stroke="#d6b173" stroke-width="1.6"/>
+      <rect x="112" y="784" width="7" height="46" rx="3" fill="#b08a45"/><rect x="241" y="784" width="7" height="46" rx="3" fill="#b08a45"/>
+      <text x="180" y="812" fill="#f1d69a" font-size="14" text-anchor="middle" font-weight="700">调节器 01</text>
+      <text x="180" y="862" fill="#98a4b5" font-size="11" text-anchor="middle">端部：顶墙预紧</text>
+    </g>
+    <g>
+      <rect x="290" y="776" width="140" height="62" rx="18" fill="#232931" stroke="#d6b173" stroke-width="1.6"/>
+      <rect x="292" y="784" width="7" height="46" rx="3" fill="#b08a45"/><rect x="421" y="784" width="7" height="46" rx="3" fill="#b08a45"/>
+      <text x="360" y="812" fill="#f1d69a" font-size="14" text-anchor="middle" font-weight="700">调节器 02</text>
+    </g>
+    <g>
+      <rect x="470" y="776" width="140" height="62" rx="18" fill="#232931" stroke="#d6b173" stroke-width="1.6"/>
+      <rect x="472" y="784" width="7" height="46" rx="3" fill="#b08a45"/><rect x="601" y="784" width="7" height="46" rx="3" fill="#b08a45"/>
+      <text x="540" y="812" fill="#f1d69a" font-size="14" text-anchor="middle" font-weight="700">调节器 03</text>
+    </g>
+    <g>
+      <rect x="650" y="776" width="140" height="62" rx="18" fill="#232931" stroke="#d6b173" stroke-width="1.6"/>
+      <rect x="652" y="784" width="7" height="46" rx="3" fill="#b08a45"/><rect x="781" y="784" width="7" height="46" rx="3" fill="#b08a45"/>
+      <text x="720" y="812" fill="#f1d69a" font-size="14" text-anchor="middle" font-weight="700">调节器 04</text>
+    </g>
+    <g>
+      <rect x="830" y="776" width="140" height="62" rx="18" fill="#232931" stroke="#d6b173" stroke-width="1.6"/>
+      <rect x="832" y="784" width="7" height="46" rx="3" fill="#b08a45"/><rect x="961" y="784" width="7" height="46" rx="3" fill="#b08a45"/>
+      <text x="900" y="812" fill="#f1d69a" font-size="14" text-anchor="middle" font-weight="700">调节器 05</text>
+      <text x="900" y="862" fill="#98a4b5" font-size="11" text-anchor="middle">端部：顶墙预紧</text>
+    </g>
+
+    <!-- clothes (hangers at seams) -->
+    <g fill="#c9ced6">
+      <rect x="258" y="790" width="8" height="34" rx="4"/><rect x="438" y="790" width="8" height="34" rx="4"/>
+      <rect x="618" y="790" width="8" height="34" rx="4"/><rect x="798" y="790" width="8" height="34" rx="4"/>
+    </g>
+    <g fill="#d6b173" font-size="11" text-anchor="middle">
+      <text x="262" y="845">衣物1</text><text x="442" y="845">衣物2</text><text x="622" y="845">衣物3</text><text x="802" y="845">衣物4</text>
+    </g>
+
+    <text x="1060" y="790" fill="#c3ccd8" font-size="12">净风道 g_i = L_i</text>
+    <text x="1060" y="812" fill="#98a4b5" font-size="11.5">中心距 = L_i + 10mm</text>
+    <text x="1060" y="834" fill="#98a4b5" font-size="11.5">K=4 → 5 个调节器</text>
+    <text x="1060" y="856" fill="#98a4b5" font-size="11.5">端部顶墙预紧（无卷簧）</text>
+  </g>
+
+  <!-- notes -->
+  <g font-family="Microsoft YaHei, sans-serif">
+    <rect x="60" y="884" width="1470" height="52" rx="8" fill="#0c1117" stroke="#2a333f"/>
+    <text x="80" y="906" fill="#98a4b5" font-size="12">接线要点：① 中枢与单元之间无信号线，只有 2.4G + MQTT；② 每单元自带 1000mAh 18650，互不供电；</text>
+    <text x="80" y="926" fill="#98a4b5" font-size="12">③ 每单元两端各 1 个锥面收口夹头（套筒内滑 5—8mm 锁紧）+ 1 个套筒锁位微动，未锁禁止伸缩；④ 相机插 USB3.0 口；⑤ X5 竖放垫高 10mm。</text>
+  </g>
+
+  <text x="60" y="966" fill="#5b6779" font-family="Microsoft YaHei, sans-serif" font-size="11">衣序 HangFlow v2 · hardware/wiring-v2/diagram-system-v2.svg · 2026-11-23 · 与 docs/v2/02-电控与BOM.md §7/§8 对应（K+1 修正版）</text>
+</svg>
+
+
+
+

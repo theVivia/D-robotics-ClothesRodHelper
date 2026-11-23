@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1520" height="780" viewBox="0 0 1520 780">
+<style>
+  .bg{fill:#f8fafc}
+  .rod{fill:#cbd5e1;stroke:#334155;stroke-width:1.6}
+  .body{fill:#e2e8f0;stroke:#0f172a;stroke-width:1.8}
+  .passive{fill:#dbeafe;stroke:#1e3a8a;stroke-width:1.8}
+  .ring{fill:#f1f5f9;stroke:#0f172a;stroke-width:1.5}
+  .cam{fill:#fde68a;stroke:#b45309;stroke-width:1.4}
+  .foot{fill:#fca5a5;stroke:#991b1b;stroke-width:1.3}
+  .wall{fill:#94a3b8;stroke:#334155;stroke-width:1.6}
+  .hk{fill:none;stroke:#7c2d12;stroke-width:4.2;stroke-linecap:round}
+  .cloth{fill:#e2e8f0;stroke:#475569;stroke-width:1.2}
+  .dim{stroke:#0f766e;stroke-width:1;fill:none;marker-start:url(#ae);marker-end:url(#ae)}
+  .ext{stroke:#0f766e;stroke-width:.7;stroke-dasharray:4 3;fill:none}
+  .dt{font:12px 'Microsoft YaHei','PingFang SC',sans-serif;fill:#0f766e;text-anchor:middle;paint-order:stroke;stroke:#fff;stroke-width:3}
+  .lb{font:13px 'Microsoft YaHei','PingFang SC',sans-serif;fill:#7c2d12}
+  .ttl{font:bold 20px 'Microsoft YaHei','PingFang SC',sans-serif;fill:#0f172a}
+  .sub{font:13px 'Microsoft YaHei','PingFang SC',sans-serif;fill:#475569}
+  .num{font:bold 14px 'Microsoft YaHei','PingFang SC',sans-serif;fill:#0f172a;text-anchor:middle}
+  .note{font:12.5px 'Microsoft YaHei','PingFang SC',sans-serif;fill:#334155}
+  .lead{stroke:#b45309;stroke-width:1;fill:none}
+</style>
+<defs>
+  <marker id="ae" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,1 L10,5 L0,9 z" fill="#0f766e"/>
+  </marker>
+</defs>
+<rect class="bg" width="1520" height="780"/>
+
+<text class="ttl" x="60" y="52">mech-v2 · 链条排列：K 件衣服 = K+1 个调节器（两端也有），双端夹持替代卷簧</text>
+<text class="sub" x="60" y="78">墙 — 调节器01 — 衣物1 — 调节器02 — 衣物2 — 调节器03 — 衣物3 — 调节器04 — 衣物4 — 调节器05 — 墙　　比例 1.1 px/mm，演示杆 Ø25 × 1.2 m</text>
+
+<!-- rod -->
+<rect class="rod" x="60" y="196" width="1400" height="28" rx="14"/>
+
+<!-- walls -->
+<rect class="wall" x="40" y="120" width="22" height="290" rx="4"/>
+<rect class="wall" x="1438" y="120" width="22" height="290" rx="4"/>
+<text class="note" x="51" y="446" text-anchor="middle" transform="rotate(-90 51 446)">墙 / 挡块</text>
+<text class="note" x="1449" y="446" text-anchor="middle" transform="rotate(-90 1449 446)">墙 / 挡块</text>
+
+<!-- 01 E 90mm = 99px : 114..213 -->
+<g>
+  <rect class="body" x="114" y="174" width="99" height="72" rx="8"/>
+  <rect class="ring" x="114" y="174" width="12" height="72" rx="3"/>
+  <rect class="ring" x="201" y="174" width="12" height="72" rx="3"/>
+  <rect class="cam" x="140" y="162" width="14" height="12" rx="3"/>
+  <rect class="cam" x="176" y="162" width="14" height="12" rx="3"/>
+  <rect class="foot" x="104" y="206" width="10" height="46" rx="3"/>
+  <text class="num" x="163" y="218">01</text>
+</g>
+<rect x="213" y="196" width="11" height="28" fill="#ffffff" stroke="#0f172a" stroke-width="1"/>
+<!-- 02 S 被动短套 80mm = 88px : 224..312 -->
+<g>
+  <rect class="passive" x="224" y="174" width="88" height="72" rx="8"/>
+  <rect class="ring" x="224" y="174" width="12" height="72" rx="3"/>
+  <rect class="ring" x="300" y="174" width="12" height="72" rx="3"/>
+  <text class="num" x="268" y="218">02</text>
+  <text class="note" x="268" y="262" text-anchor="middle" font-size="11" fill="#1e3a8a">S 被动短套（无电机）</text>
+</g>
+<rect x="312" y="196" width="11" height="28" fill="#ffffff" stroke="#0f172a" stroke-width="1"/>
+<!-- 03 N 100mm = 110px : 323..433 -->
+<g>
+  <rect class="body" x="323" y="174" width="110" height="72" rx="8"/>
+  <rect class="ring" x="323" y="174" width="12" height="72" rx="3"/>
+  <rect class="ring" x="421" y="174" width="12" height="72" rx="3"/>
+  <rect class="cam" x="348" y="162" width="14" height="12" rx="3"/>
+  <rect class="cam" x="394" y="162" width="14" height="12" rx="3"/>
+  <text class="num" x="378" y="218">03</text>
+  <text class="note" x="378" y="262" text-anchor="middle" font-size="11" fill="#475569">N 窄距</text>
+</g>
+<rect x="433" y="196" width="11" height="28" fill="#ffffff" stroke="#0f172a" stroke-width="1"/>
+<!-- 04 N 120mm = 132px : 444..576 -->
+<g>
+  <rect class="body" x="444" y="174" width="132" height="72" rx="8"/>
+  <rect class="ring" x="444" y="174" width="12" height="72" rx="3"/>
+  <rect class="ring" x="564" y="174" width="12" height="72" rx="3"/>
+  <rect class="cam" x="476" y="162" width="14" height="12" rx="3"/>
+  <rect class="cam" x="530" y="162" width="14" height="12" rx="3"/>
+  <text class="num" x="510" y="218">04</text>
+  <text class="note" x="510" y="262" text-anchor="middle" font-size="11" fill="#475569">N 窄距（同规格，行程 30）</text>
+</g>
+<rect x="576" y="196" width="11" height="28" fill="#ffffff" stroke="#0f172a" stroke-width="1"/>
+<!-- 05 E 90mm = 99px : 587..686 -->
+<g>
+  <rect class="body" x="587" y="174" width="99" height="72" rx="8"/>
+  <rect class="ring" x="587" y="174" width="12" height="72" rx="3"/>
+  <rect class="ring" x="674" y="174" width="12" height="72" rx="3"/>
+  <rect class="cam" x="613" y="162" width="14" height="12" rx="3"/>
+  <rect class="cam" x="649" y="162" width="14" height="12" rx="3"/>
+  <rect class="foot" x="676" y="206" width="10" height="46" rx="3"/>
+  <text class="num" x="636" y="218">05</text>
+</g>
+
+<!-- hangers at seams: seam centers 218.5 / 317.5 / 438.5 / 581.5 ; pin bridge y=233.6 -->
+<g>
+  <path class="hk" d="M218.5 233.4 A22 22 0 1 1 207.6 251.6"/>
+  <path class="cloth" d="M218.5 255 L218.5 268 L173 292 L173 316 L264 316 L264 292 L218.5 268 Z"/>
+  <path class="hk" d="M317.5 233.4 A22 22 0 1 1 306.6 251.6"/>
+  <path class="cloth" d="M317.5 255 L317.5 268 L272 292 L272 316 L363 316 L363 292 L317.5 268 Z"/>
+  <path class="hk" d="M438.5 233.4 A22 22 0 1 1 427.6 251.6"/>
+  <path class="cloth" d="M438.5 255 L438.5 268 L393 292 L393 316 L484 316 L484 292 L438.5 268 Z"/>
+  <path class="hk" d="M581.5 233.4 A22 22 0 1 1 570.6 251.6"/>
+  <path class="cloth" d="M581.5 255 L581.5 268 L536 292 L536 316 L627 316 L627 292 L581.5 268 Z"/>
+</g>
+<text class="note" x="400" y="336" text-anchor="middle">衣物：衣架钩环挂在相邻两个端头半销对接成的 10 mm 销桥上</text>
+
+<!-- dims -->
+<path class="dim" d="M323 400 H433"/>
+<path class="ext" d="M323 246 V406 M433 246 V406"/>
+<text class="dt" x="378" y="392">净风道 g₃ = L₃ = 100</text>
+<path class="dim" d="M114 430 H686"/>
+<path class="ext" d="M114 246 V436 M686 246 V436"/>
+<text class="dt" x="400" y="454">演示总链长 = ΣL + K×SEAM = 480 + 40 = 520 mm（含撑脚 ≈550）</text>
+<path class="dim" d="M686 400 H1438"/>
+<path class="ext" d="M1438 330 V406"/>
+<text class="dt" x="1062" y="392">杆余量 ≈ 650 mm（加位 / 手伸进去 / 端部段整体滑到位）</text>
+<path class="dim" d="M438.5 476 H581.5"/>
+<path class="ext" d="M438.5 320 V482 M581.5 320 V482"/>
+<text class="dt" x="510" y="500">中心距 = L + 10 = 130</text>
+
+<!-- callouts -->
+<g class="lead">
+  <path d="M147 158 L130 118 L100 118"/>
+  <path d="M109 226 L86 200 L66 200"/>
+  <path d="M681 226 L706 200 L742 200"/>
+  <path d="M218.5 233.4 L240 168 L268 168"/>
+</g>
+<text class="lb" x="60" y="112">锥面夹头套筒（行程 6 mm，无外露爪子）：推入=锁死 / 拉出=松开；锁一端=单向伸缩 / 锁两端=定点锁定</text>
+<text class="lb" x="24" y="194">顶墙撑脚（行程 25，预紧 10–20 N）</text>
+<text class="lb" x="742" y="196">端部段 05 同样带顶墙撑脚</text>
+<text class="lb" x="268" y="162">接缝 10 mm：半销端面留 0.5 mm，物理最小缝 4.0 mm</text>
+
+<!-- bottom -->
+<g>
+  <text class="note" x="60" y="560" font-weight="bold" fill="#0f172a">本版三条锁定口径（与旧 v2 口径的差别）</text>
+  <text class="note" x="60" y="588">1. 调节器数量 = K + 1（演示 K=4 → 5 个：01–05），两端也有调节器；旧口径"K−1 个"作废。</text>
+  <text class="note" x="60" y="612">2. 取消恒力卷簧。位置由两端的锥面收口夹头钉在杆上：断电不掉位，不靠链张力，也不靠丝杆自锁。</text>
+  <text class="note" x="60" y="636">3. 端部段用顶墙撑脚做预紧（力走墙），杆只受竖直载荷；接缝是控制出来的 10 mm，不是弹簧压出来的。</text>
+  <text class="note" x="60" y="672" fill="#475569">长度规格：N 窄距 100–130 · M 中距 130–190 · W 宽距 190–220 · E 端部段 90–110 · S 被动短套 40/60/80（无电机，40–100 mm 动力盲区用它）</text>
+  <text class="note" x="60" y="696" fill="#475569">速度 4.0 mm/s @ N20 30 rpm（T8×8，η=66.1%）；工况 A 推力 8 N（额定 15 N）· 工况 B 预紧 15 N · 锥面夹头保持力 82 N（设计，要求 ≥40 N）。</text>
+  <text class="note" x="60" y="726" fill="#94a3b8">注：夹持环画成端部两道浅色带；凸轮扳手在 +Y 侧（正视图看不到，示意画在顶部）。全部数字为设计值/估算，非实测。</text>
+</g>
+</svg>

@@ -1,0 +1,48 @@
+网络类,网络名,序号,起点器件,起点引脚,终点器件,终点引脚,线色,线材规格,必接,备注
+电源,VBAT,P1,18650电池座,+,TP4056模块,B+,红,AWG24,是,带保护板1000mAh
+电源,GND,P2,18650电池座,-,TP4056模块,B-,黑,AWG24,是,
+电源,VBAT_OUT,P3,TP4056模块,OUT+,电源开关,进线端,红,AWG24,是,SS12D00拨动开关
+电源,VBAT_SW,P4,电源开关,出线端,汇流节点,VBAT_SW,红,AWG24,是,分4路：MT3608/SuperMini5V/分压/P1预留
+电源,GND,P5,TP4056模块,OUT-,汇流节点,GND,黑,AWG24,是,单点接地
+电源,VBAT_SW,P6,汇流节点,VBAT_SW,MT3608模块,VIN+,红,AWG24,是,输入并100uF/16V
+电源,GND,P7,汇流节点,GND,MT3608模块,VIN-,黑,AWG24,是,
+电源,+6V0,P8,MT3608模块,VOUT+,DRV8833模块,VM,红,AWG26,是,输出并100uF/16V+100nF；预调6.0V
+电源,GND,P9,MT3608模块,VOUT-,DRV8833模块,GND,黑,AWG26,是,
+电源,VBAT_SW,P10,汇流节点,VBAT_SW,ESP32-C3 SuperMini,5V,红,AWG24,是,接电池3.0-4.2V而非5V
+电源,GND,P11,汇流节点,GND,ESP32-C3 SuperMini,GND,黑,AWG24,是,两个GND脚都接
+电源,BAT_SENSE,P12,汇流节点,VBAT_SW,分压上臂电阻,100kΩ一端,红,AWG28,是,节点并100nF到GND
+电源,BAT_SENSE,P13,分压上臂电阻,100kΩ另一端,GND,分压下臂电阻,黑,AWG28,是,100kΩ下臂到GND
+电源,BAT_SENSE,P14,分压中点,BAT_SENSE,ESP32-C3 SuperMini,GPIO0,蓝,AWG28,是,ADC1_CH0；4.2V→2.10V
+电机,MOTOR_AIN1,M1,ESP32-C3 SuperMini,GPIO4,DRV8833模块,AIN1,蓝,AWG26,是,LEDC ch0 20kHz 占空比≤80%
+电机,MOTOR_AIN2,M2,ESP32-C3 SuperMini,GPIO5,DRV8833模块,AIN2,蓝,AWG26,是,LEDC ch1 20kHz
+电机,MOTOR_NSLEEP,M3,ESP32-C3 SuperMini,GPIO10,DRV8833模块,nSLEEP,蓝,AWG26,是,nSLEEP对GND接10kΩ下拉
+电机,GND,M4,DRV8833模块,BIN1,GND,汇流节点GND,黑,AWG26,是,只用A通道
+电机,GND,M5,DRV8833模块,BIN2,GND,汇流节点GND,黑,AWG26,是,
+电机,MOTOR_M+,M6,DRV8833模块,AOUT1,N20电机,M+,黄,AWG26,是,双绞
+电机,MOTOR_M-,M7,DRV8833模块,AOUT2,N20电机,M-,黄,AWG26,是,与M6双绞
+电机,GND,M8,DRV8833模块,GND,汇流节点GND,黑,AWG26,是,模块多余GND脚
+传感,I2C_SDA,E1,ESP32-C3 SuperMini,GPIO6,AS5600模块,SDA,绿,AWG28,是,4.7kΩ上拉到3V3
+传感,I2C_SCL,E2,ESP32-C3 SuperMini,GPIO7,AS5600模块,SCL,白,AWG28,是,4.7kΩ上拉到3V3
+传感,+3V3,E3,ESP32-C3 SuperMini,3V3,AS5600模块,VCC,橙,AWG28,是,
+传感,GND,E4,ESP32-C3 SuperMini,GND,AS5600模块,GND,黑,AWG28,是,
+传感,GND,E5,AS5600模块,DIR,GND,汇流节点GND,黑,AWG28,是,接GND=顺时针角度增大
+传感,NC,E6,AS5600模块,GPO,悬空,悬空,-,-,否,P0不用
+限位,LIM_MIN,L1,ESP32-C3 SuperMini,GPIO3,下限位微动开关,NO,绿,AWG28,是,内部上拉；COM接GND；触发=低
+限位,GND,L2,下限位微动开关,COM,GND,汇流节点GND,黑,AWG28,是,两端并100nF去抖
+限位,LIM_MAX,L3,ESP32-C3 SuperMini,GPIO20,上限位微动开关,NO,绿,AWG28,是,内部上拉；COM接GND；触发=低
+限位,GND,L4,上限位微动开关,COM,GND,汇流节点GND,黑,AWG28,是,两端并100nF去抖
+夹持,LOCK_A,C1,ESP32-C3 SuperMini,GPIO1,A端夹持微动开关,NO,紫,AWG28,是,内部上拉；COM接GND；锁=低；断线=高=未锁
+夹持,GND,C2,A端夹持微动开关,COM,GND,汇流节点GND,黑,AWG28,是,两端并100nF去抖
+夹持,LOCK_B,C3,ESP32-C3 SuperMini,GPIO21,1kΩ串阻,一端,紫,AWG28,是,GPIO21与UART0TX复用，必须串1kΩ
+夹持,LOCK_B,C4,1kΩ串阻,另一端,B端夹持微动开关,NO,紫,AWG28,是,锁=低；断线=高=未锁
+夹持,GND,C5,B端夹持微动开关,COM,GND,汇流节点GND,黑,AWG28,是,两端并100nF去抖
+灯键,+3V3,D1,ESP32-C3 SuperMini,3V3,WS2812B-2020,VDD,橙,AWG28,是,就近100nF到GND
+灯键,GND,D2,ESP32-C3 SuperMini,GND,WS2812B-2020,GND,黑,AWG28,是,
+灯键,LED_DIN,D3,ESP32-C3 SuperMini,GPIO2,WS2812B-2020,DIN,蓝,AWG28,是,串330Ω；GPIO2外接10kΩ上拉3V3
+灯键,KEY_IN,K1,ESP32-C3 SuperMini,GPIO9,轻触按键,一脚,蓝,AWG28,是,与板载BOOT并联；内部上拉；并100nF到GND
+灯键,GND,K2,轻触按键,另一脚,GND,汇流节点GND,黑,AWG28,是,
+预留,P1_I2C,J4,ESP32-C3 SuperMini,GPIO6/7,扩展排针,4P(J4),绿,AWG28,否,P1电动夹持：SDA/SCL/3V3/GND
+预留,P1_SOL,J5,VBAT_SW/6V0,电源,扩展排针,2P(J5),红,AWG26,否,P1电磁铁/舵机供电；P0不装
+禁接,GPIO8,NC1,ESP32-C3 SuperMini,GPIO8,悬空,悬空,-,-,否,strapping+板载蓝灯
+禁接,GPIO11-17,NC2,ESP32-C3 SuperMini,GPIO11-17,悬空,悬空,-,-,否,Flash供电/SPI Flash
+禁接,USB_D,NC3,ESP32-C3 SuperMini,GPIO18-19,USB-C口,USB D-/D+,-,-,否,唯一烧录调试通道

@@ -1,5 +1,7 @@
 # 衣序 HangFlow · BOM 与成本
 
+> ⚠️ **v1 文档（衣架挂在自走模块上）已于 2026-11-23 废弃；现行 v2 见 [docs/v2/README.md](v2/README.md)（[总览](v2/00-总览与架构.md)）。**
+
 > 这份文档回答一个问题：**做一套能上台演示的东西要花多少钱、钱花在哪、卖多少钱才不亏。**
 >
 > 配套文件：`hardware/bom/elec-bom.csv`（机读版，同一套数字）、`hardware/bom/mech-bom.csv`（机械明细）。

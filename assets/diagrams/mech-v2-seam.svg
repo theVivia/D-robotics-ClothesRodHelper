@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720">
+<style>
+  .bg{fill:#f8fafc}
+  .body{fill:#e2e8f0;stroke:#0f172a;stroke-width:2}
+  .rod{fill:#cbd5e1;stroke:#334155;stroke-width:1.6}
+  .pin{fill:#94a3b8;stroke:#334155;stroke-width:1.6}
+  .tpu{fill:#fca5a5;stroke:#991b1b;stroke-width:1.2}
+  .hk{fill:none;stroke:#7c2d12;stroke-width:5;stroke-linecap:round}
+  .cloth{fill:#e2e8f0;stroke:#475569;stroke-width:1.2}
+  .dim{stroke:#0f766e;stroke-width:1;fill:none;marker-start:url(#ae);marker-end:url(#ae)}
+  .ext{stroke:#0f766e;stroke-width:.7;stroke-dasharray:4 3;fill:none}
+  .dt{font:12px 'Microsoft YaHei','PingFang SC',sans-serif;fill:#0f766e;text-anchor:middle;paint-order:stroke;stroke:#fff;stroke-width:3}
+  .lb{font:12.5px 'Microsoft YaHei','PingFang SC',sans-serif;fill:#7c2d12}
+  .ttl{font:bold 20px 'Microsoft YaHei','PingFang SC',sans-serif;fill:#0f172a}
+  .sub{font:13px 'Microsoft YaHei','PingFang SC',sans-serif;fill:#475569}
+  .n{font:12.5px 'Microsoft YaHei','PingFang SC',sans-serif;fill:#334155}
+  .nb{font:bold 13px 'Microsoft YaHei','PingFang SC',sans-serif;fill:#0f172a}
+  .f{stroke:#dc2626;stroke-width:2.2;fill:none;marker-end:url(#arf)}
+  .ft{font:12px 'Microsoft YaHei','PingFang SC',sans-serif;fill:#b91c1c}
+  .lead{stroke:#b45309;stroke-width:1;fill:none}
+  .brk{fill:#f8fafc;stroke:#334155;stroke-width:1.4;stroke-dasharray:5 4}
+</style>
+<defs>
+  <marker id="ae" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,1 L10,5 L0,9 z" fill="#0f766e"/>
+  </marker>
+  <marker id="arf" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,1 L10,5 L0,9 z" fill="#dc2626"/>
+  </marker>
+</defs>
+<rect class="bg" width="1200" height="720"/>
+
+<text class="ttl" x="48" y="44">mech-v2 · 接缝 10 mm：U 形托 + 半销销桥 + 防夹手硬限位</text>
+<text class="sub" x="48" y="68">X–Z 剖面，比例 4 px/mm。左端头 01，右端头 02；两个端头各自独立定位，靠控制保持 10 mm，不靠弹簧挤压。</text>
+
+<!-- rod: center y=180, r=50 -->
+<rect class="rod" x="60" y="155" width="640" height="50" rx="25" opacity="0.55"/>
+<!-- left head: x 60..430 ; right head 470..700 -->
+<rect class="body" x="60" y="48" width="370" height="264" rx="6"/>
+<rect class="body" x="470" y="48" width="230" height="264" rx="6"/>
+<!-- bore (rod channel) -->
+<rect x="60" y="155" width="370" height="50" fill="#ffffff"/>
+<rect x="470" y="155" width="230" height="50" fill="#ffffff"/>
+<!-- U cradle bases (below pin) -->
+<path class="body" d="M405,266 H430 V292 H405 Z"/>
+<path class="body" d="M450,266 H495 V292 H450 Z"/>
+<!-- TPU bumpers on the two faces -->
+<rect class="tpu" x="424" y="90" width="6" height="60" rx="2"/>
+<rect class="tpu" x="470" y="90" width="6" height="60" rx="2"/>
+<!-- half pins: left 430..449, right 451..470 ; pin y 264..284 (Ø5=20px) -->
+<rect class="pin" x="430" y="264" width="19" height="20"/>
+<rect class="pin" x="451" y="264" width="19" height="20"/>
+<!-- hanger hook (schematic, elevated view) -->
+<g>
+  <path class="hk" d="M449,282 A66 66 0 1 1 393,318"/>
+  <path class="cloth" d="M450,332 L450,352 L372,388 L372,424 L528,424 L528,388 L450,352 Z"/>
+</g>
+<text class="n" x="450" y="444" text-anchor="middle" font-size="11" fill="#475569">示意：衣架钩环平面垂直于杆轴，图中为展开画法（真钩环在缝的 Y–Z 平面内）</text>
+
+<!-- seam dimension 10mm between faces 430..470 = 40px -->
+<path class="dim" d="M430,470 H470"/>
+<path class="ext" d="M430,300 V476 M470,300 V476"/>
+<text class="dt" x="450" y="492">接缝 10 mm（用户锁定）</text>
+
+<!-- min gap 4.0 : between bumper inner faces at 430..470 with 4mm limit -->
+<path class="dim" d="M430,520 H470"/>
+<path class="ext" d="M430,300 V526 M470,300 V526"/>
+<text class="dt" x="450" y="542">物理最小缝 4.0 mm（端头挡台相碰）</text>
+
+<!-- pin bridge label -->
+<g class="lead">
+  <path d="M440,264 L420,220 L352,220"/>
+  <path d="M450,290 L470,340 L540,340"/>
+  <path d="M427,120 L392,96 L330,96"/>
+</g>
+<text class="lb" x="238" y="215">半销 Ø5×12，伸出端面 5 mm；两半销端面留 0.5 mm</text>
+<text class="lb" x="546" y="336">U 形托：托住半销，槽口 0.4 mm 收口防跳</text>
+<text class="lb" x="222" y="90">端面 TPU 缓冲垫（Ø20×3，压缩后 1.5）</text>
+
+<!-- forces -->
+<path class="f" d="M439,300 V330"/>
+<path class="f" d="M461,300 V330"/>
+<text class="ft" x="380" y="348">F_h = 9.8 N / 半销</text>
+<path class="f" d="M330,120 H296"/>
+<path class="f" d="M570,120 H604"/>
+<text class="ft" x="240" y="112">F_pre 15 N（两端锁死时）</text>
+
+<!-- BREAK on right -->
+<path class="brk" d="M700,48 L718,312 M714,48 L732,312"/>
+<text class="n" x="726" y="330" font-size="11">端头 02 继续</text>
+
+<!-- INSET: Y-Z view of the seam, hook ring on pin bridge -->
+<g transform="translate(880,80)">
+  <rect x="0" y="0" width="290" height="290" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="1.2"/>
+  <text class="nb" x="14" y="24" font-size="12">缝平面 Y–Z 视图（钩环怎么挂住）</text>
+  <!-- barrel outline circle Ø66 -> r=132 scaled to 80 -->
+  <circle cx="145" cy="150" r="80" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <circle cx="145" cy="150" r="30" fill="#cbd5e1" stroke="#334155" stroke-width="1.2"/>
+  <text class="n" x="145" y="154" text-anchor="middle" font-size="10">杆 Ø25</text>
+  <!-- pin bridge at 21.5 below axis: 21.5mm*3.6=77px -->
+  <circle cx="145" cy="227" r="9" fill="#94a3b8" stroke="#334155" stroke-width="1.6"/>
+  <text class="n" x="196" y="232" font-size="10">销桥 Ø5×10</text>
+  <!-- hook ring: inner R20 -> 72px, wire 3.6 -> 13px, center at 150+? -->
+  <path class="hk" d="M145,155 A72 72 0 1 1 88,193" stroke-width="13"/>
+  <!-- hanger shank + shoulder -->
+  <path d="M88,193 L88,214 L40,240 L40,262 L136,262" fill="none" stroke="#475569" stroke-width="8"/>
+  <text class="n" x="14" y="284" font-size="10">下陷 0.64 mm 自定心；钩环被两侧端面挡住，掉不出去</text>
+  <!-- dimension of drop -->
+  <path class="dim" d="M145,150 V227" stroke-width="0.8"/>
+  <text class="dt" x="172" y="196" font-size="10">21.5</text>
+</g>
+
+<!-- notes -->
+<g>
+  <text class="nb" x="756" y="404">受力（设计值）</text>
+  <text class="n" x="756" y="428">半销悬臂 5 mm：M = 9.8×5 = 49 N·mm</text>
+  <text class="n" x="756" y="450">W = π·5³/32 = 12.3 mm³ → σ = 4.0 MPa（304 许用 150，37×）</text>
+  <text class="n" x="756" y="472">可减到 Ø4：σ = 7.8 MPa，仍 19×</text>
+  <text class="n" x="756" y="494">U 形托根部挤压 9.8/(5×7) = 0.28 MPa</text>
+
+  <text class="nb" x="756" y="530">防脱（四条）</text>
+  <text class="n" x="756" y="554">1 轴向：两侧 Ø66 端面挡住钩环，缝 10 − 环厚 3.6 = 余 6.4</text>
+  <text class="n" x="756" y="576">2 横向：U 形托侧壁高 8 mm，包住半销</text>
+  <text class="n" x="756" y="598">3 半销：槽口 0.4 mm 收口，拔出力估 15–25 N</text>
+  <text class="n" x="756" y="620">4 误脱：必须抬升 ≥8 mm 才能取出（正常摆动不会）</text>
+
+  <text class="nb" x="756" y="656">防夹手（三重）</text>
+  <text class="n" x="756" y="678">机械最小缝 4.0 mm（端头挡台相碰）+ 推力限 15 N +</text>
+  <text class="n" x="756" y="700">端头下沿 R6 圆角、内收 45° 斜边（手指没着力点）。</text>
+</g>
+</svg>

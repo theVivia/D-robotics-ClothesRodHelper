@@ -1,0 +1,1603 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#06080b">
+<title>衣序 HangFlow · V2 伸缩圆柱链交互原型</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230a0d13'/%3E%3Crect x='5' y='14' width='22' height='4' rx='2' fill='%23d6b173'/%3E%3Crect x='9' y='10' width='6' height='12' rx='3' fill='none' stroke='%23d6b173'/%3E%3Crect x='17' y='10' width='6' height='12' rx='3' fill='none' stroke='%23d6b173'/%3E%3C/svg%3E">
+<style>
+/* ==========================================================================
+   衣序 HangFlow · V2 交互原型
+   概念：杆上串 K−1 个抱箍式伸缩圆柱，衣架挂在相邻圆柱端头的 10mm 接缝处。
+   不画衣服；不换序；两端端部夹头可锁杆任意位置。单文件 / 离线 / 无外部依赖。
+   ========================================================================== */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+:root {
+  color-scheme: dark;
+  --bg: #06080b;
+  --line: rgba(255,255,255,.075);
+  --line-soft: rgba(255,255,255,.045);
+  --txt: #eef2f8;
+  --txt-2: #98a4b5;
+  --txt-3: #5b6779;
+  --gold: #d6b173;
+  --gold-hi: #f1d69a;
+  --gold-dim: rgba(214,177,115,.14);
+  --gold-line: rgba(214,177,115,.38);
+  --teal: #5fd6b4;
+  --amber: #e6bd63;
+  --coral: #f07a63;
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, "Microsoft YaHei", monospace;
+}
+
+html { background: var(--bg); }
+html, body { margin: 0; }
+body {
+  min-height: 100vh;
+  color: var(--txt);
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  background:
+    radial-gradient(900px 520px at 10% -10%, rgba(214,177,115,.10), transparent 62%),
+    radial-gradient(760px 480px at 102% 0%, rgba(95,214,180,.06), transparent 60%),
+    radial-gradient(1100px 720px at 50% 118%, rgba(64,105,150,.13), transparent 64%),
+    var(--bg);
+}
+button, input { font-family: inherit; }
+button { -webkit-tap-highlight-color: transparent; }
+:focus-visible { outline: 1px solid var(--gold); outline-offset: 2px; }
+
+.shell { max-width: 1280px; margin: 0 auto; padding: 22px clamp(12px, 2.6vw, 30px) 28px; }
+
+/* ============================ 顶栏 ============================ */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 18px; flex-wrap: wrap;
+  padding-bottom: 18px; border-bottom: 1px solid var(--line-soft);
+}
+.brand { display: flex; align-items: center; gap: 14px; min-width: 0; }
+.logo {
+  width: 42px; height: 42px; flex: none; display: grid; place-items: center;
+  border-radius: 12px; border: 1px solid var(--gold-line); color: var(--gold-hi);
+  background: linear-gradient(160deg, rgba(214,177,115,.18), rgba(214,177,115,.03));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.1), 0 8px 24px -12px rgba(214,177,115,.55);
+}
+.logo svg { width: 23px; height: 23px; }
+.brand-text { min-width: 0; }
+.brand-title { display: flex; align-items: baseline; gap: 8px; font-size: 19px; font-weight: 650; letter-spacing: .02em; line-height: 1.15; }
+.brand-title .en { font-family: var(--mono); font-size: 10.5px; font-weight: 500; letter-spacing: .16em; color: var(--gold); }
+.brand-sub { margin-top: 2px; font-size: 12px; color: var(--txt-2); letter-spacing: .02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.telemetry { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.tel-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 28px; padding: 0 10px;
+  border: 1px solid var(--line); border-radius: 999px;
+  background: rgba(255,255,255,.025);
+  font-size: 11px; color: var(--txt-2); white-space: nowrap;
+}
+.tel-chip em { font-style: normal; font-family: var(--mono); font-size: 11px; color: var(--txt); }
+.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--teal); box-shadow: 0 0 8px rgba(95,214,180,.8); }
+.dot.pulse { animation: pulse 2.4s ease-in-out infinite; }
+
+/* ============================ 布局 ============================ */
+.layout {
+  display: grid; grid-template-columns: minmax(0, 1fr) 368px;
+  gap: 18px; margin-top: 20px; align-items: start;
+}
+.main-col { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.panel { position: sticky; top: 16px; }
+
+.card {
+  position: relative; border: 1px solid var(--line); border-radius: 16px;
+  background: linear-gradient(180deg, rgba(255,255,255,.028), rgba(255,255,255,.008) 42%, rgba(255,255,255,.004));
+  box-shadow: 0 26px 60px -34px rgba(0,0,0,.9), inset 0 1px 0 rgba(255,255,255,.05);
+  overflow: hidden;
+}
+.card::before {
+  content: ""; position: absolute; left: 14%; right: 14%; top: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(214,177,115,.5), transparent);
+  opacity: .6; pointer-events: none;
+}
+.stage-card { padding: 16px 16px 14px; }
+.stage-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; flex-wrap: wrap; margin-bottom: 14px; }
+.eyebrow { font-family: var(--mono); font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--txt-3); }
+.stage-title { margin-top: 4px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 15px; font-weight: 600; letter-spacing: .02em; }
+.stage-title .sep { width: 3px; height: 3px; border-radius: 50%; background: var(--txt-3); }
+.stage-title .meta { font-size: 12px; font-weight: 400; color: var(--txt-2); }
+.stage-stats { display: flex; gap: 15px; flex-wrap: wrap; }
+.stat { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; min-width: 52px; }
+.stat-label { font-family: var(--mono); font-size: 8.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--txt-3); white-space: nowrap; }
+.stat-value { font-family: var(--mono); font-size: 16px; font-weight: 600; color: var(--txt); font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.stat-value em { font-style: normal; font-size: 9px; color: var(--txt-3); margin-left: 2px; }
+.stat-value.ok { color: var(--teal); }
+.stat-value.gold { color: var(--gold-hi); }
+.stat-value.warn { color: var(--coral); }
+
+/* ============================ 杆视图 ============================ */
+.stage {
+  --rod-pad: 24px;
+  position: relative; height: 342px;
+  border-radius: 13px; border: 1px solid rgba(255,255,255,.06);
+  overflow: hidden; isolation: isolate; user-select: none;
+  background:
+    radial-gradient(120% 90% at 50% -10%, rgba(214,177,115,.07), transparent 55%),
+    radial-gradient(80% 70% at 50% 120%, rgba(74,120,170,.12), transparent 65%),
+    linear-gradient(180deg, #090c11 0%, #070a0f 60%, #05070a 100%);
+}
+.stage::before {
+  content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255,255,255,.032) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.032) 1px, transparent 1px);
+  background-size: 48px 48px;
+  -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,.65), transparent 84%);
+  mask-image: linear-gradient(180deg, rgba(0,0,0,.65), transparent 84%);
+}
+.hud { position: absolute; inset: 10px; z-index: 1; pointer-events: none; }
+.hud::before, .hud::after {
+  content: ""; position: absolute; width: 13px; height: 13px;
+  border-color: rgba(214,177,115,.42); border-style: solid; border-width: 0;
+}
+.hud::before { left: 0; top: 0; border-left-width: 1px; border-top-width: 1px; }
+.hud::after { right: 0; bottom: 0; border-right-width: 1px; border-bottom-width: 1px; }
+.stage-hint {
+  position: absolute; left: 26px; top: 12px; z-index: 5;
+  font-family: var(--mono); font-size: 8.5px; letter-spacing: .12em;
+  color: var(--txt-3); pointer-events: none;
+}
+
+/* 两端墙 / 端部余量 */
+.wall {
+  position: absolute; top: 9%; bottom: 5%; width: 8px; z-index: 6; pointer-events: none;
+  border-radius: 2px;
+  background: repeating-linear-gradient(135deg, rgba(160,172,190,.42) 0 2px, rgba(15,19,26,.92) 2px 6px);
+  box-shadow: 0 0 0 1px rgba(255,255,255,.08), 0 0 18px rgba(0,0,0,.6);
+}
+.wall-left { left: var(--rod-pad); transform: translateX(-50%); }
+.wall-right { right: var(--rod-pad); transform: translateX(50%); }
+.margin-zone {
+  position: absolute; top: calc(42% - 52px); bottom: 42px; z-index: 2; pointer-events: none;
+  background: repeating-linear-gradient(135deg, rgba(230,189,99,.10) 0 2px, transparent 2px 7px);
+  border-right: 1px dashed rgba(230,189,99,.32);
+}
+.margin-zone.margin-left { left: var(--rod-pad); }
+.margin-zone.margin-right { right: var(--rod-pad); border-right: 0; border-left: 1px dashed rgba(230,189,99,.32); }
+
+/* 杆 */
+.rod {
+  position: absolute; left: var(--rod-pad); right: var(--rod-pad); top: 42%; height: 14px;
+  transform: translateY(-50%); z-index: 3; border-radius: 999px;
+  background: linear-gradient(180deg, #4a5364 0%, #242b37 30%, #0d1219 62%, #1d242f 100%);
+  box-shadow: 0 14px 26px -10px rgba(0,0,0,.95), inset 0 1px 0 rgba(255,255,255,.08), 0 0 0 1px rgba(255,255,255,.055);
+}
+.rod::after {
+  content: ""; position: absolute; left: 2%; right: 2%; top: 1px; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(241,214,154,.75), rgba(241,214,154,.2) 68%, transparent);
+  opacity: .5;
+}
+/* 左端挡块 */
+.left-stop {
+  position: absolute; top: calc(42% - 28px); width: 10px; height: 56px;
+  transform: translateX(-50%); z-index: 9; border-radius: 3px;
+  background: linear-gradient(180deg, #f1d69a, #b08a45);
+  box-shadow: 0 0 0 1px rgba(255,255,255,.25), 0 0 18px rgba(214,177,115,.35);
+}
+.left-stop::after {
+  content: "挡块"; position: absolute; left: 50%; top: calc(100% + 5px);
+  transform: translateX(-50%); font-size: 7px; color: var(--gold);
+  font-family: var(--mono); white-space: nowrap; letter-spacing: .05em;
+}
+
+/* 伸缩圆柱 */
+.cyl {
+  position: absolute; top: calc(42% - 26px); height: 52px; z-index: 7;
+  border-radius: 26px; border: 1px solid rgba(214,177,115,.72);
+  background: linear-gradient(180deg, #2a313b 0%, #141a22 58%, #0c1016 100%);
+  box-shadow: 0 12px 22px -10px rgba(0,0,0,.9), inset 0 1px 0 rgba(255,255,255,.1);
+  overflow: visible;
+}
+.cyl-inner {
+  position: absolute; right: 3px; top: 4px; bottom: 4px; width: 42%;
+  border-radius: 20px;
+  background: linear-gradient(180deg, #6b5a38, #3a2f1c 60%, #241d11);
+  border: 1px solid rgba(214,177,115,.55);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.18);
+}
+.cyl-id {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  z-index: 2; font-family: var(--mono); font-size: 11px; font-weight: 600;
+  color: var(--gold-hi); letter-spacing: .03em; text-shadow: 0 1px 3px rgba(0,0,0,.8);
+  white-space: nowrap;
+}
+.cyl-len {
+  position: absolute; left: 50%; top: calc(100% + 6px); transform: translateX(-50%);
+  font-family: var(--mono); font-size: 7.5px; line-height: 1; color: var(--txt-2);
+  white-space: nowrap; pointer-events: none;
+}
+/* 两端夹持点：向内伸缩的锥面收口夹头（不是爪子）
+   锁 = 外套筒向内推入，锥面把开槽夹头环径向压紧；松 = 套筒拉出 */
+.clamp {
+  position: absolute; top: 50%; width: 15px; height: 32px; padding: 0;
+  transform: translateY(-50%); z-index: 6;
+  border: 0; background: none; cursor: pointer;
+}
+.clamp-left { left: -9px; }
+.clamp-right { right: -9px; }
+.clamp-sleeve {
+  position: absolute; top: 1px; bottom: 1px; left: 2px; right: 2px;
+  border-radius: 7px 4px 4px 7px;
+  background: linear-gradient(180deg, #3b4450, #0e1319);
+  border: 1px solid rgba(214,177,115,.5);
+  transition: transform .18s ease, background .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.clamp-right .clamp-sleeve { border-radius: 4px 7px 7px 4px; }
+.clamp-sleeve::before {
+  content: ""; position: absolute; inset: 3px 1px; border-radius: 4px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.14), transparent);
+}
+.clamp-ring {
+  position: absolute; top: 4px; bottom: 4px; left: 50%; width: 10px;
+  transform: translateX(-50%); border-radius: 5px;
+  border: 2px solid rgba(174,186,200,.6);
+  background: rgba(0,0,0,.35);
+  box-shadow: inset 0 0 4px rgba(0,0,0,.8);
+  transition: width .18s ease, background .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+/* 开槽弹性夹头环的槽线 */
+.clamp-ring::after {
+  content: ""; position: absolute; left: 50%; top: 22%; bottom: 22%; width: 1px;
+  transform: translateX(-50%); background: rgba(0,0,0,.75);
+}
+/* 松开：套筒向外拉出一点 */
+.clamp-left .clamp-sleeve { transform: translateX(-2px); }
+.clamp-right .clamp-sleeve { transform: translateX(2px); }
+/* 锁紧：套筒向内推入，锥面把夹头环径向压紧（环变窄） */
+.clamp-left.locked .clamp-sleeve {
+  transform: translateX(3px);
+  background: linear-gradient(180deg, #d6b173, #8d6d39);
+  border-color: #f1d69a;
+  box-shadow: 0 0 8px rgba(214,177,115,.55);
+}
+.clamp-right.locked .clamp-sleeve {
+  transform: translateX(-3px);
+  background: linear-gradient(180deg, #d6b173, #8d6d39);
+  border-color: #f1d69a;
+  box-shadow: 0 0 8px rgba(214,177,115,.55);
+}
+.clamp.locked .clamp-ring {
+  width: 7px;
+  border-color: #f1d69a;
+  background: rgba(214,177,115,.22);
+  box-shadow: 0 0 10px rgba(214,177,115,.6), inset 0 0 3px rgba(0,0,0,.7);
+}
+.clamp:hover .clamp-sleeve { border-color: rgba(241,214,154,.9); }
+/* 伸缩方向箭头 */
+.move-arrow {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  font-family: var(--mono); font-size: 13px; line-height: 1; color: var(--gold-hi);
+  opacity: 0; pointer-events: none; z-index: 5;
+  text-shadow: 0 0 8px rgba(214,177,115,.7);
+}
+.arrow-left { left: -18px; }
+.arrow-right { right: -18px; }
+.move-arrow.show { opacity: 1; animation: pulse 0.9s ease-in-out infinite; }
+.cyl.preload { border-color: rgba(241,214,154,.95); box-shadow: 0 0 18px rgba(214,177,115,.16), 0 12px 22px -10px rgba(0,0,0,.9); }
+.cyl.fixed .cyl-id { color: #fff4d6; }
+.cyl-enter { opacity: 0; transition: opacity .28s ease; }
+
+/* 接缝 + 衣架钩（不画衣服） */
+.seam {
+  position: absolute; top: calc(42% - 22px); height: 44px; z-index: 8;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #e8edf4 0%, #aab2bd 45%, #7d8794 100%);
+  box-shadow: 0 0 0 1px rgba(255,255,255,.18), 0 2px 10px rgba(0,0,0,.7);
+}
+.seam::after {
+  content: ""; position: absolute; left: 50%; top: -16px; width: 12px; height: 14px;
+  transform: translateX(-50%);
+  border: 2px solid var(--gold); border-bottom: 0; border-radius: 8px 8px 0 0;
+  box-shadow: 0 0 12px rgba(214,177,115,.25);
+}
+.seam::before {
+  content: ""; position: absolute; left: 50%; top: -2px; width: 4px; height: 4px;
+  transform: translateX(-50%); border-radius: 50%; background: var(--gold-hi);
+  box-shadow: 0 0 7px rgba(241,214,154,.8);
+}
+
+/* 恒力卷簧 */
+.spring {
+  position: absolute; top: calc(42% - 7px); height: 14px; z-index: 4;
+  pointer-events: none; display: flex; align-items: center;
+}
+.spring-coil {
+  flex: 1 1 auto; height: 12px; min-width: 0; border-radius: 6px;
+  background: repeating-linear-gradient(115deg, rgba(214,177,115,.72) 0 2px, rgba(214,177,115,.14) 2px 6px);
+  opacity: .8;
+}
+.spring-drum {
+  flex: 0 0 22px; width: 22px; height: 22px; margin-left: 2px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #39414f, #0b0e14 72%);
+  border: 1px solid rgba(214,177,115,.6);
+  box-shadow: 0 0 12px rgba(214,177,115,.2);
+}
+.spring-label {
+  position: absolute; right: calc(var(--rod-pad) + 26px); top: calc(42% + 30px);
+  z-index: 9; font-family: var(--mono); font-size: 7.5px;
+  color: var(--txt-3); letter-spacing: .04em; white-space: nowrap;
+}
+
+/* 标尺 */
+.ruler { position: absolute; left: var(--rod-pad); right: var(--rod-pad); bottom: 16px; height: 26px; z-index: 3; pointer-events: none; }
+.ruler::before {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 15px; height: 1px;
+  background: linear-gradient(90deg, rgba(255,255,255,.03), rgba(255,255,255,.18), rgba(255,255,255,.03));
+}
+.tick { position: absolute; bottom: 11px; width: 1px; height: 5px; background: rgba(255,255,255,.16); transform: translateX(-50%); }
+.tick.major { height: 9px; background: rgba(214,177,115,.5); }
+.ruler-label { position: absolute; top: 2px; transform: translateX(-50%); font-family: var(--mono); font-size: 8px; color: var(--txt-3); letter-spacing: .02em; }
+.ruler-label.edge-l { transform: translateX(5px); }
+.ruler-label.edge-r { transform: translateX(calc(-100% - 5px)); }
+
+/* 空杆提示：链条没占满杆时，右侧剩余空杆 */
+.empty-rod {
+  position: absolute; top: calc(42% + 16px); height: 14px; z-index: 2;
+  border-top: 2px dashed rgba(214,177,115,.26);
+  pointer-events: none;
+}
+.empty-rod span {
+  position: absolute; top: 2px; left: 50%; transform: translateX(-50%);
+  font-family: var(--mono); font-size: 7.5px; line-height: 1;
+  color: var(--txt-3); white-space: nowrap; letter-spacing: .03em;
+}
+
+/* 告警 / 说明 / 杆体参数 */
+.alerts { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
+.alerts[hidden] { display: none; }
+.alert { display: flex; align-items: flex-start; gap: 9px; padding: 8px 10px; border: 1px solid; border-radius: 9px; font-size: 10.5px; line-height: 1.5; }
+.alert-dot { flex: none; width: 6px; height: 6px; margin-top: 5px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px currentColor; }
+.alert-body { min-width: 0; }
+.alert-body b { display: block; font-weight: 600; }
+.alert-body span { color: var(--txt-2); font-size: 9.5px; }
+.alert[data-level="error"] { border-color: rgba(240,122,99,.45); background: rgba(240,122,99,.07); color: #ffc4b8; }
+.alert[data-level="warn"] { border-color: rgba(230,189,99,.4); background: rgba(230,189,99,.06); color: #f3d89b; }
+.stage-note { margin: 10px 2px 0; font-size: 9.5px; line-height: 1.6; letter-spacing: .02em; color: var(--txt-3); }
+.stage-note b { color: var(--gold); font-weight: 500; }
+
+.rod-config { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line-soft); }
+.rod-config .panel-head { margin-bottom: 8px; }
+.rod-config .field { margin-bottom: 10px; }
+.unit-count { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 8px; padding-top: 10px; border-top: 1px dashed var(--line-soft); }
+.unit-count-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.unit-count-text .field-note { margin-top: 0; }
+.stepper { display: flex; align-items: center; gap: 4px; flex: none; }
+.stepper button {
+  width: 30px; height: 30px; padding: 0; border: 1px solid var(--line); border-radius: 8px;
+  background: rgba(255,255,255,.03); color: var(--txt); font-size: 16px; line-height: 1; cursor: pointer;
+  transition: border-color .2s, background .2s, opacity .2s;
+}
+.stepper button:hover:not(:disabled) { border-color: var(--gold-line); background: rgba(214,177,115,.1); color: var(--gold-hi); }
+.stepper button:active:not(:disabled) { transform: translateY(1px); }
+.stepper button:disabled { opacity: .32; cursor: not-allowed; }
+.stepper output { min-width: 28px; text-align: center; font-family: var(--mono); font-size: 14px; font-weight: 600; color: var(--gold-hi); font-variant-numeric: tabular-nums; }
+.mini-readout { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 10px; color: var(--txt-3); margin-top: 9px; }
+.mini-readout b { font-family: var(--mono); color: var(--txt-2); font-weight: 500; }
+.mini-readout .sep { color: var(--txt-3); }
+
+/* ============================ 控制台 ============================ */
+.panel { padding: 18px; }
+.panel-section { padding: 14px 0; border-bottom: 1px solid var(--line-soft); }
+.panel-section:first-of-type { padding-top: 0; }
+.panel-section:last-of-type { border-bottom: 0; padding-bottom: 0; }
+.panel-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 10px; }
+.panel-title { font-family: var(--mono); font-size: 10px; letter-spacing: .15em; text-transform: uppercase; color: var(--txt-2); }
+.panel-note { font-size: 10px; color: var(--txt-3); }
+
+.modes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.mode {
+  position: relative; overflow: hidden; text-align: left; padding: 10px 12px;
+  border: 1px solid var(--line); border-radius: 10px; background: rgba(255,255,255,.02);
+  color: var(--txt-2); cursor: pointer; transition: border-color .2s, background .2s;
+}
+.mode:hover { border-color: rgba(255,255,255,.2); background: rgba(255,255,255,.04); }
+.mode:active { transform: translateY(1px); }
+.mode .mode-cn { display: block; font-size: 13px; font-weight: 600; letter-spacing: .03em; color: var(--txt); }
+.mode .mode-en { display: block; margin-top: 2px; font-family: var(--mono); font-size: 8.5px; letter-spacing: .12em; color: var(--txt-3); }
+.mode::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: transparent; }
+.mode[aria-pressed="true"] { border-color: rgba(214,177,115,.5); background: linear-gradient(135deg, rgba(214,177,115,.16), rgba(214,177,115,.035)); }
+.mode[aria-pressed="true"] .mode-cn { color: var(--gold-hi); }
+.mode[aria-pressed="true"] .mode-en { color: rgba(241,214,154,.62); }
+.mode[aria-pressed="true"]::after { background: linear-gradient(180deg, transparent, var(--gold), transparent); }
+
+.field { display: block; margin-bottom: 15px; }
+.field:last-of-type { margin-bottom: 0; }
+.field-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 7px; }
+.field-name { font-size: 12px; color: var(--txt-2); }
+.field-value { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--gold-hi); font-variant-numeric: tabular-nums; }
+.field-value em { font-style: normal; font-size: 9px; color: var(--txt-3); margin-left: 2px; }
+.field-note { display: block; margin-top: 6px; font-size: 10px; line-height: 1.55; color: var(--txt-3); }
+.field-note b { color: var(--gold); font-weight: 500; }
+
+input[type="range"] {
+  -webkit-appearance: none; appearance: none; display: block; width: 100%; height: 18px; margin: 0;
+  background: transparent; cursor: pointer;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px; border-radius: 2px;
+  background: linear-gradient(90deg, var(--fill, var(--gold)) 0 var(--p, 50%), rgba(255,255,255,.1) var(--p, 50%) 100%);
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 15px; height: 15px; margin-top: -5.5px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fbe9c2, var(--gold) 66%, #9c7c45);
+  border: 1px solid rgba(0,0,0,.55);
+  box-shadow: 0 0 0 3px rgba(214,177,115,.12), 0 2px 6px rgba(0,0,0,.6);
+}
+input[type="range"]::-moz-range-track { height: 4px; border-radius: 2px; background: rgba(255,255,255,.1); }
+input[type="range"]::-moz-range-progress { height: 4px; border-radius: 2px; background: var(--fill, var(--gold)); }
+input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(0,0,0,.55); background: var(--gold); }
+input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); outline-offset: 4px; }
+
+/* 圆柱 / 接缝列表 */
+.cyl-list, .hanger-list { display: flex; flex-direction: column; gap: 6px; max-height: 300px; overflow-y: auto; padding-right: 2px; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.15) transparent; }
+.cyl-list::-webkit-scrollbar, .hanger-list::-webkit-scrollbar { width: 6px; }
+.cyl-list::-webkit-scrollbar-thumb, .hanger-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 3px; }
+.cyl-row, .hanger-row { border: 1px solid var(--line-soft); border-radius: 9px; background: rgba(255,255,255,.014); padding: 8px 9px; }
+.cyl-row.is-fixed { border-color: rgba(214,177,115,.38); background: rgba(214,177,115,.05); }
+.row-note { display: block; margin-top: 2px; font-size: 9px; color: var(--txt-3); }
+.row-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 3px; }
+.row-id { font-family: var(--mono); font-size: 8.5px; font-weight: 600; letter-spacing: .1em; color: var(--gold); text-transform: uppercase; white-space: nowrap; }
+.row-val { font-family: var(--mono); font-size: 11px; font-weight: 600; color: var(--gold-hi); font-variant-numeric: tabular-nums; }
+.cyl-range { height: 14px; }
+.cyl-range::-webkit-slider-runnable-track { height: 3px; }
+.cyl-range::-webkit-slider-thumb { width: 11px; height: 11px; margin-top: -4px; }
+.cyl-range::-moz-range-track { height: 3px; }
+.cyl-range::-moz-range-progress { height: 3px; }
+.cyl-range::-moz-range-thumb { width: 10px; height: 10px; }
+.hanger-row { display: grid; grid-template-columns: minmax(0, 1fr) 56px; gap: 10px; align-items: center; }
+.hanger-main { min-width: 0; }
+.hanger-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+.h-state {
+  flex: none; padding: 1px 6px; border-radius: 999px; border: 1px solid;
+  font-family: var(--mono); font-size: 9px; letter-spacing: .03em; white-space: nowrap;
+}
+.h-state[data-state="dry"] { color: var(--teal); border-color: rgba(95,214,180,.35); background: rgba(95,214,180,.08); }
+.h-state[data-state="damp"] { color: var(--amber); border-color: rgba(230,189,99,.35); background: rgba(230,189,99,.08); }
+.h-state[data-state="wet"] { color: var(--coral); border-color: rgba(240,122,99,.38); background: rgba(240,122,99,.09); }
+.h-batt { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.batt { width: 40px; height: 4px; border-radius: 2px; background: rgba(255,255,255,.09); overflow: hidden; }
+.batt i { display: block; height: 100%; border-radius: 2px; background: linear-gradient(90deg, rgba(95,214,180,.45), var(--teal)); transition: width .45s ease; }
+.h-batt span { font-family: var(--mono); font-size: 9px; color: var(--txt-3); }
+.h-range { height: 14px; }
+.h-range::-webkit-slider-runnable-track { height: 3px; }
+.h-range::-webkit-slider-thumb { width: 11px; height: 11px; margin-top: -4px; }
+.h-range::-moz-range-track { height: 3px; }
+.h-range::-moz-range-progress { height: 3px; }
+.h-range::-moz-range-thumb { width: 10px; height: 10px; }
+
+/* 日志 / footer */
+.log-card { padding: 14px 16px 12px; }
+.log-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 8px; }
+.log-clear { padding: 2px 5px; border: 0; border-radius: 4px; background: none; color: var(--txt-3); font-size: 10px; cursor: pointer; }
+.log-clear:hover { color: var(--gold); background: rgba(255,255,255,.045); }
+.log { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 1px; max-height: 186px; overflow-y: auto; font-family: var(--mono); font-size: 10.5px; line-height: 1.6; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.15) transparent; }
+.log::-webkit-scrollbar { width: 6px; }
+.log::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 3px; }
+.log li { display: grid; grid-template-columns: 56px 8px minmax(0, 1fr); gap: 8px; align-items: baseline; padding: 3px 2px; color: var(--txt-2); animation: logIn .25s ease; }
+.log time { color: var(--txt-3); font-size: 9.5px; }
+.log .lvl { width: 4px; height: 4px; border-radius: 50%; background: var(--txt-3); align-self: center; justify-self: center; }
+.log li.ok .lvl { background: var(--teal); box-shadow: 0 0 6px rgba(95,214,180,.7); }
+.log li.warn .lvl { background: var(--amber); box-shadow: 0 0 6px rgba(230,189,99,.7); }
+.log li.err .lvl { background: var(--coral); box-shadow: 0 0 6px rgba(240,122,99,.8); }
+.log li.gold .lvl { background: var(--gold); box-shadow: 0 0 6px rgba(214,177,115,.8); }
+.log li.err .msg { color: #ffb3a4; }
+.log li.gold .msg { color: var(--gold-hi); }
+.foot { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--line-soft); font-size: 10px; letter-spacing: .03em; color: var(--txt-3); }
+.foot .gold { color: rgba(214,177,115,.75); }
+
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
+@keyframes logIn { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
+
+/* ============================ 响应式 ============================ */
+@media (max-width: 960px) {
+  .layout { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .panel { position: static; order: 2; }
+  .main-col { display: contents; }
+  .stage-card { order: 1; }
+  .log-card { order: 3; }
+}
+@media (min-width: 961px) {
+  .panel { max-height: calc(100vh - 32px); overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.15) transparent; }
+  .panel::-webkit-scrollbar { width: 6px; }
+  .panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 3px; }
+}
+@media (max-width: 640px) {
+  .shell { padding: 16px 12px 22px; }
+  .topbar { gap: 12px; padding-bottom: 14px; }
+  .logo { width: 36px; height: 36px; border-radius: 10px; }
+  .logo svg { width: 20px; height: 20px; }
+  .brand-title { font-size: 17px; }
+  .brand-title .en { font-size: 9px; }
+  .brand-sub { font-size: 10.5px; white-space: normal; line-height: 1.35; }
+  .telemetry { gap: 6px; }
+  .tel-chip { height: 24px; padding: 0 8px; font-size: 9.5px; }
+  .tel-chip em { font-size: 9.5px; }
+  .tel-chip.hide-sm { display: none; }
+  .layout { margin-top: 14px; }
+  .stage-card { padding: 12px; }
+  .panel { padding: 14px; }
+  .stage { height: 312px; }
+  .stage-head { margin-bottom: 11px; gap: 10px; }
+  .stage-title { font-size: 13.5px; }
+  .stage-title .meta { font-size: 10px; line-height: 1.35; }
+  .stage-stats { gap: 10px; }
+  .stat { min-width: 44px; }
+  .stat-label { font-size: 8px; }
+  .stat-value { font-size: 13.5px; }
+  .stage-hint { left: 24px; top: 9px; font-size: 7.5px; }
+  .cyl { height: 48px; border-radius: 24px; }
+  .cyl-id { font-size: 9px; }
+  .cyl-len { font-size: 7px; top: calc(100% + 4px); }
+  .seam { height: 40px; }
+  .seam::after { top: -14px; width: 11px; height: 12px; }
+  .left-stop { height: 50px; top: calc(42% - 25px); width: 9px; }
+  .spring-drum { width: 20px; height: 20px; flex-basis: 20px; }
+  .ruler { bottom: 10px; }
+  .stage-note { font-size: 9px; }
+  .alerts { margin-top: 10px; }
+  .alert { padding: 7px 9px; font-size: 10px; }
+  .alert-body span { font-size: 9px; }
+  .stepper button { width: 28px; height: 28px; }
+  .unit-count { gap: 8px; }
+  .modes { gap: 6px; }
+  .mode { padding: 8px 10px; }
+  .mode .mode-cn { font-size: 12px; }
+  .cyl-list, .hanger-list { max-height: 260px; }
+  .log { max-height: 158px; font-size: 10px; }
+  .log li { grid-template-columns: 48px 6px minmax(0, 1fr); gap: 6px; }
+  .log time { font-size: 9px; }
+  .foot { margin-top: 16px; }
+}
+@media (max-width: 480px) {
+  .topbar { flex-wrap: wrap; align-items: flex-start; }
+  .brand { min-width: 0; flex: 1 1 100%; }
+  .telemetry { flex-wrap: wrap; width: 100%; justify-content: flex-start; }
+  .stage-head { flex-wrap: wrap; }
+  .stage-stats { flex-wrap: wrap; gap: 6px 12px; justify-content: flex-start; }
+  .shell { padding: 12px 10px 20px; }
+  .stage-card, .panel { padding: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2.5 6h19"/>
+          <rect x="6" y="9" width="4.5" height="6" rx="2.2"/>
+          <rect x="13.5" y="9" width="4.5" height="6" rx="2.2"/>
+          <path d="M8.25 6v3M15.75 6v3"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <div class="brand-title">衣序 <span class="en">HANGFLOW · V2</span></div>
+        <div class="brand-sub">伸缩圆柱串在杆上，衣架挂在 10mm 接缝处</div>
+      </div>
+    </div>
+    <div class="telemetry" aria-label="系统状态">
+      <span class="tel-chip"><i class="dot pulse"></i>MQTT 在线 <em id="latency">18ms</em></span>
+      <span class="tel-chip">视觉识别 <em id="visionTel">3/3</em></span>
+      <span class="tel-chip hide-sm">最低电量 <em id="battTel">64%</em></span>
+    </div>
+  </header>
+
+  <main class="layout">
+    <div class="main-col">
+      <section class="card stage-card" aria-label="伸缩圆柱链俯视示意">
+        <div class="stage-head">
+          <div>
+            <div class="eyebrow">Rod View · V2 Chain</div>
+            <div class="stage-title"><span id="rodTitle">1.20 m 晾衣杆</span><span class="sep"></span><span class="meta" id="chainMeta">4 衣架 · 3 伸缩圆柱 · 4 接缝</span></div>
+          </div>
+          <div class="stage-stats">
+            <div class="stat"><span class="stat-label">总链长 ΣL+K×10</span><span class="stat-value" id="statChain">340<em>mm</em></span></div>
+            <div class="stat"><span class="stat-label">可用长度</span><span class="stat-value" id="statAvail">1100<em>mm</em></span></div>
+            <div class="stat"><span class="stat-label">剩余空杆</span><span class="stat-value" id="statSlack">640<em>mm</em></span></div>
+            <div class="stat"><span class="stat-label">视觉识别</span><span class="stat-value ok" id="statVision">3/3</span></div>
+          </div>
+        </div>
+
+        <div class="stage" id="stage" aria-label="杆、伸缩圆柱、接缝与端部夹头俯视交互区">
+          <div class="hud" aria-hidden="true"></div>
+          <div class="stage-hint" aria-hidden="true">向内缩紧夹头 · 套筒推入=锁 / 拉出=松</div>
+          <div class="wall wall-left" aria-hidden="true"></div>
+          <div class="wall wall-right" aria-hidden="true"></div>
+          <div class="margin-zone margin-left" id="marginLeft" aria-hidden="true"></div>
+          <div class="margin-zone margin-right" id="marginRight" aria-hidden="true"></div>
+          <div class="rod" aria-hidden="true"></div>
+          <div class="chain" id="chain"></div>
+          <div class="empty-rod" id="emptyRod" aria-hidden="true"><span></span></div>
+          <div class="ruler" id="ruler" aria-hidden="true"></div>
+        </div>
+
+        <div class="alerts" id="alerts" hidden aria-live="polite"></div>
+        <div class="stage-note">端部夹头可锁在杆任意位置；能顶墙时顶墙预紧，够不到就锁杆 · 向内缩紧夹头（锥面收口） · 接缝 <b>10mm</b> = 衣架挂点 · 内部圆柱 = 净风道</div>
+
+        <section class="rod-config">
+          <div class="panel-head">
+            <span class="panel-title">杆体参数 / Rod</span>
+            <span class="panel-note">两端有墙</span>
+          </div>
+          <label class="field">
+            <span class="field-head">
+              <span class="field-name">杆长</span>
+              <span class="field-value" id="rodVal">1200<em>mm</em></span>
+            </span>
+            <input id="rodRange" type="range" min="800" max="2400" step="50" value="1200" aria-label="杆长，毫米">
+            <span class="field-note" id="rodNote">可用 1100 mm（两端各留 50 mm）</span>
+          </label>
+          <label class="field">
+            <span class="field-head">
+              <span class="field-name">杆离墙</span>
+              <span class="field-value" id="wallVal">150<em>mm</em></span>
+            </span>
+            <input id="wallRange" type="range" min="50" max="300" step="10" value="150" aria-label="杆中心到墙面的垂直距离，毫米">
+            <span class="field-note">杆中心到墙面的垂直距离 · 建议 ≥120 mm（与端部余量无关）</span>
+          </label>
+          <div class="unit-count">
+            <div class="unit-count-text">
+              <span class="field-name">衣架数 K</span>
+              <span class="field-note">K 件衣架配 K+1 个伸缩圆柱（两端各一夹头）</span>
+            </div>
+            <div class="stepper" role="group" aria-label="衣架数量">
+              <button type="button" id="kMinus" aria-label="减少一件">−</button>
+              <output id="kCount">4</output>
+              <button type="button" id="kPlus" aria-label="增加一件">+</button>
+            </div>
+          </div>
+          <div class="mini-readout">
+            <span>端部余量 <b>50 mm</b></span><span class="sep">·</span>
+            <span>可用 <b id="availText">1100 mm</b></span><span class="sep">·</span>
+            <span>接缝 <b>10 mm/个</b></span>
+          </div>
+        </section>
+      </section>
+
+      <section class="card log-card" aria-label="运行日志">
+        <div class="log-head">
+          <span class="panel-title">运行日志 / Event Log</span>
+          <button class="log-clear" type="button" id="clearLog">清空</button>
+        </div>
+        <ol class="log" id="log" aria-live="polite"></ol>
+      </section>
+    </div>
+
+    <aside class="card panel" aria-label="控制台">
+      <section class="panel-section">
+        <div class="panel-head">
+          <span class="panel-title">运行模式 / Mode</span>
+          <span class="panel-note">点击即执行</span>
+        </div>
+        <div class="modes" role="group" aria-label="运行模式">
+          <button class="mode" type="button" data-mode="manual" aria-pressed="true"><span class="mode-cn">手动逐段</span><span class="mode-en">MANUAL</span></button>
+          <button class="mode" type="button" data-mode="equal" aria-pressed="false"><span class="mode-cn">一键等距</span><span class="mode-en">EQUALIZE</span></button>
+          <button class="mode" type="button" data-mode="weighted" aria-pressed="false"><span class="mode-cn">按湿度加权</span><span class="mode-en">HUMIDITY</span></button>
+          <button class="mode" type="button" data-mode="collect" aria-pressed="false"><span class="mode-cn">收衣</span><span class="mode-en">COLLECT</span></button>
+        </div>
+      </section>
+
+      <section class="panel-section">
+        <label class="field">
+          <span class="field-head">
+            <span class="field-name">目标净风道</span>
+            <span class="field-value" id="targetVal">10.0<em>cm</em></span>
+          </span>
+          <input id="targetRange" type="range" min="3" max="20" step="0.5" value="10" aria-label="目标净风道，厘米">
+          <span class="field-note">内部圆柱长度 = 净风道 · 等距/加权模式的目标值</span>
+        </label>
+      </section>
+
+      <section class="panel-section">
+        <div class="panel-head">
+          <span class="panel-title">伸缩圆柱 / Cylinders</span>
+          <span class="panel-note">K+1 个 · 内部=净风道 · 两端=夹头</span>
+        </div>
+        <div class="cyl-list" id="cylList"></div>
+      </section>
+
+      <section class="panel-section">
+        <div class="panel-head">
+          <span class="panel-title">衣架湿度 / Hangers</span>
+          <span class="panel-note">接缝挂点 · 加权模式用</span>
+        </div>
+        <div class="hanger-list" id="hangerList"></div>
+      </section>
+    </aside>
+  </main>
+
+  <footer class="foot">
+    <span>DDC2026 · 地瓜机器人黑客松 · <span class="gold">衣序 HangFlow V2</span></span>
+    <span>Web Demo v2.0 · 前端模拟，未连接硬件</span>
+    <span>单文件 · 无外部依赖 · 不画衣服 · 不换序</span>
+  </footer>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* =========================================================================
+     1. 常量（v2 结构：墙—圆柱—接缝—圆柱—…—圆柱—墙，K 衣架 = K+1 圆柱）
+     ========================================================================= */
+  var ROD_MIN_MM = 800, ROD_MAX_MM = 2400, ROD_DEFAULT_MM = 1200;
+  var MARGIN_MM = 50;          // 两端端部余量（墙/法兰）
+  var T_H = 10;                // 接缝 / 衣架厚度 10mm
+  var CYL_MIN = 40, CYL_MAX = 220; // 圆柱长度范围
+  var K_MIN = 2, K_MAX = 8;    // 衣架数
+  var TARGET_MIN_CM = 3, TARGET_MAX_CM = 20;
+  var D_WALL_MIN = 50, D_WALL_MAX = 300, D_WALL_DEFAULT = 150, WALL_NEAR = 120;
+  var LOG_LIMIT = 8;
+  var REDUCED = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var HANGER_PROFILES = [
+    { humidity: 82, battery: 86 },
+    { humidity: 74, battery: 72 },
+    { humidity: 28, battery: 64 },
+    { humidity: 42, battery: 91 },
+    { humidity: 58, battery: 80 },
+    { humidity: 72, battery: 76 },
+    { humidity: 25, battery: 83 },
+    { humidity: 85, battery: 70 }
+  ];
+
+  // 默认夹持点：端部默认锁杆、内部交替锁左/右，演示单向伸缩
+  function makeClamps(count) {
+    var arr = [];
+    for (var i = 0; i < count; i++) {
+      var l = true, r = false;
+      if (i === 0) { l = true; r = false; }
+      else if (i === count - 1) { l = false; r = true; }
+      else if (i % 2 === 1) { l = false; r = true; }
+      else { l = true; r = false; }
+      arr.push({ l: l, r: r });
+    }
+    return arr;
+  }
+
+  var state = {
+    rodMm: ROD_DEFAULT_MM,
+    dWall: D_WALL_DEFAULT,
+    targetCm: 10,
+    mode: 'manual',
+    hangers: HANGER_PROFILES.slice(0, 4).map(function (p) {
+      return { humidity: p.humidity, battery: p.battery };
+    }),
+    lengths: [60, 100, 100, 100, 60], // 端部 2 段 + 内部 K−1 段（K=4 时 5 段）
+    clamps: makeClamps(5),       // K+1 个圆柱，每个两端各一个夹头
+    overLimit: false,
+    requestedTotal: 0,
+    remaining: 0,
+    motion: null
+  };
+
+  /* =========================================================================
+     2. 工具
+     ========================================================================= */
+  function clamp(v, lo, hi) { return Math.min(hi, Math.max(lo, v)); }
+  function lerp(a, b, t) { return a + (b - a) * t; }
+  function fmt(v) { return Number(v).toFixed(1); }
+  function pad2(n) { return String(n).padStart(2, '0'); }
+  function K() { return state.hangers.length; }
+  function cylCount() { return K() + 1; }
+  function gapCount() { return K() - 1; }
+  function availableMm() { return state.rodMm - 2 * MARGIN_MM; }
+  function sum(arr) { return arr.reduce(function (s, v) { return s + v; }, 0); }
+  function chainTotal(lengths) { return sum(lengths) + K() * T_H; }
+  function humidityWeight(h) { return 1 + (h / 100) * 2; }
+  function humidityState(h) {
+    if (h >= 65) return { key: 'wet', label: '湿' };
+    if (h >= 35) return { key: 'damp', label: '潮' };
+    return { key: 'dry', label: '干' };
+  }
+  function humidityColor(h) {
+    var stops = [
+      { v: 0, c: [96, 216, 186] },
+      { v: 50, c: [232, 192, 96] },
+      { v: 100, c: [255, 102, 84] }
+    ];
+    var a = h <= 50 ? stops[0] : stops[1];
+    var b = h <= 50 ? stops[1] : stops[2];
+    var t = clamp((h - a.v) / (b.v - a.v), 0, 1);
+    var c = a.c.map(function (v, i) { return Math.round(lerp(v, b.c[i], t)); });
+    return { rgb: c.join(','), color: 'rgb(' + c.join(',') + ')' };
+  }
+
+  /* =========================================================================
+     3. DOM 引用
+     ========================================================================= */
+  var stage = document.getElementById('stage');
+  var chainEl = document.getElementById('chain');
+  var emptyRod = document.getElementById('emptyRod');
+  var marginLeft = document.getElementById('marginLeft');
+  var marginRight = document.getElementById('marginRight');
+  var ruler = document.getElementById('ruler');
+  var cylList = document.getElementById('cylList');
+  var hangerList = document.getElementById('hangerList');
+  var logEl = document.getElementById('log');
+  var alertsEl = document.getElementById('alerts');
+  var rodRange = document.getElementById('rodRange');
+  var rodVal = document.getElementById('rodVal');
+  var rodNote = document.getElementById('rodNote');
+  var wallRange = document.getElementById('wallRange');
+  var wallVal = document.getElementById('wallVal');
+  var rodTitle = document.getElementById('rodTitle');
+  var chainMeta = document.getElementById('chainMeta');
+  var kMinus = document.getElementById('kMinus');
+  var kPlus = document.getElementById('kPlus');
+  var kCount = document.getElementById('kCount');
+  var availText = document.getElementById('availText');
+  var targetRange = document.getElementById('targetRange');
+  var targetVal = document.getElementById('targetVal');
+  var statChain = document.getElementById('statChain');
+  var statAvail = document.getElementById('statAvail');
+  var statSlack = document.getElementById('statSlack');
+  var statVision = document.getElementById('statVision');
+  var visionTel = document.getElementById('visionTel');
+  var battTel = document.getElementById('battTel');
+  var latencyEl = document.getElementById('latency');
+
+  var view = { w: 0, pad: 24, scale: 0.26 };
+  var cylEls = [];
+  var seamEls = [];
+  var cylRows = [];
+  var hangerRows = [];
+
+  function X(mm) { return view.pad + mm * view.scale; }
+
+  /* =========================================================================
+     4. 几何：总链长 = ΣL + K×10；端部夹头锁在杆上，不强制顶墙
+     ========================================================================= */
+  // 请求长度超出可用长度时压缩到可用长度；剩余空杆 = 可用长度 − 实际链长
+  function fitLengths(arr) {
+    var seamTotal = K() * T_H;
+    var avail = availableMm();
+    var requested = sum(arr) + seamTotal;
+    var out = arr.slice();
+    var compressed = false;
+
+    if (requested > avail + 0.001) {
+      var room = Math.max(0, avail - seamTotal);
+      var factor = sum(arr) > 0 ? room / sum(arr) : 0;
+      out = out.map(function (l) { return clamp(l * factor, CYL_MIN, CYL_MAX); });
+      // 压到最短后仍不足可用长度时，把余量均摊回各圆柱，保持链条占满可用长度
+      var outSum = sum(out);
+      if (outSum < room) {
+        var extra = (room - outSum) / out.length;
+        out = out.map(function (l) { return clamp(l + extra, CYL_MIN, CYL_MAX); });
+      } else if (outSum > room) {
+        // 仍超出时，从高于最短长度的部分按比例回收，保证不越过可用长度
+        var excess = outSum - room;
+        var reducible = out.reduce(function (s, l) { return s + Math.max(0, l - CYL_MIN); }, 0);
+        if (reducible > 0) {
+          var keep = Math.max(0, 1 - excess / reducible);
+          out = out.map(function (l) { return Math.max(CYL_MIN, CYL_MIN + (l - CYL_MIN) * keep); });
+        }
+      }
+      compressed = true;
+    }
+    var actual = sum(out) + seamTotal;
+    return {
+      lengths: out,
+      requestedTotal: requested,
+      actualTotal: actual,
+      remaining: Math.max(0, avail - actual),
+      compressed: compressed
+    };
+  }
+
+  /* =========================================================================
+     5. 长度动画
+     ========================================================================= */
+  var raf = window.requestAnimationFrame || function (fn) { return setTimeout(function () { fn(Date.now()); }, 16); };
+  function stopMotion() { state.motion = null; }
+
+  function startMotion(to, opts) {
+    opts = opts || {};
+    stopMotion();
+    if (to.length !== state.lengths.length) {
+      state.lengths = to.slice();
+      render();
+      if (opts.onDone) opts.onDone();
+      return;
+    }
+    var from = state.lengths.slice();
+    var maxDelta = 0;
+    for (var i = 0; i < to.length; i++) maxDelta = Math.max(maxDelta, Math.abs(to[i] - from[i]));
+    var dur = REDUCED ? 220 : clamp(520 + maxDelta * 4, 650, 1100);
+    state.motion = { from: from, to: to.slice(), t0: performance.now(), dur: dur, onDone: opts.onDone || null };
+    raf(tick);
+  }
+
+  function tick(now) {
+    var m = state.motion;
+    if (!m) return;
+    var t = clamp((now - m.t0) / m.dur, 0, 1);
+    var e = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    for (var i = 0; i < state.lengths.length; i++) state.lengths[i] = lerp(m.from[i], m.to[i], e);
+    render();
+    if (t >= 1) {
+      state.motion = null;
+      render();
+      updateAlerts();
+      if (m.onDone) m.onDone();
+    } else {
+      raf(tick);
+    }
+  }
+
+  // 应用 K+1 个圆柱的新长度；两端都锁定的圆柱保持定点，不随自动模式改变
+  function applyLengths(targets, animate) {
+    var lengths = targets.slice();
+    var fixed = 0;
+    for (var i = 0; i < lengths.length; i++) {
+      var c = state.clamps[i];
+      if (c && c.l && c.r) {
+        lengths[i] = state.lengths[i];
+        fixed++;
+      }
+    }
+    var fit = fitLengths(lengths);
+    state.overLimit = fit.compressed;
+    state.requestedTotal = fit.requestedTotal;
+    state.remaining = fit.remaining;
+    if (animate) {
+      startMotion(fit.lengths, { onDone: updateAlerts });
+    } else {
+      state.lengths = fit.lengths.slice();
+      render();
+      updateAlerts();
+    }
+    if (fixed) log('有 ' + fixed + ' 个圆柱两端夹头锁定 · 保持定点（fixed）', 'info');
+  }
+
+  /* =========================================================================
+     6. 分配算法
+     ========================================================================= */
+  function distribute(weights, total, min, max) {
+    var n = weights.length;
+    var result = new Array(n).fill(null);
+    var active = weights.map(function (_, i) { return i; });
+    var remaining = total;
+    for (var guard = 0; guard < 16 && active.length; guard++) {
+      var sumW = active.reduce(function (s, i) { return s + weights[i]; }, 0);
+      var changed = false;
+      for (var k = 0; k < active.length; k++) {
+        var idx = active[k];
+        var v = remaining * (weights[idx] / sumW);
+        if (v < min - 1e-9 || v > max + 1e-9) {
+          result[idx] = clamp(v, min, max);
+          remaining -= result[idx];
+          active = active.filter(function (x) { return x !== idx; });
+          changed = true;
+          break;
+        }
+      }
+      if (!changed) {
+        active.forEach(function (i) { result[i] = remaining * (weights[i] / sumW); });
+        active = [];
+        break;
+      }
+    }
+    if (active.length) {
+      var rest = remaining / active.length;
+      active.forEach(function (i) { result[i] = clamp(rest, min, max); });
+    }
+    return result.map(function (v) { return v == null ? min : v; });
+  }
+
+  /* =========================================================================
+     7. 模式
+     ========================================================================= */
+  var applyTimer = null;
+  function scheduleApply() {
+    clearTimeout(applyTimer);
+    applyTimer = setTimeout(function () {
+      if (state.mode === 'equal' || state.mode === 'weighted') applyMode();
+    }, 350);
+  }
+
+  function runEqual() {
+    var len = clamp(state.targetCm * 10, CYL_MIN, CYL_MAX);
+    var targets = state.lengths.slice();
+    for (var i = 1; i < cylCount() - 1; i++) targets[i] = len;
+    applyLengths(targets, true);
+    log('一键等距 · 内部圆柱目标净风道 ' + fmt(state.targetCm) + ' cm', 'info');
+    if (state.overLimit) log('总链长超限 · 已压缩圆柱到可用长度', 'warn');
+  }
+
+  function runWeighted() {
+    var targetMm = clamp(state.targetCm * 10, TARGET_MIN_CM * 10, TARGET_MAX_CM * 10);
+    var free = [];
+    var weights = [];
+    for (var i = 1; i < cylCount() - 1; i++) {
+      var c = state.clamps[i];
+      if (c && c.l && c.r) continue;
+      free.push(i);
+      weights.push((humidityWeight(state.hangers[i - 1].humidity) +
+        humidityWeight(state.hangers[i].humidity)) / 2);
+    }
+    var targets = state.lengths.slice();
+    if (free.length) {
+      var budget = Math.max(targetMm * free.length, CYL_MIN * free.length);
+      var lens = distribute(weights, budget, CYL_MIN, CYL_MAX);
+      free.forEach(function (idx, k) { targets[idx] = lens[k]; });
+    }
+    applyLengths(targets, true);
+    log('按湿度加权 · 湿的段更长 · 目标净风道 ' + fmt(state.targetCm) + ' cm', 'info');
+    if (state.overLimit) log('总链长超限 · 已压缩圆柱到可用长度', 'warn');
+  }
+
+  function runCollect() {
+    var targets = state.lengths.slice();
+    for (var i = 0; i < cylCount(); i++) targets[i] = CYL_MIN;
+    applyLengths(targets, true);
+    log('收衣 · 全部圆柱缩到最短 4cm；端部夹头保持锁位', 'info');
+  }
+
+  function applyMode() {
+    if (state.mode === 'equal') runEqual();
+    else if (state.mode === 'weighted') runWeighted();
+    else if (state.mode === 'collect') runCollect();
+    else render();
+    updateModeUI();
+  }
+
+  function updateModeUI() {
+    document.querySelectorAll('.mode').forEach(function (btn) {
+      btn.setAttribute('aria-pressed', String(btn.dataset.mode === state.mode));
+    });
+  }
+
+  /* =========================================================================
+     8. 标尺 / 参数 UI
+     ========================================================================= */
+  function buildRuler() {
+    ruler.innerHTML = '';
+    var rodCm = state.rodMm / 10;
+    var labelStep = rodCm <= 120 ? 30 : rodCm <= 180 ? 40 : 50;
+    var frag = document.createDocumentFragment();
+    for (var cm = 0; cm <= rodCm + 1e-6; cm += 10) {
+      var tick = document.createElement('i');
+      tick.className = 'tick' + (Math.abs(cm % labelStep) < 1e-6 ? ' major' : '');
+      tick.style.left = (cm / rodCm * 100) + '%';
+      frag.appendChild(tick);
+    }
+    labelsLoop();
+    function labelsLoop() {
+      var labels = [];
+      for (var l = 0; l < rodCm - 1e-6; l += labelStep) labels.push(l);
+      labels.push(rodCm);
+      labels.forEach(function (value) {
+        var label = document.createElement('span');
+        label.className = 'ruler-label' + (value === 0 ? ' edge-l' : Math.abs(value - rodCm) < 1e-6 ? ' edge-r' : '');
+        label.style.left = (value / rodCm * 100) + '%';
+        label.textContent = Math.round(value);
+        frag.appendChild(label);
+      });
+    }
+    ruler.appendChild(frag);
+  }
+
+  function paintRange(input, ratio, fill) {
+    input.style.setProperty('--p', (clamp(ratio, 0, 1) * 100).toFixed(1) + '%');
+    if (fill) input.style.setProperty('--fill', fill);
+  }
+
+  function updateRodUI() {
+    rodVal.innerHTML = Math.round(state.rodMm) + '<em>mm</em>';
+    rodRange.value = String(state.rodMm);
+    paintRange(rodRange, (state.rodMm - ROD_MIN_MM) / (ROD_MAX_MM - ROD_MIN_MM));
+    wallVal.innerHTML = state.dWall + '<em>mm</em>';
+    wallRange.value = String(state.dWall);
+    paintRange(wallRange, (state.dWall - D_WALL_MIN) / (D_WALL_MAX - D_WALL_MIN));
+    availText.textContent = Math.round(availableMm()) + ' mm';
+    rodTitle.textContent = (state.rodMm / 1000).toFixed(2) + ' m 晾衣杆';
+    rodNote.textContent = '可用 ' + Math.round(availableMm()) + ' mm（两端各留 50 mm）';
+  }
+
+  function updateKUI() {
+    kCount.textContent = String(K());
+    kMinus.disabled = K() <= K_MIN;
+    kPlus.disabled = K() >= K_MAX;
+    chainMeta.textContent = K() + ' 衣架 · ' + cylCount() + ' 伸缩圆柱 · ' + K() + ' 接缝';
+  }
+
+  function updateBattery() {
+    var min = 100;
+    state.hangers.forEach(function (h) { min = Math.min(min, h.battery); });
+    battTel.textContent = min + '%';
+    hangerRows.forEach(function (row, i) {
+      if (!state.hangers[i]) return;
+      row.battFill.style.width = clamp(state.hangers[i].battery, 0, 100) + '%';
+      row.battNum.textContent = state.hangers[i].battery + '%';
+    });
+  }
+
+  /* =========================================================================
+     9. 告警 / 统计
+     ========================================================================= */
+  function updateAlerts() {
+    var list = [];
+    if (state.overLimit) {
+      list.push({
+        level: 'error',
+        title: '总链长超限：ΣL(' + cylCount() + '段)+K×10 = ' +
+          Math.round(state.requestedTotal) + ' mm > 可用 ' + Math.round(availableMm()) + ' mm',
+        detail: '已压缩圆柱到可用长度；建议加长杆或减少衣架'
+      });
+    }
+    if (state.dWall < WALL_NEAR) {
+      list.push({
+        level: 'warn',
+        title: '离墙太近，衣摆可能蹭墙（当前 ' + state.dWall + ' mm，建议 ≥120mm）',
+        detail: '杆中心到墙面的垂直距离 · 与两端端部余量无关'
+      });
+    }
+    var key = list.map(function (a) { return a.level + '|' + a.title; }).join('||');
+    if (key === updateAlerts.lastKey) return;
+    updateAlerts.lastKey = key;
+    if (!list.length) {
+      alertsEl.hidden = true;
+      alertsEl.innerHTML = '';
+      return;
+    }
+    alertsEl.hidden = false;
+    alertsEl.innerHTML = list.map(function (a) {
+      return '<div class="alert" data-level="' + a.level + '">' +
+        '<span class="alert-dot"></span>' +
+        '<div class="alert-body"><b>' + a.title + '</b><span>' + a.detail + '</span></div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function updateStats() {
+    var actual = chainTotal(state.lengths);
+    var avail = availableMm();
+    var remaining = state.overLimit ? 0 : Math.max(0, avail - actual);
+    var shown = state.overLimit ? state.requestedTotal : actual;
+    statChain.innerHTML = Math.round(shown) + '<em>mm</em>';
+    statChain.className = 'stat-value' + (state.overLimit ? ' warn' : '');
+    statAvail.innerHTML = Math.round(avail) + '<em>mm</em>';
+    statSlack.innerHTML = Math.round(remaining) + '<em>mm</em>';
+    statSlack.className = 'stat-value' + (state.overLimit ? ' warn' : '');
+    statVision.textContent = cylCount() + '/' + cylCount();
+    visionTel.textContent = cylCount() + '/' + cylCount();
+    statVision.className = 'stat-value ok';
+    updateBattery();
+  }
+
+  /* =========================================================================
+     10. 渲染：C0 S1 C1 S2 … SK CK
+     ========================================================================= */
+  function render() {
+    if (!view.w) return;
+    var pad = view.pad;
+    view.scale = (view.w - pad * 2) / state.rodMm;
+    var scale = view.scale;
+    var marginPx = MARGIN_MM * scale;
+    marginLeft.style.width = marginPx + 'px';
+    marginRight.style.width = marginPx + 'px';
+
+    var cursor = MARGIN_MM;
+    for (var i = 0; i < cylCount(); i++) {
+      var cyl = cylEls[i];
+      var len = state.lengths[i] || CYL_MIN;
+      var widthPx = Math.max(2, len * scale);
+      if (cyl) {
+        cyl.style.left = X(cursor) + 'px';
+        cyl.style.width = widthPx + 'px';
+        var c = state.clamps[i] || { l: true, r: true };
+        cyl.classList.toggle('fixed', c.l && c.r);
+        var idEl = cyl.querySelector('.cyl-id');
+        var lenEl = cyl.querySelector('.cyl-len');
+        if (idEl) idEl.style.display = widthPx >= 14 ? '' : 'none';
+        if (lenEl) {
+          lenEl.style.display = widthPx >= 12 ? '' : 'none';
+          lenEl.textContent = (len / 10).toFixed(1) + (widthPx >= 44 ? 'cm' : '');
+        }
+        var lb = cyl.querySelector('.clamp-left');
+        var rb = cyl.querySelector('.clamp-right');
+        if (lb) {
+          lb.classList.toggle('locked', c.l);
+          lb.title = '向内缩紧夹头 · 圆柱 ' + pad2(i + 1) + ' 左端：' + (c.l ? '套筒推入 / 已锁' : '套筒拉出 / 松开');
+          lb.setAttribute('aria-label', lb.title);
+        }
+        if (rb) {
+          rb.classList.toggle('locked', c.r);
+          rb.title = '向内缩紧夹头 · 圆柱 ' + pad2(i + 1) + ' 右端：' + (c.r ? '套筒推入 / 已锁' : '套筒拉出 / 松开');
+          rb.setAttribute('aria-label', rb.title);
+        }
+        var al = cyl.querySelector('.arrow-left');
+        var ar = cyl.querySelector('.arrow-right');
+        var showL = false, showR = false;
+        var m = state.motion;
+        if (m && Math.abs((m.to[i] || 0) - (m.from[i] || 0)) > 0.5) {
+          if (c.l && !c.r) showR = true;
+          else if (c.r && !c.l) showL = true;
+          else if (!c.l && !c.r) { showL = true; showR = true; }
+        }
+        if (al) al.classList.toggle('show', showL);
+        if (ar) ar.classList.toggle('show', showR);
+      }
+      if (cylRows[i]) {
+        cylRows[i].val.textContent = (len / 10).toFixed(1) + ' cm';
+        if (document.activeElement !== cylRows[i].range) {
+          cylRows[i].range.value = String(Math.round(len));
+        }
+        cylRows[i].range.disabled = c.l && c.r;
+        cylRows[i].root.classList.toggle('is-fixed', c.l && c.r);
+      }
+
+      cursor += len;
+      if (i < K()) {
+        var seam = seamEls[i];
+        if (seam) {
+          seam.style.left = X(cursor) + 'px';
+          seam.style.width = Math.max(2, T_H * scale) + 'px';
+        }
+        cursor += T_H;
+      }
+    }
+
+    // 剩余空杆：链条没有占满杆时，右侧画虚线并标注
+    var emptyLeft = X(cursor);
+    var emptyRight = X(state.rodMm - MARGIN_MM);
+    var emptyWidth = Math.max(0, emptyRight - emptyLeft);
+    emptyRod.style.left = emptyLeft + 'px';
+    emptyRod.style.width = emptyWidth + 'px';
+    emptyRod.style.display = emptyWidth > 8 ? '' : 'none';
+    emptyRod.firstChild.textContent = emptyWidth > 60
+      ? '剩余空杆 ' + Math.round(availableMm() - chainTotal(state.lengths)) + 'mm'
+      : '';
+
+    updateStats();
+    updateAlerts();
+  }
+
+  /* =========================================================================
+     11. DOM 重建
+     ========================================================================= */
+  function createCylEl(index) {
+    var el = document.createElement('div');
+    el.className = 'cyl';
+    el.dataset.index = String(index);
+    el.innerHTML =
+      '<i class="cyl-inner"></i>' +
+      '<span class="cyl-id">' + pad2(index + 1) + '</span>' +
+      '<span class="cyl-len"></span>' +
+      '<span class="move-arrow arrow-left">←</span>' +
+      '<span class="move-arrow arrow-right">→</span>' +
+      '<button type="button" class="clamp clamp-left"><i class="clamp-sleeve"></i><i class="clamp-ring"></i></button>' +
+      '<button type="button" class="clamp clamp-right"><i class="clamp-sleeve"></i><i class="clamp-ring"></i></button>';
+    chainEl.appendChild(el);
+    var lb = el.querySelector('.clamp-left');
+    var rb = el.querySelector('.clamp-right');
+    lb.addEventListener('click', function (ev) { ev.stopPropagation(); toggleClamp(index, 'l'); });
+    rb.addEventListener('click', function (ev) { ev.stopPropagation(); toggleClamp(index, 'r'); });
+    return el;
+  }
+
+  function createSeamEl(index) {
+    var el = document.createElement('div');
+    el.className = 'seam';
+    el.dataset.index = String(index);
+    el.title = '接缝 ' + pad2(index + 1) + ' · 10mm · 衣架挂点';
+    chainEl.appendChild(el);
+    return el;
+  }
+
+  function toggleClamp(index, side) {
+    var c = state.clamps[index];
+    if (!c) return;
+    c[side] = !c[side];
+    log('圆柱 ' + pad2(index + 1) + ' ' + (side === 'l' ? '左' : '右') + '端向内缩紧夹头 · ' +
+      (c[side] ? '套筒推入，环收紧' : '套筒拉出，松开'), 'gold');
+    render();
+  }
+
+  function buildRows() {
+    cylList.innerHTML = '';
+    cylRows = [];
+    for (var i = 0; i < cylCount(); i++) {
+      var row = document.createElement('div');
+      row.className = 'cyl-row';
+      var isEnd = i === 0 || i === cylCount() - 1;
+      var label = isEnd
+        ? '端部夹头 · 圆柱 ' + pad2(i + 1)
+        : '第 ' + i + ' 段 · 圆柱 ' + pad2(i + 1);
+      row.innerHTML =
+        '<div class="row-head"><span class="row-id">' + label + '</span><span class="row-val"></span></div>' +
+        '<input class="cyl-range" type="range" min="' + CYL_MIN + '" max="' + CYL_MAX + '" step="5" value="' + Math.round(state.lengths[i]) + '" aria-label="' + label + ' 长度，毫米">' +
+        (isEnd ? '<span class="row-note">夹头可锁杆任意位置</span>' : '');
+      cylList.appendChild(row);
+      var obj = {
+        root: row,
+        val: row.querySelector('.row-val'),
+        range: row.querySelector('.cyl-range')
+      };
+      cylRows.push(obj);
+      (function (idx, o) {
+        o.range.addEventListener('input', function () {
+          state.mode = 'manual';
+          updateModeUI();
+          var next = state.lengths.slice();
+          next[idx] = Number(o.range.value);
+          applyLengths(next, false);
+          updateKUI();
+        });
+        o.range.addEventListener('change', function () {
+          log('手动调整 · 圆柱 ' + pad2(idx + 1) + ' = ' +
+            (state.lengths[idx] / 10).toFixed(1) + ' cm', 'gold');
+        });
+      })(i, obj);
+    }
+
+    hangerList.innerHTML = '';
+    hangerRows = [];
+    for (var h = 0; h < K(); h++) {
+      var hrow = document.createElement('div');
+      hrow.className = 'hanger-row';
+      hrow.innerHTML = '<div class="hanger-main">' +
+          '<div class="hanger-head"><span class="row-id">接缝 ' + pad2(h + 1) + '</span><span class="h-state"></span></div>' +
+          '<input class="h-range" type="range" min="0" max="100" step="1" value="' + state.hangers[h].humidity + '" aria-label="接缝 ' + pad2(h + 1) + ' 衣物湿度">' +
+        '</div>' +
+        '<div class="h-batt"><span class="batt"><i></i></span><span class="batt-num">' + state.hangers[h].battery + '%</span></div>';
+      hangerList.appendChild(hrow);
+      var hObj = {
+        root: hrow,
+        state: hrow.querySelector('.h-state'),
+        range: hrow.querySelector('.h-range'),
+        battFill: hrow.querySelector('.batt i'),
+        battNum: hrow.querySelector('.batt-num')
+      };
+      hangerRows.push(hObj);
+      (function (idx, obj) {
+        obj.range.addEventListener('input', function () {
+          state.hangers[idx].humidity = Number(obj.range.value);
+          paintHangerRow(idx);
+          if (state.mode === 'weighted') scheduleApply();
+        });
+      })(h, hObj);
+    }
+    paintAllHangerRows();
+  }
+
+  function paintHangerRow(i) {
+    var h = state.hangers[i];
+    var row = hangerRows[i];
+    if (!row) return;
+    var st = humidityState(h.humidity);
+    row.state.dataset.state = st.key;
+    row.state.textContent = st.label + ' ' + h.humidity + '%';
+    paintRange(row.range, h.humidity / 100, humidityColor(h.humidity).color);
+  }
+
+  function paintAllHangerRows() {
+    for (var i = 0; i < K(); i++) paintHangerRow(i);
+    updateBattery();
+  }
+
+  function syncDom() {
+    stopMotion();
+    chainEl.innerHTML = '';
+    cylEls = [];
+    seamEls = [];
+    for (var i = 0; i < cylCount(); i++) {
+      cylEls.push(createCylEl(i));
+      if (i < K()) seamEls.push(createSeamEl(i));
+    }
+    buildRows();
+    updateKUI();
+    render();
+  }
+
+  /* =========================================================================
+     12. 改杆长 / 改 K
+     ========================================================================= */
+  function setRod(mm) {
+    var next = clamp(Number(mm), ROD_MIN_MM, ROD_MAX_MM);
+    if (Math.abs(next - state.rodMm) < 0.001) return;
+    state.rodMm = next;
+    var fit = fitLengths(state.lengths);
+    state.lengths = fit.lengths.slice();
+    state.overLimit = fit.compressed;
+    state.requestedTotal = fit.requestedTotal;
+    state.remaining = fit.remaining;
+    buildRuler();
+    updateRodUI();
+    measure();
+    updateAlerts();
+    if (state.mode === 'equal' || state.mode === 'weighted' || state.mode === 'collect') scheduleApply();
+  }
+
+  function changeK(delta) {
+    if (delta > 0) {
+      if (K() >= K_MAX) return;
+      var oldK = K();
+      var p = HANGER_PROFILES[oldK];
+      state.hangers.push({ humidity: p.humidity, battery: p.battery });
+      // 在最后一个端部夹头之前插入一个内部圆柱 + 接缝
+      state.lengths.splice(state.lengths.length - 1, 0, clamp(state.targetCm * 10, CYL_MIN, CYL_MAX));
+      state.clamps.splice(oldK, 0, { l: true, r: false });
+      var fit = fitLengths(state.lengths);
+      state.lengths = fit.lengths.slice();
+      state.overLimit = fit.compressed;
+      state.requestedTotal = fit.requestedTotal;
+      state.remaining = fit.remaining;
+      log('加一件 · 接缝 ' + pad2(K()) + ' + 伸缩圆柱 ' + pad2(K()) +
+        '（圆柱 ' + cylCount() + ' 个，两端夹头保留）', 'gold');
+      syncDom();
+      var enter = cylEls[oldK];
+      if (enter) {
+        enter.classList.add('cyl-enter');
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () { enter.classList.remove('cyl-enter'); });
+        });
+      }
+    } else {
+      if (K() <= K_MIN) return;
+      var oldK2 = K();
+      state.hangers.pop();
+      state.lengths.splice(state.lengths.length - 2, 1);
+      state.clamps.splice(oldK2 - 1, 1);
+      var fit2 = fitLengths(state.lengths);
+      state.lengths = fit2.lengths.slice();
+      state.overLimit = fit2.compressed;
+      state.requestedTotal = fit2.requestedTotal;
+      state.remaining = fit2.remaining;
+      log('减一件 · 移除接缝 ' + pad2(oldK2) + ' + 伸缩圆柱 ' + pad2(oldK2), 'info');
+      syncDom();
+    }
+    updateKUI();
+    updateStats();
+    if (state.mode === 'equal' || state.mode === 'weighted' || state.mode === 'collect') {
+      applyMode();
+    } else {
+      render();
+    }
+    updateAlerts();
+  }
+
+  /* =========================================================================
+     13. 日志 / 状态
+     ========================================================================= */
+  function log(msg, level) {
+    level = level || 'info';
+    var li = document.createElement('li');
+    li.className = level;
+    var t = new Date();
+    li.innerHTML = '<time></time><span class="lvl"></span><span class="msg"></span>';
+    li.querySelector('time').textContent = pad2(t.getHours()) + ':' + pad2(t.getMinutes()) + ':' + pad2(t.getSeconds());
+    li.querySelector('.msg').textContent = msg;
+    logEl.prepend(li);
+    while (logEl.children.length > LOG_LIMIT) logEl.lastElementChild.remove();
+  }
+
+  function initLogs() {
+    log('V2 交互原型启动 · 圆柱链，前端模拟未接硬件', 'gold');
+    log('视觉识别：圆柱 01–' + pad2(cylCount()) + ' 已确认（模拟）', 'ok');
+    log(K() + ' 衣架 · ' + cylCount() + ' 伸缩圆柱（两端夹头 + 内部净风道） · ' + K() + ' 个 10mm 接缝', 'info');
+    log('总链长 ' + Math.round(chainTotal(state.lengths)) + ' mm = ΣL(' + cylCount() + '段)+' + K() + '×10mm', 'info');
+    log('可用 ' + Math.round(availableMm()) + ' mm · 剩余空杆 ' +
+      Math.round(Math.max(0, availableMm() - chainTotal(state.lengths))) + ' mm', 'info');
+    log('端部夹头可锁杆任意位置；能顶墙时顶墙预紧，够不到就锁杆 · 无卷簧', 'info');
+    log('向内缩紧夹头（锥面收口）：套筒向内推入=锁，拉出=松；锁一端=单向伸缩，锁两端=定点', 'info');
+  }
+
+  /* =========================================================================
+     14. 事件
+     ========================================================================= */
+  function bindControls() {
+    document.querySelectorAll('.mode').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        state.mode = btn.dataset.mode;
+        updateModeUI();
+        if (state.mode === 'manual') {
+          log('手动逐段 · 拖内部圆柱长度滑杆调整净风道', 'gold');
+          render();
+        } else {
+          applyMode();
+        }
+      });
+    });
+
+    targetRange.addEventListener('input', function () {
+      state.targetCm = Number(targetRange.value);
+      targetVal.innerHTML = fmt(state.targetCm) + '<em>cm</em>';
+      paintRange(targetRange, (state.targetCm - TARGET_MIN_CM) / (TARGET_MAX_CM - TARGET_MIN_CM));
+      if (state.mode === 'equal' || state.mode === 'weighted') scheduleApply();
+    });
+    targetRange.addEventListener('change', function () {
+      log('目标净风道设为 ' + fmt(state.targetCm) + ' cm', 'gold');
+    });
+
+    rodRange.addEventListener('input', function () { setRod(rodRange.value); });
+    rodRange.addEventListener('change', function () {
+      log('杆长设为 ' + Math.round(state.rodMm) + ' mm · 端部余量 50 mm', 'gold');
+      updateAlerts();
+    });
+
+    wallRange.addEventListener('input', function () {
+      state.dWall = clamp(Number(wallRange.value), D_WALL_MIN, D_WALL_MAX);
+      updateRodUI();
+      updateAlerts();
+    });
+    wallRange.addEventListener('change', function () {
+      log('杆离墙设为 ' + state.dWall + ' mm' +
+        (state.dWall < WALL_NEAR ? ' · 低于 120 mm，衣摆可能蹭墙' : ''), state.dWall < WALL_NEAR ? 'warn' : 'gold');
+    });
+
+    kPlus.addEventListener('click', function () { changeK(1); });
+    kMinus.addEventListener('click', function () { changeK(-1); });
+    document.getElementById('clearLog').addEventListener('click', function () { logEl.innerHTML = ''; });
+  }
+
+  /* =========================================================================
+     15. 尺寸 / 初始化
+     ========================================================================= */
+  function measure() {
+    var w = stage.clientWidth;
+    if (!w) return;
+    view.w = w;
+    view.pad = w < 520 ? 12 : 22;
+    view.scale = (w - view.pad * 2) / state.rodMm;
+    stage.style.setProperty('--rod-pad', view.pad + 'px');
+    render();
+  }
+
+  var initFit = fitLengths(state.lengths);
+  state.lengths = initFit.lengths.slice();
+  state.overLimit = initFit.compressed;
+  state.requestedTotal = initFit.requestedTotal;
+  state.remaining = initFit.remaining;
+
+  buildRuler();
+  syncDom();
+  bindControls();
+  updateModeUI();
+  updateRodUI();
+  targetVal.innerHTML = fmt(state.targetCm) + '<em>cm</em>';
+  paintRange(targetRange, (state.targetCm - TARGET_MIN_CM) / (TARGET_MAX_CM - TARGET_MIN_CM));
+  updateKUI();
+  measure();
+  initLogs();
+  updateAlerts();
+
+  if (window.ResizeObserver) new ResizeObserver(measure).observe(stage);
+  else window.addEventListener('resize', measure);
+
+  setInterval(function () {
+    latencyEl.textContent = (9 + Math.floor(Math.random() * 35)) + 'ms';
+  }, 2800);
+
+  setInterval(function () {
+    var h = state.hangers[Math.floor(Math.random() * state.hangers.length)];
+    if (h && h.battery > 18) { h.battery -= 1; updateBattery(); }
+  }, 15000);
+
+})();
+
+</script>
+</body>
+</html>

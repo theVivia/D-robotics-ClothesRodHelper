@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800">
+<style>
+  .bg{fill:#f8fafc}
+  .rod{fill:#cbd5e1;stroke:#334155;stroke-width:1.8}
+  .tube{fill:#e2e8f0;stroke:#0f172a;stroke-width:2}
+  .collet{fill:#fca5a5;stroke:#991b1b;stroke-width:1.4}
+  .sleeve{fill:#fde68a;stroke:#b45309;stroke-width:2}
+  .knob{fill:#fde68a;stroke:#b45309;stroke-width:1.6}
+  .sw{fill:#dbeafe;stroke:#1d4ed8;stroke-width:1.3}
+  .dim{stroke:#0f766e;stroke-width:1;fill:none;marker-start:url(#ae);marker-end:url(#ae)}
+  .ext{stroke:#0f766e;stroke-width:.7;stroke-dasharray:4 3;fill:none}
+  .dt{font:12px 'Microsoft YaHei','PingFang SC',sans-serif;fill:#0f766e;text-anchor:middle;paint-order:stroke;stroke:#fff;stroke-width:3}
+  .lb{font:12.5px 'Microsoft YaHei','PingFang SC',sans-serif;fill:#7c2d12}
+  .ttl{font:bold 20px 'Microsoft YaHei','PingFang SC',sans-serif;fill:#0f172a}
+  .sub{font:13px 'Microsoft YaHei','PingFang SC',sans-serif;fill:#475569}
+  .n{font:12.5px 'Microsoft YaHei','PingFang SC',sans-serif;fill:#334155}
+  .nb{font:bold 13px 'Microsoft YaHei','PingFang SC',sans-serif;fill:#0f172a}
+  .f{stroke:#dc2626;stroke-width:2.4;fill:none;marker-end:url(#arf)}
+  .ft{font:12px 'Microsoft YaHei','PingFang SC',sans-serif;fill:#b91c1c}
+  .lead{stroke:#b45309;stroke-width:1;fill:none}
+  .cl{stroke:#0f172a;stroke-width:1.4;fill:none}
+</style>
+<defs>
+  <marker id="ae" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,1 L10,5 L0,9 z" fill="#0f766e"/>
+  </marker>
+  <marker id="arf" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,1 L10,5 L0,9 z" fill="#dc2626"/>
+  </marker>
+</defs>
+<rect class="bg" width="1200" height="800"/>
+
+<text class="ttl" x="48" y="44">mech-v2 · 端头锥面收口夹头（纵向剖面，X–Z）</text>
+<text class="sub" x="48" y="70">比例 4.5 px/mm。推套筒 6 mm → 12° 锥面把 6 段 TPU 夹头环径向压在杆上；反向拉出即松。无外露爪子，外径只比管体大 2 mm。</text>
+
+<!-- rod: axis y=330, Ø25 -> 112px, so y 274..386 -->
+<rect class="rod" x="70" y="274" width="1020" height="112"/>
+<line x1="70" y1="330" x2="1090" y2="330" stroke="#64748b" stroke-width="1" stroke-dasharray="14 6 3 6"/>
+
+<!-- outer tube: Ø66 -> 297px, y 181..478 (tube from x=70 to 360, then the head region) -->
+<rect class="tube" x="70" y="181" width="290" height="297" rx="8"/>
+
+<!-- collet ring: 20mm long -> 90px, from x=250..340, wall 3.5mm=16px, sits on rod -->
+<g>
+  <!-- upper petals -->
+  <rect class="collet" x="250" y="258" width="90" height="18" rx="3"/>
+  <rect class="collet" x="250" y="386" width="90" height="18" rx="3"/>
+  <!-- side petals (visible as thin bands at the rod sides) -->
+  <rect class="collet" x="250" y="276" width="16" height="110" rx="3"/>
+  <rect class="collet" x="324" y="276" width="16" height="110" rx="3"/>
+  <!-- slots -->
+  <g stroke="#7c2d12" stroke-width="1.2">
+    <line x1="276" y1="258" x2="276" y2="276"/>
+    <line x1="302" y1="258" x2="302" y2="276"/>
+    <line x1="276" y1="386" x2="276" y2="404"/>
+    <line x1="302" y1="386" x2="302" y2="404"/>
+    <line x1="283" y1="300" x2="283" y2="386"/>
+    <line x1="308" y1="300" x2="308" y2="386"/>
+  </g>
+  <text class="n" x="295" y="333" text-anchor="middle" font-size="11">夹头环 6 段</text>
+</g>
+
+<!-- cone sleeve: two wedge blocks (outer), from x=170..300, sliding +X; cone surface shown top and bottom -->
+<g>
+  <path class="sleeve" d="M170,181 L300,181 L300,250 L170,296 Z"/>
+  <path class="sleeve" d="M170,478 L300,478 L300,410 L170,364 Z"/>
+  <!-- push knob on top -->
+  <rect class="knob" x="196" y="158" width="40" height="24" rx="4"/>
+  <text class="n" x="216" y="176" text-anchor="middle" font-size="10">推钮</text>
+  <!-- detent notch -->
+  <rect x="288" y="176" width="10" height="6" fill="#ffffff" stroke="#b45309" stroke-width="1.2"/>
+</g>
+<!-- microswitch -->
+<rect class="sw" x="306" y="200" width="26" height="14" rx="2"/>
+<text class="n" x="319" y="210" text-anchor="middle" font-size="9">SW</text>
+
+<!-- clearance highlight: 0.3 gap between collet bore and rod (exaggerated ×3 for readability) -->
+<g stroke="#0369a1" stroke-width="1.2" fill="none">
+  <line x1="246" y1="258" x2="246" y2="386"/>
+  <line x1="340" y1="258" x2="340" y2="386"/>
+</g>
+
+<!-- stroke dimension 6mm -> 27px -->
+<path class="dim" d="M196 122 H223"/>
+<path class="ext" d="M196 150 V116 M223 150 V116"/>
+<text class="dt" x="210" y="110">行程 6</text>
+
+<!-- cone angle arc -->
+<path class="cl" d="M300,250 L246,281"/>
+<path class="cl" d="M300,250 L272,250"/>
+<path d="M286,250 A16,16 0 0 1 290,259" fill="none" stroke="#0f172a" stroke-width="1.2"/>
+<text class="dt" x="316" y="262" font-size="11">12°</text>
+
+<!-- radial force arrows on collet -->
+<path class="f" d="M295,232 V262"/>
+<path class="f" d="M295,428 V398"/>
+<text class="ft" x="330" y="238">N_r ≈ 58 N / 侧</text>
+
+<!-- axial push force -->
+<path class="f" d="M160,330 H196"/>
+<text class="ft" x="86" y="318">F_a = 40 N</text>
+
+<!-- dimensions: sleeve OD vs tube OD -->
+<path class="dim" d="M388,181 V155"/>
+<path class="ext" d="M360,181 H392 M388,155 H420"/>
+<text class="dt" x="470" y="172">套筒 Ø68 vs 管 Ø66：只大 2 mm</text>
+<path class="dim" d="M388,478 V500"/>
+<path class="ext" d="M360,478 H392 M388,500 H420"/>
+<text class="dt" x="470" y="516">夹头环壁 3.5 · 松态内孔 = 杆 +0.9</text>
+
+<!-- labels -->
+<g class="lead">
+  <path d="M250,270 L232,214 L200,214"/>
+  <path d="M340,330 L372,290 L410,290"/>
+  <path d="M216,182 L216,206 L244,206"/>
+</g>
+<text class="lb" x="120" y="208">弹性夹头环（TPU 95A，5 条半槽 + 1 条全开缝）</text>
+<text class="lb" x="412" y="286">锥面只给径向力；轴向分力由止退缺口吃住</text>
+<text class="lb" x="246" y="200" font-size="11">止退缺口（60 N 弹片）</text>
+
+<!-- right/bottom notes -->
+<g>
+  <text class="nb" x="620" y="196">校核（设计值）</text>
+  <text class="n" x="620" y="222">锥半角 θ=12°，锥面 μ=0.12 → φ=6.84°</text>
+  <text class="n" x="620" y="246">放大比 = cot(θ+φ) = cot(18.84°) = 2.93</text>
+  <text class="n" x="620" y="270">N_r = F_a × 2.93 = 40 × 2.93 = 117 N（30 N→88 / 50 N→147）</text>
+  <text class="n" x="620" y="294">摩擦保持 F_hold = μ_pad × N_r = 0.7 × 117 = 82 N ≥ 40 N（2.05×）</text>
+  <text class="n" x="620" y="318">回弹轴向力 = N_r·tanθ = 24.9 N；止退弹片 60 N（2.4×）</text>
+  <text class="n" x="620" y="342">径向收口 = 6.0 × tan12° = 1.28 mm（0.6 吃掉间隙+挤压，余 0.68 吸收公差）</text>
+  <text class="n" x="620" y="366">回差：止退旷量 0.3 mm → 径向 0.064 mm → 夹紧力 ±2%，不产生轴向定位误差</text>
+  <text class="n" x="620" y="390">杆面压强 = 117 / (6×6×14) = 0.23 MPa（许用 ≥5，21×）</text>
+  <text class="n" x="620" y="414">夹头瓣：M=136.5 N·mm，W=12.25 mm³，σ=11.1 MPa（POM 许用 60，5.4×）</text>
+
+  <text class="nb" x="620" y="452">驱动与检测</text>
+  <text class="n" x="620" y="476">手动：3:1 拨钮，手力 15 N → 套筒 45 N（够 40 N 设计推力）</text>
+  <text class="n" x="620" y="500">P1 自动：12 V 电磁推杆（50 N / 8 mm）或 MG996R + 8 mm 曲柄（122 N）</text>
+  <text class="n" x="620" y="524">✗ SG90（22 N）推力不够，别用</text>
+  <text class="n" x="620" y="548">微动开关触发点 = 套筒行程 4.5 mm，闭合 = 已锁</text>
+
+  <text class="nb" x="620" y="586">为什么比"爪子"方案好</text>
+  <text class="n" x="620" y="610">1. 无外露爪子：外径 Ø68（管 Ø66），衣物/手指挂不到；</text>
+  <text class="n" x="620" y="634">2. 径向抱紧、无轴向分力：夹紧不推动管子，定位不动；</text>
+  <text class="n" x="620" y="658">3. 锥面自增力：40 N 轴向推力换 117 N 径向，手扳很轻；</text>
+  <text class="n" x="620" y="682">4. 全松时夹头环弹开 0.9 mm，整机可沿杆滑、也可取下。</text>
+</g>
+<text class="n" x="620" y="726" fill="#94a3b8">示意说明：剖面把 0.3 mm 间隙放大画；全开缝在第 6 段（图中未标），掰开才能扣上杆。</text>
+<text class="n" x="620" y="750" fill="#94a3b8">全部数字为设计值/估算，非实测；锥面摩擦与 TPU 实际 μ 必须打样实测。</text>
+<text class="n" x="620" y="774" fill="#94a3b8">对应 docs/v2/01 §2.2、§2.4、§6.1；CAD：cone_sleeve / collet_ring / push_knob。</text>
+</svg>
