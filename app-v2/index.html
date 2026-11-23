@@ -1061,7 +1061,22 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
 .clamp:disabled { opacity: 1; cursor: not-allowed; }
 .drag-handle:disabled { opacity: .28; cursor: not-allowed; }
 
-\n</style>
+\n.seg-adj{display:flex;align-items:center;gap:8px;margin-top:6px}
+.seg-adj .cyl-range{flex:1;display:block!important;height:44px}
+.step{width:44px;height:44px;flex:none;border:1px solid #CBD5E1;background:#fff;color:#334155;border-radius:10px;font-size:20px;line-height:1;cursor:pointer;display:grid;place-items:center;padding:0}
+.step:hover{border-color:#2F6FED;color:#1D4ED8}
+.step:active{transform:translateY(1px)}
+.anchor-toggle{margin-left:8px;border:1px solid #CBD5E1;background:#fff;color:#334155;border-radius:999px;padding:6px 10px;font-size:12px;cursor:pointer}
+.anchor-toggle.on{border-color:#2F6FED;color:#1D4ED8;background:#EAF1FF}
+.quick-adjust{margin-top:12px;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.quick-head{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:#475569;font-weight:600;margin-bottom:8px}
+.quick-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.quick-chip{min-width:44px;height:36px;border:1px solid #CBD5E1;background:#fff;border-radius:999px;font-size:13px;color:#334155;cursor:pointer;padding:0 10px}
+.quick-chip.active{border-color:#2F6FED;background:#EAF1FF;color:#1D4ED8;font-weight:600}
+.quick-row{display:flex;align-items:center;gap:8px}
+.quick-row input{flex:1;height:44px}
+@media (max-width:640px){.clamp,.drag-handle{display:none!important}}
+</style>
 </head>
 <body>
 <div class="shell">
@@ -1117,7 +1132,16 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
         </div>
 
         <div class="alerts" id="alerts" hidden aria-live="polite"></div>
-        <div class="stage-note">两端 <b id="fixedEndsText">01 / 05</b> 外端固定、内端可伸缩；内部可拖动 · 外端夹头 ⚓ 锚定，内端 🔒/🔓 · 接缝 <b>10mm</b> 挂衣架 · 内部圆柱 = 间距</div>
+        <div class="stage-note">两端 <b id="fixedEndsText">01 / 05</b> 外端固定、内端可伸缩；内部可拖动 · 外端夹头 ⚓/🔓 · 接缝 <b>10mm</b> 挂衣架 · 内部圆柱 = 间距 <button type="button" id="anchorToggle" class="anchor-toggle">端部锚定：关（可自由调）</button></div>
+        <div class="quick-adjust">
+          <div class="quick-head"><span>快速调段</span><span id="quickLabel">圆柱 02 · 11 cm</span></div>
+          <div class="quick-chips" id="quickChips"></div>
+          <div class="quick-row">
+            <button type="button" id="quickMinus" class="step" aria-label="缩短 1 厘米">−</button>
+            <input id="quickRange" type="range" step="5" aria-label="当前段长度">
+            <button type="button" id="quickPlus" class="step" aria-label="伸长 1 厘米">＋</button>
+          </div>
+        </div>
 
         <section class="rod-config">
           <div class="panel-head">
@@ -1272,6 +1296,7 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
     rodMm: ROD_DEFAULT_MM,
     dWall: D_WALL_DEFAULT,
     targetCm: 10,
+    endsLocked: false,
     mode: 'manual',
     hangers: HANGER_PROFILES.slice(0, 4).map(function (p) {
       return { humidity: p.humidity, battery: p.battery };
@@ -1351,6 +1376,49 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
   var visionTel = document.getElementById('visionTel');
   var battTel = document.getElementById('battTel');
   var latencyEl = document.getElementById('latency');
+
+  var quickIndex = 1;
+  var quickRange = document.getElementById('quickRange');
+  var quickLabel = document.getElementById('quickLabel');
+  var quickChips = document.getElementById('quickChips');
+
+  function buildQuickChips() {
+    if (!quickChips) return;
+    quickChips.innerHTML = '';
+    for (var i = 0; i < cylCount(); i++) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'quick-chip';
+      b.textContent = pad2(i + 1);
+      b.dataset.index = String(i);
+      (function (idx) {
+        b.addEventListener('click', function () {
+          quickIndex = idx;
+          syncQuick();
+        });
+      })(i);
+      quickChips.appendChild(b);
+    }
+    quickIndex = Math.min(quickIndex, cylCount() - 1);
+    syncQuick();
+  }
+
+  function syncQuick() {
+    if (!quickRange || !quickLabel) return;
+    quickIndex = Math.max(0, Math.min(quickIndex, cylCount() - 1));
+    quickRange.min = String(lenMinFor(quickIndex));
+    quickRange.max = String(lenMaxFor(quickIndex));
+    if (document.activeElement !== quickRange) {
+      quickRange.value = String(Math.round(state.lengths[quickIndex]));
+    }
+    quickLabel.textContent = '圆柱 ' + pad2(quickIndex + 1) + ' · ' +
+      (state.lengths[quickIndex] / 10).toFixed(1) + ' cm';
+    if (quickChips) {
+      Array.prototype.forEach.call(quickChips.children, function (b, i) {
+        b.classList.toggle('active', i === quickIndex);
+      });
+    }
+  }
 
   var view = { w: 0, pad: 24, scale: 0.26 };
   var cylEls = [];
@@ -1472,6 +1540,18 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
 
   // 内部目标变化 Δ 全部由两个端部内端吸收（各 -Δ/2，一端到限位另一端补）
   function applyInternalTargets(newInternal, prefer) {
+    if (!state.endsLocked) {
+      state.lengths = [state.lengths[0]].concat(newInternal).concat([state.lengths[state.lengths.length - 1]]);
+      var total1 = chainTotal(state.lengths);
+      state.overLimit = total1 > availableMm() + 0.001;
+      state.requestedTotal = total1;
+      state.remaining = Math.max(0, availableMm() - total1);
+      state.mode = 'manual';
+      updateModeUI();
+      render();
+      updateAlerts();
+      return true;
+    }
     var oldInternal = state.lengths.slice(1, -1);
     var delta = sum(newInternal) - sum(oldInternal);
     var alloc = allocateEnds(-delta, prefer, null);
@@ -1494,6 +1574,80 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
     state.clamps = savedLocks;
     render();
     updateAlerts();
+    return true;
+  }
+
+  // 单段长度调整：改一段，总长 D 由端部内端吸收；失败时二分找最接近的可行值
+  function trySegmentLength(index, value) {
+    var last = cylCount() - 1;
+    var base = state.lengths.slice();
+    var old = base[index];
+    var change = value - old;
+    base[index] = value;
+    var alloc;
+    if (isEndCylinder(index)) {
+      var other = index === 0 ? last : 0;
+      alloc = allocateEnds(-change, other, index, base);
+    } else {
+      var prefer = index <= (last - 1) / 2 ? 0 : last;
+      alloc = allocateEnds(-change, prefer, null, base);
+    }
+    if (!alloc.ok) return { ok: false };
+    var lengths = base.slice();
+    lengths[0] = alloc.e0;
+    lengths[last] = alloc.eL;
+    lengths[index] = value;
+    return { ok: true, lengths: lengths };
+  }
+
+  function applySegmentLength(index, desired) {
+    var old = state.lengths[index];
+    if (!state.endsLocked) {
+      state.lengths[index] = clamp(Number(desired), lenMinFor(index), lenMaxFor(index));
+      var total0 = chainTotal(state.lengths);
+      state.overLimit = total0 > availableMm() + 0.001;
+      state.requestedTotal = total0;
+      state.remaining = Math.max(0, availableMm() - total0);
+      state.mode = 'manual';
+      updateModeUI();
+      render();
+      updateAlerts();
+      return true;
+    }
+    var lo = lenMinFor(index), hi = lenMaxFor(index);
+    desired = clamp(Number(desired), lo, hi);
+    if (Math.abs(desired - old) < 0.05) return true;
+
+    var savedLocks = state.clamps.map(function (c) { return { l: c.l, r: c.r }; });
+    for (var i = 1; i < state.clamps.length - 1; i++) {
+      state.clamps[i] = { l: false, r: false };
+    }
+
+    var res = trySegmentLength(index, desired);
+    if (!res.ok) {
+      // 单调可行：二分到最接近的可行长度，避免整段卡死
+      var good = old, bad = desired;
+      for (var k = 0; k < 22; k++) {
+        var mid = (good + bad) / 2;
+        if (trySegmentLength(index, mid).ok) good = mid; else bad = mid;
+      }
+      res = trySegmentLength(index, good);
+    }
+    if (!res.ok || Math.abs((res.lengths ? res.lengths[index] : old) - old) < 0.5) {
+      state.clamps = savedLocks;
+      render();
+      showToast('这段到头了：先松另一端或调整端部');
+      return false;
+    }
+    state.lengths = res.lengths;
+    state.clamps = savedLocks;
+    state.mode = 'manual';
+    updateModeUI();
+    render();
+    updateAlerts();
+    log('长度微调 · 圆柱 ' + pad2(index + 1) + ' = ' +
+      (state.lengths[index] / 10).toFixed(1) + ' cm · 总长 ' +
+      Math.round(chainTotal(state.lengths)) + ' mm', 'info');
     return true;
   }
 
@@ -1749,14 +1903,14 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
     var pad = view.pad;
     var chain = chainTotal(state.lengths);
     // 视图缩放：链条 + 200mm 空杆，避免长杆时圆柱挤成一团
-    var viewMm = MARGIN_MM + chain + 200;
+    var viewMm = MARGIN_MM + chain + (view.w < 520 ? 40 : 200);
     view.scale = (view.w - pad * 2) / viewMm;
     var scale = view.scale;
     var marginPx = MARGIN_MM * scale;
     marginLeft.style.width = marginPx + 'px';
     marginRight.style.width = marginPx + 'px';
     ruler.style.display = 'none';
-    if (stageHint) stageHint.textContent = '长杆视图：链条 + 200mm 空杆';
+    if (stageHint) stageHint.textContent = view.w < 520 ? '视图：圆柱链（空杆见上方数字）' : '长杆视图：链条 + 200mm 空杆';
 
     var cursor = MARGIN_MM;
     for (var i = 0; i < cylCount(); i++) {
@@ -1785,7 +1939,7 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
           var lOuter = outerSide === 'l';
           lb.classList.toggle('locked', c.l);
           var li = lb.querySelector('.clamp-icon');
-          if (li) li.textContent = lOuter ? '⚓' : (c.l ? '🔒' : '🔓');
+          if (li) li.textContent = lOuter ? (state.endsLocked ? '⚓' : '🔓') : (c.l ? '🔒' : '🔓');
           lb.title = lOuter ? '外端锚定（固定）' : ('夹头 · 圆柱 ' + pad2(i + 1) + ' 左端：' + (c.l ? '锁定' : '松开'));
           lb.setAttribute('aria-label', lb.title);
           lb.disabled = lOuter;
@@ -1794,7 +1948,7 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
           var rOuter = outerSide === 'r';
           rb.classList.toggle('locked', c.r);
           var ri = rb.querySelector('.clamp-icon');
-          if (ri) ri.textContent = rOuter ? '⚓' : (c.r ? '🔒' : '🔓');
+          if (ri) ri.textContent = rOuter ? (state.endsLocked ? '⚓' : '🔓') : (c.r ? '🔒' : '🔓');
           rb.title = rOuter ? '外端锚定（固定）' : ('夹头 · 圆柱 ' + pad2(i + 1) + ' 右端：' + (c.r ? '锁定' : '松开'));
           rb.setAttribute('aria-label', rb.title);
           rb.disabled = rOuter;
@@ -1834,7 +1988,7 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
         if (document.activeElement !== cylRows[i].range) {
           cylRows[i].range.value = String(Math.round(len));
         }
-        cylRows[i].range.disabled = isEndCylinder(i);
+        cylRows[i].range.disabled = false;
         cylRows[i].root.classList.toggle('is-fixed', c.l && c.r);
       }
 
@@ -1855,13 +2009,14 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
     var remaining = Math.max(0, availableMm() - chainTotal(state.lengths));
     emptyRod.style.left = emptyLeft + 'px';
     emptyRod.style.width = emptyWidth + 'px';
-    emptyRod.style.display = (!state.overLimit && emptyWidth > 8) ? '' : 'none';
+    emptyRod.style.display = (!state.overLimit && emptyWidth > 8 && view.w >= 520) ? '' : 'none';
     emptyRod.firstChild.textContent = emptyWidth > 60
       ? '空杆 ' + Math.round(remaining) + 'mm'
       : '';
 
     updateStats();
     updateAlerts();
+    syncQuick();
   }
 
   /* =========================================================================
@@ -2192,29 +2347,34 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
         : '第 ' + i + ' 段 · 圆柱 ' + pad2(i + 1);
       row.innerHTML =
         '<div class="row-head"><span class="row-id">' + label + '</span><span class="row-val"></span></div>' +
-        '<input class="cyl-range" type="range" min="' + lenMinFor(i) + '" max="' + lenMaxFor(i) + '" step="5" value="' + Math.round(state.lengths[i]) + '" aria-label="' + label + ' 长度，毫米"' + (isEnd ? ' disabled' : '') + '>' +
-        (isEnd ? '<span class="row-note">外端锚定，内端 30–120mm</span>' : '<span class="row-note">拖把手调整 · 100–220mm</span>');
+        '<div class="seg-adj">' +
+          '<button type="button" class="step" data-step="-1" aria-label="' + label + ' 缩短 1 厘米">−</button>' +
+          '<input class="cyl-range" type="range" min="' + lenMinFor(i) + '" max="' + lenMaxFor(i) + '" step="5" value="' + Math.round(state.lengths[i]) + '" aria-label="' + label + ' 长度，毫米">' +
+          '<button type="button" class="step" data-step="1" aria-label="' + label + ' 伸长 1 厘米">＋</button>' +
+        '</div>' +
+        (isEnd ? '<span class="row-note">外端锚定；滑杆/±1cm 调内端 30–120mm</span>' : '<span class="row-note">滑杆/±1cm 微调 · 100–220mm</span>');
       cylList.appendChild(row);
       var obj = {
         root: row,
         val: row.querySelector('.row-val'),
-        range: row.querySelector('.cyl-range')
+        range: row.querySelector('.cyl-range'),
+        stepBtns: row.querySelectorAll('.step')
       };
       cylRows.push(obj);
       (function (idx, o) {
         o.range.addEventListener('input', function () {
-          state.mode = 'manual';
-          updateModeUI();
-          var nextInternal = state.lengths.slice(1, -1);
-          nextInternal[idx - 1] = Number(o.range.value);
-          if (!applyInternalTargets(nextInternal, null)) {
+          if (!applySegmentLength(idx, Number(o.range.value))) {
             o.range.value = String(Math.round(state.lengths[idx]));
           }
           updateKUI();
         });
-        o.range.addEventListener('change', function () {
-          log('手动调整 · 圆柱 ' + pad2(idx + 1) + ' = ' +
-            (state.lengths[idx] / 10).toFixed(1) + ' cm', 'gold');
+        o.stepBtns.forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var dir = Number(btn.dataset.step);
+            applySegmentLength(idx, state.lengths[idx] + dir * 10);
+            o.range.value = String(Math.round(state.lengths[idx]));
+            updateKUI();
+          });
         });
       })(i, obj);
     }
@@ -2274,6 +2434,7 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
       if (i < K()) seamEls.push(createSeamEl(i));
     }
     buildRows();
+    buildQuickChips();
     updateKUI();
     render();
   }
@@ -2372,7 +2533,36 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
   /* =========================================================================
      14. 事件
      ========================================================================= */
+  function updateAnchorUI() {
+    var btn = document.getElementById('anchorToggle');
+    if (!btn) return;
+    btn.textContent = state.endsLocked ? '端部锚定：开（总长固定）' : '端部锚定：关（可自由调）';
+    btn.classList.toggle('on', !!state.endsLocked);
+  }
+
   function bindControls() {
+    if (quickRange) {
+      quickRange.addEventListener('input', function () {
+        applySegmentLength(quickIndex, Number(quickRange.value));
+        syncQuick();
+        updateKUI();
+      });
+    }
+    var qm = document.getElementById('quickMinus');
+    var qp = document.getElementById('quickPlus');
+    if (qm) qm.addEventListener('click', function () {
+      applySegmentLength(quickIndex, state.lengths[quickIndex] - 10); syncQuick(); updateKUI();
+    });
+    if (qp) qp.addEventListener('click', function () {
+      applySegmentLength(quickIndex, state.lengths[quickIndex] + 10); syncQuick(); updateKUI();
+    });
+    var at = document.getElementById('anchorToggle');
+    if (at) at.addEventListener('click', function () {
+      state.endsLocked = !state.endsLocked;
+      updateAnchorUI();
+      render();
+      log(state.endsLocked ? '端部锚定：开 · 外端固定，总长不变' : '端部锚定：关 · 端部可移动，各段都能调', 'info');
+    });
     document.querySelectorAll('.mode').forEach(function (btn) {
       btn.addEventListener('click', function () {
         state.mode = btn.dataset.mode;
@@ -2467,6 +2657,8 @@ input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; background: #
 
   if (window.ResizeObserver) new ResizeObserver(measure).observe(stage);
   else window.addEventListener('resize', measure);
+
+  updateAnchorUI();
 
   setInterval(function () {
     latencyEl.textContent = (9 + Math.floor(Math.random() * 35)) + 'ms';
