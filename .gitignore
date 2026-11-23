@@ -19,7 +19,3 @@ venv/
 .DS_Store
 Thumbs.db
 ~$*
-
-deck/_qa/
-deck/_tmp.pdf
-app/_probe*.html

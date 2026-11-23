@@ -219,9 +219,12 @@ button { -webkit-tap-highlight-color: transparent; }
 }
 .cyl-len {
   position: absolute; left: 50%; top: calc(100% + 6px); transform: translateX(-50%);
-  font-family: var(--mono); font-size: 7.5px; line-height: 1; color: var(--txt-2);
+  font-family: var(--mono); font-size: 8px; line-height: 1; color: var(--txt-2);
   white-space: nowrap; pointer-events: none;
 }
+.cyl-len.alt { top: calc(100% + 18px); }
+.cyl { touch-action: none; cursor: ew-resize; }
+.cyl.dragging { border-color: var(--gold-hi); box-shadow: 0 0 0 2px rgba(214,177,115,.28), 0 0 20px rgba(214,177,115,.25); }
 /* 两端夹持点：向内伸缩的锥面收口夹头（不是爪子）
    锁 = 外套筒向内推入，锥面把开槽夹头环径向压紧；松 = 套筒拉出 */
 .clamp {
@@ -503,6 +506,17 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
 
 @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
 @keyframes logIn { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
+.toast {
+  position: fixed; left: 50%; bottom: 22px; z-index: 999;
+  transform: translateX(-50%) translateY(8px);
+  padding: 8px 14px; border: 1px solid rgba(230,189,99,.6); border-radius: 9px;
+  background: rgba(12,16,22,.96); color: #f3d89b;
+  font-size: 11px; line-height: 1.4; letter-spacing: .02em;
+  box-shadow: 0 12px 30px rgba(0,0,0,.65);
+  opacity: 0; pointer-events: none; transition: opacity .18s ease, transform .18s ease;
+  max-width: calc(100vw - 28px); white-space: nowrap;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
 /* ============================ 响应式 ============================ */
 @media (max-width: 960px) {
@@ -543,7 +557,7 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
   .stage-hint { left: 24px; top: 9px; font-size: 7.5px; }
   .cyl { height: 48px; border-radius: 24px; }
   .cyl-id { font-size: 9px; }
-  .cyl-len { font-size: 7px; top: calc(100% + 4px); }
+  .cyl-len { font-size: 8px; top: calc(100% + 4px); }
   .seam { height: 40px; }
   .seam::after { top: -14px; width: 11px; height: 12px; }
   .left-stop { height: 50px; top: calc(42% - 25px); width: 9px; }
@@ -729,9 +743,10 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
   <footer class="foot">
     <span>DDC2026 · 地瓜机器人黑客松 · <span class="gold">衣序 HangFlow V2</span></span>
     <span>Web Demo v2.0 · 前端模拟，未连接硬件</span>
-    <span>单文件 · 无外部依赖 · 不画衣服 · 不换序</span>
+    <span>单文件 · 无外部依赖 · 不画衣服 · 不换序 · 可拖动调段</span>
   </footer>
 </div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
 (function () {
@@ -829,6 +844,8 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
   var stage = document.getElementById('stage');
   var chainEl = document.getElementById('chain');
   var emptyRod = document.getElementById('emptyRod');
+  var stageHint = document.querySelector('.stage-hint');
+  var toastEl = document.getElementById('toast');
   var marginLeft = document.getElementById('marginLeft');
   var marginRight = document.getElementById('marginRight');
   var ruler = document.getElementById('ruler');
@@ -862,47 +879,41 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
   var seamEls = [];
   var cylRows = [];
   var hangerRows = [];
+  var dragState = null;
+  var toastTimer = null;
 
   function X(mm) { return view.pad + mm * view.scale; }
+  function isEndCylinder(i) { return i === 0 || i === cylCount() - 1; }
+  function lenMinFor(i) { return isEndCylinder(i) ? 30 : CYL_MIN; }
+  function lenMaxFor(i) { return isEndCylinder(i) ? 120 : CYL_MAX; }
+  // 所有读数统一从 state.lengths（mm）换算，绘制时不用 DOM 像素宽度
+  function lengthCmFor(i) {
+    var cm = Number(state.lengths[i]) / 10;
+    return (Math.abs(cm - Math.round(cm)) < 0.05 ? String(Math.round(cm)) : cm.toFixed(1)) + 'cm';
+  }
+
+  function showToast(msg) {
+    if (!toastEl) return;
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, 1800);
+  }
 
   /* =========================================================================
      4. 几何：总链长 = ΣL + K×10；端部夹头锁在杆上，不强制顶墙
      ========================================================================= */
-  // 请求长度超出可用长度时压缩到可用长度；剩余空杆 = 可用长度 − 实际链长
+  // 不做自动压缩：端部段固定 60mm、内部段保持目标值；超限只告警，不改长度
   function fitLengths(arr) {
     var seamTotal = K() * T_H;
     var avail = availableMm();
-    var requested = sum(arr) + seamTotal;
-    var out = arr.slice();
-    var compressed = false;
-
-    if (requested > avail + 0.001) {
-      var room = Math.max(0, avail - seamTotal);
-      var factor = sum(arr) > 0 ? room / sum(arr) : 0;
-      out = out.map(function (l) { return clamp(l * factor, CYL_MIN, CYL_MAX); });
-      // 压到最短后仍不足可用长度时，把余量均摊回各圆柱，保持链条占满可用长度
-      var outSum = sum(out);
-      if (outSum < room) {
-        var extra = (room - outSum) / out.length;
-        out = out.map(function (l) { return clamp(l + extra, CYL_MIN, CYL_MAX); });
-      } else if (outSum > room) {
-        // 仍超出时，从高于最短长度的部分按比例回收，保证不越过可用长度
-        var excess = outSum - room;
-        var reducible = out.reduce(function (s, l) { return s + Math.max(0, l - CYL_MIN); }, 0);
-        if (reducible > 0) {
-          var keep = Math.max(0, 1 - excess / reducible);
-          out = out.map(function (l) { return Math.max(CYL_MIN, CYL_MIN + (l - CYL_MIN) * keep); });
-        }
-      }
-      compressed = true;
-    }
-    var actual = sum(out) + seamTotal;
+    var total = sum(arr) + seamTotal;
     return {
-      lengths: out,
-      requestedTotal: requested,
-      actualTotal: actual,
-      remaining: Math.max(0, avail - actual),
-      compressed: compressed
+      lengths: arr.slice(),
+      requestedTotal: total,
+      actualTotal: total,
+      remaining: Math.max(0, avail - total),
+      compressed: total > avail + 0.001
     };
   }
 
@@ -1050,9 +1061,9 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
 
   function runCollect() {
     var targets = state.lengths.slice();
-    for (var i = 0; i < cylCount(); i++) targets[i] = CYL_MIN;
+    for (var i = 1; i < cylCount() - 1; i++) targets[i] = CYL_MIN;
     applyLengths(targets, true);
-    log('收衣 · 全部圆柱缩到最短 4cm；端部夹头保持锁位', 'info');
+    log('收衣 · 内部圆柱缩到最短 4cm；端部段保持 60mm', 'info');
   }
 
   function applyMode() {
@@ -1144,7 +1155,7 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
         level: 'error',
         title: '总链长超限：ΣL(' + cylCount() + '段)+K×10 = ' +
           Math.round(state.requestedTotal) + ' mm > 可用 ' + Math.round(availableMm()) + ' mm',
-        detail: '已压缩圆柱到可用长度；建议加长杆或减少衣架'
+        detail: '请求总链长超过可用长度；请加长杆或减少衣架（页面不自动改段长）'
       });
     }
     if (state.dWall < WALL_NEAR) {
@@ -1193,11 +1204,16 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
   function render() {
     if (!view.w) return;
     var pad = view.pad;
-    view.scale = (view.w - pad * 2) / state.rodMm;
+    var chain = chainTotal(state.lengths);
+    // 视图缩放：链条 + 200mm 空杆，避免长杆时圆柱挤成一团
+    var viewMm = MARGIN_MM + chain + 200;
+    view.scale = (view.w - pad * 2) / viewMm;
     var scale = view.scale;
     var marginPx = MARGIN_MM * scale;
     marginLeft.style.width = marginPx + 'px';
     marginRight.style.width = marginPx + 'px';
+    ruler.style.display = 'none';
+    if (stageHint) stageHint.textContent = '视图缩放：链条 + 200mm 空杆 · 非整杆比例';
 
     var cursor = MARGIN_MM;
     for (var i = 0; i < cylCount(); i++) {
@@ -1213,8 +1229,9 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
         var lenEl = cyl.querySelector('.cyl-len');
         if (idEl) idEl.style.display = widthPx >= 14 ? '' : 'none';
         if (lenEl) {
-          lenEl.style.display = widthPx >= 12 ? '' : 'none';
-          lenEl.textContent = (len / 10).toFixed(1) + (widthPx >= 44 ? 'cm' : '');
+          lenEl.style.display = widthPx >= 42 ? '' : 'none';
+          lenEl.classList.toggle('alt', i % 2 === 1);
+          lenEl.textContent = lengthCmFor(i);
         }
         var lb = cyl.querySelector('.clamp-left');
         var rb = cyl.querySelector('.clamp-right');
@@ -1241,7 +1258,7 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
         if (ar) ar.classList.toggle('show', showR);
       }
       if (cylRows[i]) {
-        cylRows[i].val.textContent = (len / 10).toFixed(1) + ' cm';
+        cylRows[i].val.textContent = lengthCmFor(i).replace('cm', ' cm');
         if (document.activeElement !== cylRows[i].range) {
           cylRows[i].range.value = String(Math.round(len));
         }
@@ -1260,15 +1277,15 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
       }
     }
 
-    // 剩余空杆：链条没有占满杆时，右侧画虚线并标注
+    // 空杆虚线段：视图里固定留 200mm 宽，标注真实剩余空杆
     var emptyLeft = X(cursor);
-    var emptyRight = X(state.rodMm - MARGIN_MM);
-    var emptyWidth = Math.max(0, emptyRight - emptyLeft);
+    var emptyWidth = 200 * scale;
+    var remaining = Math.max(0, availableMm() - chainTotal(state.lengths));
     emptyRod.style.left = emptyLeft + 'px';
     emptyRod.style.width = emptyWidth + 'px';
-    emptyRod.style.display = emptyWidth > 8 ? '' : 'none';
+    emptyRod.style.display = (!state.overLimit && emptyWidth > 8) ? '' : 'none';
     emptyRod.firstChild.textContent = emptyWidth > 60
-      ? '剩余空杆 ' + Math.round(availableMm() - chainTotal(state.lengths)) + 'mm'
+      ? '剩余空杆 ' + Math.round(remaining) + 'mm'
       : '';
 
     updateStats();
@@ -1295,6 +1312,11 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
     var rb = el.querySelector('.clamp-right');
     lb.addEventListener('click', function (ev) { ev.stopPropagation(); toggleClamp(index, 'l'); });
     rb.addEventListener('click', function (ev) { ev.stopPropagation(); toggleClamp(index, 'r'); });
+
+    el.addEventListener('pointerdown', function (ev) { startDrag(ev, index, el); });
+    el.addEventListener('pointermove', onDragMove);
+    el.addEventListener('pointerup', endDrag);
+    el.addEventListener('pointercancel', endDrag);
     return el;
   }
 
@@ -1316,6 +1338,62 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
     render();
   }
 
+  /* 按住圆柱左右拖 = 改该段长度；两端都锁拒绝；拖动时暂停自动模式 */
+  function startDrag(ev, index, el) {
+    if (ev.button !== undefined && ev.button !== 0) return;
+    if (ev.target && ev.target.closest && ev.target.closest('.clamp')) return;
+    var c = state.clamps[index];
+    if (c && c.l && c.r) {
+      showToast('先松一端');
+      log('圆柱 ' + pad2(index + 1) + ' 两端夹头都锁住 · 先松一端再拖', 'warn');
+      return;
+    }
+    ev.preventDefault();
+    clearTimeout(applyTimer);
+    stopMotion();
+    state.mode = 'manual';
+    updateModeUI();
+    dragState = {
+      index: index,
+      el: el,
+      startX: ev.clientX,
+      startLen: state.lengths[index],
+      scale: view.scale || 0.2,
+      pointerId: ev.pointerId
+    };
+    el.classList.add('dragging');
+    try { el.setPointerCapture(ev.pointerId); } catch (err) {}
+  }
+
+  function onDragMove(ev) {
+    if (!dragState || (dragState.pointerId !== undefined && ev.pointerId !== dragState.pointerId)) return;
+    var dx = ev.clientX - dragState.startX;
+    var deltaMm = dx / dragState.scale;
+    var lo = lenMinFor(dragState.index);
+    var hi = lenMaxFor(dragState.index);
+    var next = clamp(dragState.startLen + deltaMm, lo, hi);
+    state.lengths[dragState.index] = next;
+    var total = chainTotal(state.lengths);
+    state.overLimit = total > availableMm() + 0.001;
+    state.requestedTotal = total;
+    state.remaining = Math.max(0, availableMm() - total);
+    render();
+  }
+
+  function endDrag(ev) {
+    if (!dragState) return;
+    var d = dragState;
+    dragState = null;
+    if (d.el) {
+      d.el.classList.remove('dragging');
+      try { d.el.releasePointerCapture(d.pointerId); } catch (err) {}
+    }
+    log('拖动 · 圆柱 ' + pad2(d.index + 1) + ' = ' + (state.lengths[d.index] / 10).toFixed(1) +
+      ' cm · 总链长 ' + Math.round(chainTotal(state.lengths)) + ' mm', 'gold');
+    render();
+    updateAlerts();
+  }
+
   function buildRows() {
     cylList.innerHTML = '';
     cylRows = [];
@@ -1328,8 +1406,8 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
         : '第 ' + i + ' 段 · 圆柱 ' + pad2(i + 1);
       row.innerHTML =
         '<div class="row-head"><span class="row-id">' + label + '</span><span class="row-val"></span></div>' +
-        '<input class="cyl-range" type="range" min="' + CYL_MIN + '" max="' + CYL_MAX + '" step="5" value="' + Math.round(state.lengths[i]) + '" aria-label="' + label + ' 长度，毫米">' +
-        (isEnd ? '<span class="row-note">夹头可锁杆任意位置</span>' : '');
+        '<input class="cyl-range" type="range" min="' + lenMinFor(i) + '" max="' + lenMaxFor(i) + '" step="5" value="' + Math.round(state.lengths[i]) + '" aria-label="' + label + ' 长度，毫米">' +
+        (isEnd ? '<span class="row-note">端部 60mm · 30–120mm 可调</span>' : '');
       cylList.appendChild(row);
       var obj = {
         root: row,
@@ -1428,7 +1506,6 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
     updateRodUI();
     measure();
     updateAlerts();
-    if (state.mode === 'equal' || state.mode === 'weighted' || state.mode === 'collect') scheduleApply();
   }
 
   function changeK(delta) {

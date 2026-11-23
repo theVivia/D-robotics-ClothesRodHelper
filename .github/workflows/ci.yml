@@ -20,17 +20,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install numpy scipy matplotlib pytest opencv-python-headless
 
-      - name: Unit tests (planner / reorder / control)
-        run: python -m pytest sim -q
-
-      - name: Simulation + figures
-        run: python sim/run_all.py
-
-      - name: Vision synthetic check
-        run: python sim/vision_demo.py
-
-      - name: Hub mock end-to-end
-        run: python -m software.hub.mock_demo
+      - name: v2 simulation + figures + tests
+        run: python sim-v2/run_all.py
 
       - name: Markdown relative links
         run: python assets/scripts/check_links.py
