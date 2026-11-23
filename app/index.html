@@ -117,14 +117,12 @@ button { -webkit-tap-highlight-color: transparent; }
 .layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 368px;
-  grid-template-areas: "stage panel" "log panel";
   gap: 18px;
   margin-top: 20px;
   align-items: start;
 }
-.stage-card { grid-area: stage; }
-.panel { grid-area: panel; position: sticky; top: 16px; }
-.log-card { grid-area: log; }
+.main-col { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.panel { position: sticky; top: 16px; }
 
 .card {
   position: relative;
@@ -208,7 +206,7 @@ button { -webkit-tap-highlight-color: transparent; }
 .hud::before { left: 0; top: 0; border-left-width: 1px; border-top-width: 1px; }
 .hud::after { right: 0; bottom: 0; border-right-width: 1px; border-bottom-width: 1px; }
 .stage-hint {
-  position: absolute; left: 18px; top: 13px; z-index: 5;
+  position: absolute; left: 26px; top: 12px; z-index: 5;
   font-family: var(--mono); font-size: 8.5px; letter-spacing: .14em;
   color: var(--txt-3); pointer-events: none; text-transform: uppercase;
 }
@@ -218,6 +216,24 @@ button { -webkit-tap-highlight-color: transparent; }
   background: radial-gradient(ellipse at center top, rgba(0,0,0,.6), transparent 72%);
   filter: blur(5px);
 }
+
+/* 两端墙体 & 端部余量 */
+.wall {
+  position: absolute; top: 9%; bottom: 5%; width: 8px; z-index: 6;
+  pointer-events: none; border-radius: 2px;
+  background: repeating-linear-gradient(135deg, rgba(160,172,190,.42) 0 2px, rgba(15,19,26,.92) 2px 6px);
+  box-shadow: 0 0 0 1px rgba(255,255,255,.08), 0 0 18px rgba(0,0,0,.6);
+}
+.wall-left { left: var(--rod-pad); transform: translateX(-50%); }
+.wall-right { right: var(--rod-pad); transform: translateX(50%); }
+.margin-zone {
+  position: absolute; top: calc(40% - 60px); bottom: 40px; z-index: 2;
+  pointer-events: none;
+  background: repeating-linear-gradient(135deg, rgba(230,189,99,.10) 0 2px, transparent 2px 7px);
+  border-right: 1px dashed rgba(230,189,99,.32);
+}
+.margin-zone.margin-left { left: var(--rod-pad); }
+.margin-zone.margin-right { right: var(--rod-pad); border-right: 0; border-left: 1px dashed rgba(230,189,99,.32); }
 
 /* 晾衣杆：俯视圆柱 + 轻微金属高光 */
 .rod {
@@ -252,8 +268,8 @@ button { -webkit-tap-highlight-color: transparent; }
   position: absolute; top: 2px; transform: translateX(-50%);
   font-family: var(--mono); font-size: 8.5px; color: var(--txt-3); letter-spacing: .03em;
 }
-.ruler-label.edge-l { transform: translateX(0); }
-.ruler-label.edge-r { transform: translateX(-100%); }
+.ruler-label.edge-l { transform: translateX(5px); }
+.ruler-label.edge-r { transform: translateX(calc(-100% - 5px)); }
 
 /* 间距标注：净风道 cm */
 .dim {
@@ -312,13 +328,16 @@ button { -webkit-tap-highlight-color: transparent; }
   position: absolute; top: 0; bottom: 0; width: 0;
   z-index: 10; cursor: grab; touch-action: none;
   will-change: left, transform;
+  transition: opacity .24s ease;
 }
 .unit.dragging { cursor: grabbing; z-index: 40 !important; }
 .unit.reorder { z-index: 45 !important; }
+.unit-enter { opacity: 0; }
+.unit-leaving { opacity: 0; }
 
 .clip {
   position: absolute; left: 0; top: var(--clip-top); transform: translateX(-50%);
-  width: 36px; height: 56px; border-radius: 11px;
+  width: var(--clip-w, 36px); height: 56px; border-radius: 11px;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   border: 1px solid rgba(255,255,255,.13);
   background: linear-gradient(180deg, #1a212c 0%, #0d1219 55%, #090c11 100%);
@@ -338,6 +357,12 @@ button { -webkit-tap-highlight-color: transparent; }
   font-family: var(--mono); font-size: 12px; font-weight: 600;
   color: var(--gold-hi); line-height: 1; letter-spacing: .04em;
   font-variant-numeric: tabular-nums;
+  margin-top: 5px;
+}
+.clip-kind {
+  position: absolute; top: 15px; left: 50%; transform: translateX(-50%);
+  font-family: var(--mono); font-size: 6px; line-height: 1;
+  letter-spacing: .12em; color: var(--txt-3); white-space: nowrap;
 }
 .clip-led { position: absolute; top: 7px; right: 7px; width: 5px; height: 5px; border-radius: 50%; }
 .clip-batt {
@@ -458,6 +483,13 @@ button { -webkit-tap-highlight-color: transparent; }
 
 /* ============================ 控制台 ============================ */
 .panel { padding: 18px; }
+.rod-config {
+  margin-top: 14px; padding-top: 12px;
+  border-top: 1px solid var(--line-soft);
+}
+.rod-config .panel-head { margin-bottom: 8px; }
+.rod-config .field { margin-bottom: 10px; }
+.rod-config .unit-count { margin-top: 6px; padding-top: 9px; }
 .panel-section { padding: 14px 0; border-bottom: 1px solid var(--line-soft); }
 .panel-section:first-of-type { padding-top: 0; }
 .panel-section:last-of-type { border-bottom: 0; padding-bottom: 0; }
@@ -574,6 +606,57 @@ button { -webkit-tap-highlight-color: transparent; }
 }
 .p2-badge.show { display: block; }
 
+/* 空间告警（太挤 / 离墙太近） */
+.alerts { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
+.alerts[hidden] { display: none; }
+.alert {
+  display: flex; align-items: flex-start; gap: 9px;
+  padding: 8px 10px; border: 1px solid; border-radius: 9px;
+  font-size: 10.5px; line-height: 1.5;
+}
+.alert-dot {
+  flex: none; width: 6px; height: 6px; margin-top: 5px; border-radius: 50%;
+  background: currentColor; box-shadow: 0 0 8px currentColor;
+}
+.alert-body { min-width: 0; }
+.alert-body b { display: block; font-weight: 600; }
+.alert-body span { color: var(--txt-2); font-size: 9.5px; }
+.alert[data-level="error"] {
+  border-color: rgba(240,122,99,.45); background: rgba(240,122,99,.07); color: #ffc4b8;
+}
+.alert[data-level="warn"] {
+  border-color: rgba(230,189,99,.4); background: rgba(230,189,99,.06); color: #f3d89b;
+}
+.rod-note {
+  margin: 10px 2px 0; font-size: 9.5px; line-height: 1.6;
+  letter-spacing: .02em; color: var(--txt-3);
+}
+
+/* 杆体参数：长度滑杆 + 单元数量步进器 */
+.unit-count {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  margin-top: 4px; padding-top: 12px;
+  border-top: 1px dashed var(--line-soft);
+}
+.unit-count-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.unit-count-text .field-note { margin-top: 0; }
+.stepper { display: flex; align-items: center; gap: 4px; flex: none; }
+.stepper button {
+  width: 30px; height: 30px; padding: 0;
+  border: 1px solid var(--line); border-radius: 8px;
+  background: rgba(255,255,255,.03); color: var(--txt);
+  font-size: 16px; line-height: 1; cursor: pointer;
+  transition: border-color .2s, background .2s, opacity .2s;
+}
+.stepper button:hover:not(:disabled) { border-color: var(--gold-line); background: rgba(214,177,115,.1); color: var(--gold-hi); }
+.stepper button:active:not(:disabled) { transform: translateY(1px); }
+.stepper button:disabled { opacity: .32; cursor: not-allowed; }
+.stepper output {
+  min-width: 28px; text-align: center;
+  font-family: var(--mono); font-size: 14px; font-weight: 600;
+  color: var(--gold-hi); font-variant-numeric: tabular-nums;
+}
+
 /* 滑杆 */
 input[type="range"] {
   -webkit-appearance: none; appearance: none;
@@ -599,20 +682,31 @@ input[type="range"]::-moz-range-thumb {
 }
 input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); outline-offset: 4px; }
 
-/* 衣物列表 */
-.garments { display: flex; flex-direction: column; gap: 6px; }
+/* 衣物列表：单元编号是物理模块编号，衣物名在下面 */
+.garments {
+  display: flex; flex-direction: column; gap: 6px;
+  max-height: 340px; overflow-y: auto; padding-right: 2px;
+  scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.15) transparent;
+}
+.garments::-webkit-scrollbar { width: 6px; }
+.garments::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 3px; }
 .garment-row {
-  display: grid; grid-template-columns: 24px minmax(0, 1fr) 48px;
+  display: grid; grid-template-columns: minmax(0, 1fr) 48px;
   gap: 10px; align-items: center;
   padding: 8px 9px;
   border: 1px solid var(--line-soft); border-radius: 9px;
   background: rgba(255,255,255,.014);
 }
-.g-id { font-family: var(--mono); font-size: 11px; font-weight: 600; color: var(--gold); }
 .g-main { min-width: 0; }
-.g-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 4px; }
+.g-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.g-unit {
+  font-family: var(--mono); font-size: 8.5px; font-weight: 600;
+  letter-spacing: .1em; color: var(--gold); text-transform: uppercase;
+  white-space: nowrap;
+}
 .g-name {
-  font-size: 11.5px; color: var(--txt);
+  display: block; margin: 2px 0 5px;
+  font-size: 12px; color: var(--txt);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .g-state {
@@ -758,10 +852,23 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
 @media (max-width: 960px) {
   .layout {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-areas: "stage" "panel" "log";
     gap: 14px;
   }
-  .panel { position: static; }
+  .panel { position: static; order: 2; }
+  .main-col { display: contents; }
+  .stage-card { order: 1; }
+  .log-card { order: 3; }
+}
+
+@media (min-width: 961px) {
+  .panel {
+    max-height: calc(100vh - 32px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,.15) transparent;
+  }
+  .panel::-webkit-scrollbar { width: 6px; }
+  .panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 3px; }
 }
 
 @media (max-width: 640px) {
@@ -794,9 +901,10 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
   .stat { min-width: 48px; }
   .stat-label { font-size: 8px; }
   .stat-value { font-size: 14.5px; }
-  .stage-hint { left: 14px; top: 10px; font-size: 7.5px; }
-  .clip { width: 26px; height: 46px; border-radius: 9px; }
-  .clip-no { font-size: 10.5px; }
+  .stage-hint { left: 24px; top: 9px; font-size: 7.5px; }
+  .clip { width: var(--clip-w, 26px); height: 46px; border-radius: 9px; }
+  .clip-no { font-size: 10.5px; margin-top: 4px; }
+  .clip-kind { top: 12px; font-size: 5px; }
   .clip-led { top: 5px; right: 5px; width: 4px; height: 4px; }
   .clip-batt { left: 6px; right: 6px; bottom: 5px; }
   .dim { top: calc(40% - 60px); height: 26px; }
@@ -816,6 +924,14 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
   .log li { grid-template-columns: 48px 6px minmax(0, 1fr); gap: 6px; }
   .log time { font-size: 9px; }
   .foot { margin-top: 16px; }
+  .stage-title .meta { font-size: 10px; line-height: 1.35; }
+  .garments { max-height: 300px; }
+  .rod-note { font-size: 9px; }
+  .alerts { margin-top: 10px; }
+  .alert { padding: 7px 9px; font-size: 10px; }
+  .alert-body span { font-size: 9px; }
+  .stepper button { width: 28px; height: 28px; }
+  .unit-count { gap: 8px; }
 }
 
 @media (max-width: 480px) {
@@ -865,20 +981,21 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
     </div>
     <div class="telemetry" aria-label="系统状态">
       <span class="tel-chip"><i class="dot pulse"></i>MQTT 在线 <em id="latency">18ms</em></span>
-      <span class="tel-chip">单元 <em>4/4</em></span>
+      <span class="tel-chip">单元 <em id="onlineTel">4/4</em></span>
       <span class="tel-chip hide-sm">环境 <em id="envTel">72%</em> RH</span>
       <span class="tel-chip hide-sm">最低电量 <em id="battTel">64%</em></span>
     </div>
   </header>
 
   <main class="layout">
+    <div class="main-col">
 
     <!-- ======================= 杆视图 ======================= -->
     <section class="card stage-card" aria-label="1.2 米晾衣杆俯视示意">
       <div class="stage-head">
         <div>
           <div class="eyebrow">Rod View · Top</div>
-          <div class="stage-title">1.2 m 晾衣杆 <span class="sep"></span><span class="meta">4 个套挂单元</span></div>
+          <div class="stage-title"><span id="rodTitle">1.20 m 晾衣杆</span><span class="sep"></span><span class="meta" id="unitMeta">4 个套挂单元 · 每件衣服挂在一个单元上</span></div>
         </div>
         <div class="stage-stats">
           <div class="stat"><span class="stat-label">平均净风道</span><span class="stat-value" id="statAvg">0.0<em>cm</em></span></div>
@@ -888,32 +1005,81 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
         </div>
       </div>
 
-      <div class="stage" id="stage" aria-label="晾衣杆俯视交互区：拖动模块调整位置">
+      <div class="stage" id="stage" aria-label="晾衣杆俯视交互区：拖动单元调整位置">
         <div class="hud" aria-hidden="true"></div>
-        <div class="stage-hint" aria-hidden="true">拖动模块 ↔ 调整位置</div>
+        <div class="stage-hint" aria-hidden="true">拖动单元 ↔ 调整位置</div>
         <div class="p2-badge" id="p2Badge" role="status">P2 概念 · 硬件需抬升机构</div>
         <div class="floor" aria-hidden="true"></div>
         <div class="rod" aria-hidden="true"></div>
+        <div class="wall wall-left" aria-hidden="true"></div>
+        <div class="wall wall-right" aria-hidden="true"></div>
+        <div class="margin-zone margin-left" id="marginLeft" aria-hidden="true"></div>
+        <div class="margin-zone margin-right" id="marginRight" aria-hidden="true"></div>
         <div class="ruler" id="ruler" aria-hidden="true"></div>
         <div class="estop-mask">
           <div class="estop-card">
             <span class="estop-icon">!</span>
             <b>EMERGENCY STOP</b>
-            <span>模块已锁定 · 点击「复位并启动」继续</span>
+            <span>单元已锁定 · 点击「复位并启动」继续</span>
           </div>
         </div>
         <div class="toast" id="stageToast" role="status" aria-live="polite"></div>
       </div>
 
+      <section class="rod-config">
+        <div class="panel-head">
+          <span class="panel-title">杆体参数 / Rod</span>
+          <span class="panel-note">两端有墙</span>
+        </div>
+        <label class="field">
+          <span class="field-head">
+            <span class="field-name">杆长</span>
+            <span class="field-value" id="rodVal">1200<em>mm</em></span>
+          </span>
+          <input id="rodRange" type="range" min="800" max="2400" step="50" value="1200" aria-label="杆长，毫米">
+          <span class="field-note" id="rodNote">可用 1100 mm（两端各留 50 mm）</span>
+        </label>
+        <label class="field">
+          <span class="field-head">
+            <span class="field-name">杆离墙</span>
+            <span class="field-value" id="wallVal">150<em>mm</em></span>
+          </span>
+          <input id="wallRange" type="range" min="50" max="300" step="10" value="150" aria-label="杆中心到墙面的垂直距离，毫米">
+          <span class="field-note">杆中心到墙面的垂直距离 · 建议 ≥120 mm（与端部余量无关）</span>
+        </label>
+        <div class="unit-count">
+          <div class="unit-count-text">
+            <span class="field-name">套挂单元</span>
+            <span class="field-note">2–8 个 · 每件衣服挂在一个单元上</span>
+          </div>
+          <div class="stepper" role="group" aria-label="单元数量">
+            <button type="button" id="unitMinus" aria-label="减少单元">−</button>
+            <output id="unitCount">4</output>
+            <button type="button" id="unitPlus" aria-label="增加单元">+</button>
+          </div>
+        </div>
+      </section>
+      <div class="alerts" id="alerts" hidden aria-live="polite"></div>
+      <div class="rod-note" id="rodNoteLine">标尺单位 cm · 两侧端部余量 50 mm · 两端有墙时：单元不能越过挡块，收衣只能往一侧收</div>
+
       <div class="channels-head">
         <span class="eyebrow">风道读数 / Clearance</span>
         <span class="channels-note">净风道 = 衣物边缘间距 · 安全下限 3 cm（g_min）</span>
       </div>
-      <div class="channels" id="channels" aria-label="三段风道读数"></div>
+      <div class="channels" id="channels" aria-label="风道读数"></div>
     </section>
 
-    <!-- ======================= 控制台 ======================= -->
-    <aside class="card panel" aria-label="控制台">
+    <!-- ======================= 日志 ======================= -->
+    <section class="card log-card" aria-label="运行日志">
+      <div class="log-head">
+        <span class="panel-title">运行日志 / Event Log</span>
+        <button class="log-clear" type="button" id="clearLog">清空</button>
+      </div>
+      <ol class="log" id="log" aria-live="polite"></ol>
+    </section>
+    </div>
+  <!-- ======================= 控制台 ======================= -->
+  <aside class="card panel" aria-label="控制台">
       <section class="panel-section">
         <div class="panel-head">
           <span class="panel-title">运行模式 / Mode</span>
@@ -933,6 +1099,22 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
             <span class="mode-cn">收衣归拢</span><span class="mode-en">COLLECT</span>
           </button>
         </div>
+      </section>
+
+      <section class="panel-section">
+        <div class="actions">
+          <button class="btn primary" type="button" id="btnStart">
+            <svg viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M3 1.8v8.4L10.4 6z"/></svg>
+            <span class="btn-label">开始 / 执行</span>
+          </button>
+          <button class="btn danger" type="button" id="btnEstop">
+            <svg viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><rect x="2.5" y="2.5" width="7" height="7" rx="1.2"/></svg>
+            <span>急停</span>
+          </button>
+        </div>
+        <p class="state-line" id="statusLine" data-state="idle">
+          <i class="dot"></i><span id="stateText">待机 · 拖动单元或选择运行模式</span>
+        </p>
       </section>
 
       <section class="panel-section">
@@ -980,36 +1162,13 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
         <div class="garments" id="garmentList"></div>
       </section>
 
-      <section class="panel-section">
-        <div class="actions">
-          <button class="btn primary" type="button" id="btnStart">
-            <svg viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M3 1.8v8.4L10.4 6z"/></svg>
-            <span class="btn-label">开始 / 执行</span>
-          </button>
-          <button class="btn danger" type="button" id="btnEstop">
-            <svg viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><rect x="2.5" y="2.5" width="7" height="7" rx="1.2"/></svg>
-            <span>急停</span>
-          </button>
-        </div>
-        <p class="state-line" id="statusLine" data-state="idle">
-          <i class="dot"></i><span id="stateText">待机 · 拖动模块或选择运行模式</span>
-        </p>
-      </section>
+      
     </aside>
-
-    <!-- ======================= 日志 ======================= -->
-    <section class="card log-card" aria-label="运行日志">
-      <div class="log-head">
-        <span class="panel-title">运行日志 / Event Log</span>
-        <button class="log-clear" type="button" id="clearLog">清空</button>
-      </div>
-      <ol class="log" id="log" aria-live="polite"></ol>
-    </section>
-  </main>
+</main>
 
   <footer class="foot">
     <span>DDC2026 · 地瓜机器人黑客松 · <span class="gold">衣序 HangFlow</span></span>
-    <span>Web Demo v0.1 · 前端模拟，未连接硬件</span>
+    <span>Web Demo v0.2 · 前端模拟，未连接硬件</span>
     <span>单文件 · 无外部依赖 · 需 Chrome / Edge / Safari 新版</span>
   </footer>
 </div>
@@ -1021,8 +1180,16 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
   /* =========================================================================
      1. 系统口径常量（与 docs/03-系统总体方案.md 保持一致）
      ========================================================================= */
-  var ROD_CM = 120;        // 杆长 1.2 m
-  var EDGE_CM = 2;         // 杆两端安装余量
+  var ROD_MIN_CM = 80;     // 杆长下限 800 mm
+  var ROD_MAX_CM = 240;    // 杆长上限 2400 mm
+  var ROD_DEFAULT_CM = 120;// 默认杆长 1200 mm
+  var EDGE_CM = 5;         // 两端端部余量各 50 mm（挡块/墙内不可用区，沿杆方向）
+  var D_WALL_MIN_MM = 50;  // 杆离墙下限 50 mm
+  var D_WALL_MAX_MM = 300; // 杆离墙上限 300 mm
+  var D_WALL_DEFAULT_MM = 150; // 默认杆离墙 150 mm
+  var WALL_NEAR_MM = 120;  // 衣摆蹭墙提醒阈值（杆中心到墙面垂直距离）
+  var UNIT_MIN = 2;        // 单元数量下限
+  var UNIT_MAX = 8;        // 单元数量上限
   var MIN_CLEAR = 3;       // 最小安全净风道 30 mm（g_min，见 docs/03）
   var MAX_CLEAR = 25;      // 目标间距滑杆上限
   var CLEAR_TOL = 0.5;     // 达标判定容差（cm）
@@ -1032,17 +1199,28 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
   var REDUCED = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* =========================================================================
-     2. 模拟数据：4 个套挂单元（空间顺序 01 → 02 → 03 → 04）
+     2. 模拟数据：套挂单元（物理模块）与其衣物
+        单元编号 = 物理模块编号，不是衣服编号；每件衣服挂在一个单元上。
         bulk = 衣物在杆上占用的厚度（cm），用于算净风道
-        初始排布：01、03 两件高湿被 02（最干）夹在中间，且 01–02 风道偏窄，
-        正好用来演示"智能分配 → 避让重排"。
+        初始排布：01、03 两件高湿被 02（最干）夹在中间，且 01–02 风道偏窄。
      ========================================================================= */
-  var items = [
-    { id: 1, name: '速干 T 恤', bulk: 5.5, humidity: 84, battery: 86, pos: 30 },
-    { id: 2, name: '棉质衬衫', bulk: 6.0, humidity: 22, battery: 72, pos: 40 },
-    { id: 3, name: '抓绒卫衣', bulk: 8.5, humidity: 34, battery: 64, pos: 54 },
-    { id: 4, name: '真丝衬衫', bulk: 4.5, humidity: 78, battery: 91, pos: 67 }
+  var PROFILES = [
+    { name: '速干 T 恤', bulk: 5.5, humidity: 84, battery: 86 },
+    { name: '棉质衬衫', bulk: 6.0, humidity: 22, battery: 72 },
+    { name: '抓绒卫衣', bulk: 8.5, humidity: 34, battery: 64 },
+    { name: '真丝衬衫', bulk: 4.5, humidity: 78, battery: 91 },
+    { name: '亚麻长裤', bulk: 6.5, humidity: 52, battery: 80 },
+    { name: '运动毛巾', bulk: 7.0, humidity: 68, battery: 76 },
+    { name: '羊毛开衫', bulk: 8.0, humidity: 40, battery: 83 },
+    { name: '速干短裤', bulk: 5.0, humidity: 28, battery: 70 }
   ];
+  var INITIAL_POS = [30, 40, 54, 67];
+  var items = PROFILES.slice(0, 4).map(function (p, i) {
+    return {
+      id: i + 1, name: p.name, bulk: p.bulk, humidity: p.humidity,
+      battery: p.battery, pos: INITIAL_POS[i]
+    };
+  });
 
   var MODE_NAME = {
     manual: '手动模式',
@@ -1055,8 +1233,11 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
     mode: 'manual',
     targetGap: 12,
     env: 72,
+    rodCm: ROD_DEFAULT_CM,   // 当前杆长（cm）
+    dWall: D_WALL_DEFAULT_MM,// 杆中心到墙面的垂直距离（mm），与端部余量无关
     running: false,
     estop: false,
+    countBusy: false,  // 增删动画期间锁步进器
     p2Lift: false,    // P2 概念：抬升越障换序（默认关闭，真机 P0/P1 不具备）
     motion: null,     // { from, to, t0, dur, arcIds, onDone }
     arcIds: [],       // P2 概念重排中"被抬起越过"的单元
@@ -1070,7 +1251,11 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
   function lerp(a, b, t) { return a + (b - a) * t; }
   function fmt(v) { return Number(v).toFixed(1); }
   function pad2(n) { return String(n).padStart(2, '0'); }
-  function tag(it) { return '#' + pad2(it.id); }
+  function unitLabel(it) { return '单元 ' + pad2(it.id); }
+  function tag(it) { return unitLabel(it); }
+  function rodOf() { return state.rodCm; }
+  function usableRod() { return state.rodCm - 2 * EDGE_CM; }
+  function bulkSum() { return items.reduce(function (s, it) { return s + it.bulk; }, 0); }
   function easeInOutCubic(t) {
     return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
   }
@@ -1137,6 +1322,21 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
   var p2Row = document.getElementById('p2Row');
   var p2Note = document.getElementById('p2Note');
   var p2Badge = document.getElementById('p2Badge');
+  var rodRange = document.getElementById('rodRange');
+  var rodVal = document.getElementById('rodVal');
+  var rodNote = document.getElementById('rodNote');
+  var wallRange = document.getElementById('wallRange');
+  var wallVal = document.getElementById('wallVal');
+  var rodTitle = document.getElementById('rodTitle');
+  var rodNoteLine = document.getElementById('rodNoteLine');
+  var unitMinus = document.getElementById('unitMinus');
+  var unitPlus = document.getElementById('unitPlus');
+  var unitCount = document.getElementById('unitCount');
+  var unitMeta = document.getElementById('unitMeta');
+  var onlineTel = document.getElementById('onlineTel');
+  var alertsEl = document.getElementById('alerts');
+  var marginLeft = document.getElementById('marginLeft');
+  var marginRight = document.getElementById('marginRight');
 
   var view = { w: 0, pad: 24, scale: 1 };
   var els = new Map();      // id -> 单元 DOM
@@ -1151,14 +1351,17 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
   /* =========================================================================
      5. 构建界面（单元 / 标注 / 气流 / 读数 / 列表 / 标尺）
      ========================================================================= */
-  function buildUnits() {
+  function buildUnits(enterId) {
+    Array.prototype.slice.call(stage.querySelectorAll('.unit')).forEach(function (n) { n.remove(); });
+    els.clear();
     items.forEach(function (it) {
       var root = document.createElement('div');
-      root.className = 'unit';
+      root.className = 'unit' + (it.id === enterId ? ' unit-enter' : '');
       root.dataset.id = String(it.id);
-      root.title = tag(it) + ' ' + it.name + ' · 拖动调整位置';
+      root.title = unitLabel(it) + ' · ' + it.name + ' · 拖动调整位置';
       root.innerHTML =
         '<div class="clip">' +
+          '<span class="clip-kind">单元</span>' +
           '<span class="clip-no">' + pad2(it.id) + '</span>' +
           '<span class="clip-led"></span>' +
           '<span class="clip-batt"><i></i></span>' +
@@ -1181,6 +1384,8 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
   }
 
   function buildDims() {
+    Array.prototype.slice.call(stage.querySelectorAll('.dim')).forEach(function (n) { n.remove(); });
+    dimEls.length = 0;
     for (var i = 0; i < items.length - 1; i++) {
       var el = document.createElement('div');
       el.className = 'dim';
@@ -1198,6 +1403,8 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
   }
 
   function buildFlows() {
+    Array.prototype.slice.call(stage.querySelectorAll('.flow')).forEach(function (n) { n.remove(); });
+    flowEls.length = 0;
     for (var i = 0; i < items.length - 1; i++) {
       var f = document.createElement('div');
       f.className = 'flow';
@@ -1207,6 +1414,8 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
   }
 
   function buildChannels() {
+    channelsEl.innerHTML = '';
+    chanEls.length = 0;
     for (var i = 0; i < items.length - 1; i++) {
       var el = document.createElement('div');
       el.className = 'chan';
@@ -1227,15 +1436,20 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
   }
 
   function buildRows() {
+    listEl.innerHTML = '';
+    rows.clear();
     items.forEach(function (it) {
       var row = document.createElement('div');
       row.className = 'garment-row';
       row.innerHTML =
-        '<span class="g-id">' + pad2(it.id) + '</span>' +
         '<div class="g-main">' +
-          '<div class="g-top"><span class="g-name">' + it.name + '</span><span class="g-state"></span></div>' +
+          '<div class="g-top">' +
+            '<span class="g-unit">' + unitLabel(it) + '</span>' +
+            '<span class="g-state"></span>' +
+          '</div>' +
+          '<span class="g-name">' + it.name + '</span>' +
           '<input class="range-mini" type="range" min="0" max="100" step="1" value="' + it.humidity + '" ' +
-                 'aria-label="' + it.name + ' 湿度，百分比">' +
+                 'aria-label="' + unitLabel(it) + ' 的衣物 ' + it.name + ' 湿度，百分比">' +
         '</div>' +
         '<div class="g-batt"><span class="batt"><i></i></span><span class="batt-num">' + it.battery + '%</span></div>';
       listEl.appendChild(row);
@@ -1266,22 +1480,69 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
     });
   }
 
+  // 标尺随杆长重建：刻度用 10cm，标注间距按杆长自适应
   function buildRuler() {
+    ruler.innerHTML = '';
+    var rod = state.rodCm;
+    var labelStep = rod <= 120 ? 30 : rod <= 180 ? 40 : 50;
+
     var frag = document.createDocumentFragment();
-    for (var cm = 0; cm <= ROD_CM; cm += 5) {
+    for (var cm = 0; cm <= rod + 1e-6; cm += 10) {
       var tick = document.createElement('i');
-      tick.className = 'tick' + (cm % 30 === 0 ? ' major' : '');
-      tick.style.left = (cm / ROD_CM * 100) + '%';
+      tick.className = 'tick' + (Math.abs(cm % labelStep) < 1e-6 ? ' major' : '');
+      tick.style.left = (cm / rod * 100) + '%';
       frag.appendChild(tick);
     }
-    ruler.appendChild(frag);
-    [0, 30, 60, 90, 120].forEach(function (cm) {
+    if (Math.abs(rod % 10) > 1e-6) {
+      var endTick = document.createElement('i');
+      endTick.className = 'tick major';
+      endTick.style.left = '100%';
+      frag.appendChild(endTick);
+    }
+
+    var labels = [];
+    for (var l = 0; l < rod - 1e-6; l += labelStep) labels.push(l);
+    labels.push(rod);
+    labels.forEach(function (value) {
       var label = document.createElement('span');
-      label.className = 'ruler-label' + (cm === 0 ? ' edge-l' : cm === 120 ? ' edge-r' : '');
-      label.style.left = (cm / ROD_CM * 100) + '%';
-      label.textContent = cm;
-      ruler.appendChild(label);
+      label.className = 'ruler-label' +
+        (value === 0 ? ' edge-l' : Math.abs(value - rod) < 1e-6 ? ' edge-r' : '');
+      label.style.left = (value / rod * 100) + '%';
+      label.textContent = Math.round(value);
+      frag.appendChild(label);
     });
+    ruler.appendChild(frag);
+  }
+
+  // 单元数量 / 杆长变化后统一重建 DOM，避免各列表数量不一致
+  function syncDom(enterId) {
+    stopMotion();
+    els.clear();
+    rows.clear();
+    Array.prototype.slice.call(stage.querySelectorAll('.unit,.dim,.flow')).forEach(function (n) { n.remove(); });
+    dimEls.length = 0;
+    flowEls.length = 0;
+    chanEls.length = 0;
+    buildUnits(enterId);
+    buildDims();
+    buildFlows();
+    buildChannels();
+    buildRows();
+    bindDrag();
+    updateUnitMeta();
+    updateCountUI();
+    measure();
+  }
+
+  function updateUnitMeta() {
+    unitMeta.textContent = items.length + ' 个套挂单元 · 每件衣服挂在一个单元上';
+    onlineTel.textContent = items.length + '/' + items.length;
+  }
+
+  function updateCountUI() {
+    unitCount.textContent = String(items.length);
+    unitMinus.disabled = state.estop || state.countBusy || items.length <= UNIT_MIN;
+    unitPlus.disabled = state.estop || state.countBusy || items.length >= UNIT_MAX;
   }
 
   function paintRange(input, ratio, fillColor) {
@@ -1296,9 +1557,21 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
     if (!view.w) return;
     var order = byPos();
 
+    // 单元芯片宽度跟着最小中心距收缩，避免长杆/多单元时芯片互相压住
+    var minCenterPx = Infinity;
+    for (var mi = 0; mi < order.length - 1; mi++) {
+      var dist = centerX(order[mi + 1].pos) - centerX(order[mi].pos);
+      if (dist < minCenterPx) minCenterPx = dist;
+    }
+    var clipW = isFinite(minCenterPx)
+      ? clamp(minCenterPx - 3, 20, view.w < 520 ? 26 : 36)
+      : (view.w < 520 ? 26 : 36);
+    stage.style.setProperty('--clip-w', clipW.toFixed(1) + 'px');
+
     // ---- 单元 ----
     items.forEach(function (it) {
       var e = els.get(it.id);
+      if (!e) return;
       var cx = centerX(it.pos);
       var hue = humidityColor(it.humidity);
       var st = humidityState(it.humidity);
@@ -1319,6 +1592,7 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
 
       e.led.style.background = hue.color;
       e.led.style.boxShadow = '0 0 8px ' + hue.color;
+      e.led.style.display = clipW >= 24 ? '' : 'none';
 
       // 电量：低于 30% 变珊瑚色
       e.battFill.style.width = clamp(it.battery, 0, 100) + '%';
@@ -1374,28 +1648,39 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
     statTarget.innerHTML = fmt(state.targetGap) + '<em>cm</em>';
     statOk.textContent = hits + '/' + clears.length;
     statOk.className = 'stat-value ' + (hits === clears.length ? 'ok' : 'warn');
+
+    updateAlerts();
   }
 
   /* =========================================================================
      7. 几何求解：目标位置
      ========================================================================= */
-  // 按顺序 + 各段净风道，计算每个单元的目标中心位置（整体居中，越界自动缩放）
+  // 按顺序 + 各段净风道，计算每个单元的目标中心位置（整体居中；放不下时压缩并告警）
   function layoutTargets(order, gaps, center) {
-    var bulkSum = 0;
-    order.forEach(function (it) { bulkSum += it.bulk; });
-    var avail = ROD_CM - 2 * EDGE_CM;
+    var bulkTotal = 0;
+    order.forEach(function (it) { bulkTotal += it.bulk; });
+    var avail = state.rodCm - 2 * EDGE_CM;
     var gapSum = gaps.reduce(function (s, g) { return s + g; }, 0);
     var gs = gaps.slice();
+    var free = avail - bulkTotal;
 
-    if (bulkSum + gapSum > avail) {
-      var k = (avail - bulkSum) / gapSum;
-      gs = gs.map(function (g) { return Math.max(MIN_CLEAR, g * k); });
+    if (gapSum > free) {
+      if (free <= 0) {
+        gs = gs.map(function () { return 0; });
+      } else {
+        var k = free / gapSum;
+        gs = gs.map(function (g) { return g * k; });
+      }
       gapSum = gs.reduce(function (s, g) { return s + g; }, 0);
     }
 
-    var span = bulkSum + gapSum;
-    var cursor = clamp(center - span / 2, EDGE_CM, ROD_CM - EDGE_CM - span);
+    var span = bulkTotal + gapSum;
+    var maxStart = state.rodCm - EDGE_CM - span;
+    var start = span <= avail
+      ? clamp(center - span / 2, EDGE_CM, Math.max(EDGE_CM, maxStart))
+      : EDGE_CM;
     var targets = new Map();
+    var cursor = start;
     order.forEach(function (it, i) {
       if (i > 0) cursor += gs[i - 1];
       targets.set(it.id, cursor + it.bulk / 2);
@@ -1529,25 +1814,29 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
     var order = byPos();
     var gap = clamp(state.targetGap, MIN_CLEAR, MAX_CLEAR);
     var gaps = order.slice(0, -1).map(function () { return gap; });
-    var targets = layoutTargets(order, gaps, ROD_CM / 2);
+    var targets = layoutTargets(order, gaps, state.rodCm / 2);
     log('一键等距 · 目标净风道 ' + fmt(gap) + ' cm', 'info');
     startMotion(targets, {
       duration: 900,
-      onDone: function () { log('等距完成 · 三段风道已对齐', 'ok'); }
+      onDone: function () {
+        log('等距完成 · ' + (items.length - 1) + ' 段风道已对齐', 'ok');
+      }
     });
   }
 
   function runCollect() {
     var order = byPos();
     var targets = new Map();
-    var cursor = ROD_CM - EDGE_CM;
+    var free = usableRod() - bulkSum();
+    var gap = order.length > 1 ? clamp(free / (order.length - 1), 0, MIN_CLEAR) : 0;
+    var cursor = state.rodCm - EDGE_CM;
     for (var i = order.length - 1; i >= 0; i--) {
       var it = order[i];
       var c = cursor - it.bulk / 2;
       targets.set(it.id, c);
-      cursor = c - it.bulk / 2 - MIN_CLEAR;
+      cursor = c - it.bulk / 2 - gap;
     }
-    log('收衣归拢 · 单元向右端收纳位靠拢，保持 ' + MIN_CLEAR + ' cm 安全间隙', 'info');
+    log('收衣归拢 · 单元向右端收纳位靠拢，保持 ' + fmt(gap) + ' cm 间隙', 'info');
     startMotion(targets, {
       duration: 1200,
       onDone: function () { log('收衣完成 · 可摘下衣物', 'ok'); }
@@ -1600,7 +1889,7 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
     }
     var budget = base * (newOrder.length - 1);
     var gaps = distribute(weights, budget, MIN_CLEAR, MAX_CLEAR);
-    var targets = layoutTargets(newOrder, gaps, ROD_CM / 2);
+    var targets = layoutTargets(newOrder, gaps, state.rodCm / 2);
 
     log('智能分配 · 环境 ' + state.env + '% RH → 基准净风道 ' + fmt(base) + ' cm' +
       (state.p2Lift ? ' · P2 概念开启' : ' · 保持当前顺序'), 'info');
@@ -1623,7 +1912,7 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
     if (state.estop) return;
     state.running = true;
     if (state.mode === 'manual') {
-      log('手动模式 · 拖动任意模块调整位置', 'info');
+      log('手动模式 · 拖动任意单元调整位置', 'info');
       render();
       updateStatus();
       return;
@@ -1642,7 +1931,7 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
     var idx = order.indexOf(it);
     var half = it.bulk / 2;
     var lo = EDGE_CM + half;
-    var hi = ROD_CM - EDGE_CM - half;
+    var hi = state.rodCm - EDGE_CM - half;
 
     if (idx > 0) {
       var prev = order[idx - 1];
@@ -1671,7 +1960,7 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
         if (state.mode !== 'manual') {
           state.mode = 'manual';
           updateModeUI();
-          log('切换到手动模式 · 拖动模块调整位置', 'info');
+          log('切换到手动模式 · 拖动单元调整位置', 'info');
         }
         state.running = true;
         state.drag = {
@@ -1728,7 +2017,7 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
      ========================================================================= */
   function updateStatus() {
     var key = 'idle';
-    var text = '待机 · 拖动模块或选择运行模式';
+    var text = '待机 · 拖动单元或选择运行模式';
     if (state.estop) {
       key = 'estop';
       text = '急停锁定 · 点击「复位并启动」';
@@ -1744,6 +2033,9 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
     btnEstop.classList.toggle('is-active', state.estop);
     btnStart.querySelector('.btn-label').textContent = state.estop ? '复位并启动' : '开始 / 执行';
     stage.classList.toggle('is-running', state.running && !state.estop);
+    rodRange.disabled = state.estop;
+    wallRange.disabled = state.estop;
+    updateCountUI();
   }
 
   function updateModeUI() {
@@ -1775,6 +2067,208 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
         : '偏干 · 按目标间距执行';
 
     envTel.textContent = state.env + '%';
+  }
+
+  // 当前/目标位置（动画中按目标位置算告警，避免警告闪烁）
+  function itemPos(it) {
+    var m = state.motion;
+    if (m && m.to && m.to.get(it.id) != null) return m.to.get(it.id);
+    return it.pos;
+  }
+
+  // 空间告警：太挤 / 目标放不下 / 离墙太近
+  function computeAlerts() {
+    var alerts = [];
+    var usable = usableRod();
+    var needMin = bulkSum() + (items.length - 1) * MIN_CLEAR;
+    var minClear = Infinity;
+    var order = byPos();
+    for (var i = 0; i < order.length - 1; i++) {
+      var clear = (itemPos(order[i + 1]) - itemPos(order[i])) -
+        (order[i].bulk + order[i + 1].bulk) / 2;
+      if (clear < minClear) minClear = clear;
+    }
+
+    if (needMin > usable + 0.01 || minClear < MIN_CLEAR - 0.05) {
+      alerts.push({
+        level: 'error',
+        title: '太挤了：建议减少单元或加大杆长',
+        detail: '安全排布需 ' + Math.round(needMin * 10) + ' mm，当前可用 ' +
+          Math.round(usable * 10) + ' mm' +
+          (isFinite(minClear) ? '；最小净风道 ' + fmt(Math.max(0, minClear)) + ' cm' : '')
+      });
+    } else if (state.mode === 'equal' && minClear < state.targetGap - CLEAR_TOL) {
+      alerts.push({
+        level: 'warn',
+        title: '目标净风道 ' + fmt(state.targetGap) + ' cm 放不下，已按可用长度压缩',
+        detail: '当前最小净风道 ' + fmt(Math.min(minClear, state.targetGap)) +
+          ' cm；可加大杆长或减少单元'
+      });
+    }
+
+    if (state.dWall < WALL_NEAR_MM) {
+      alerts.push({
+        level: 'warn',
+        title: '离墙太近，衣摆可能蹭墙（当前 ' + state.dWall + ' mm，建议 ≥120mm）',
+        detail: '杆中心到墙面的垂直距离 d_wall · 与两端端部余量无关'
+      });
+    }
+    return alerts;
+  }
+
+  var lastAlertKey = '';
+  function updateAlerts() {
+    var list = computeAlerts();
+    var key = list.map(function (a) { return a.level + '|' + a.title + '|' + a.detail; }).join('||');
+    if (key === lastAlertKey) return;
+    lastAlertKey = key;
+    if (!list.length) {
+      alertsEl.hidden = true;
+      alertsEl.innerHTML = '';
+      return;
+    }
+    alertsEl.hidden = false;
+    alertsEl.innerHTML = list.map(function (a) {
+      return '<div class="alert" data-level="' + a.level + '">' +
+        '<span class="alert-dot"></span>' +
+        '<div class="alert-body"><b>' + a.title + '</b><span>' + a.detail + '</span></div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function updateRodUI() {
+    var mm = Math.round(state.rodCm * 10);
+    rodVal.innerHTML = mm + '<em>mm</em>';
+    rodNote.textContent = '可用 ' + Math.round(usableRod() * 10) + ' mm（两端各留 50 mm）';
+    rodTitle.textContent = (state.rodCm / 100).toFixed(2) + ' m 晾衣杆';
+    rodRange.value = String(mm);
+    paintRange(rodRange, (state.rodCm - ROD_MIN_CM) / (ROD_MAX_CM - ROD_MIN_CM));
+    wallRange.value = String(state.dWall);
+    wallVal.innerHTML = state.dWall + '<em>mm</em>';
+    paintRange(wallRange, (state.dWall - D_WALL_MIN_MM) / (D_WALL_MAX_MM - D_WALL_MIN_MM));
+  }
+
+  // 改杆长：按比例保留当前相对位置，自动模式下会按新长度重排
+  function setRod(mm) {
+    if (state.estop) {
+      rodRange.value = String(Math.round(state.rodCm * 10));
+      return;
+    }
+    var next = clamp(mm / 10, ROD_MIN_CM, ROD_MAX_CM);
+    if (Math.abs(next - state.rodCm) < 0.001) return;
+    stopMotion();
+    var old = state.rodCm;
+    state.rodCm = next;
+    items.forEach(function (it) {
+      it.pos = clamp(it.pos * next / old,
+        EDGE_CM + it.bulk / 2,
+        Math.max(EDGE_CM + it.bulk / 2, next - EDGE_CM - it.bulk / 2));
+    });
+    buildRuler();
+    updateRodUI();
+    updateUnitMeta();
+    measure();
+    if (state.running && (state.mode === 'equal' || state.mode === 'smart' || state.mode === 'collect')) {
+      scheduleApply();
+    }
+    updateAlerts();
+  }
+
+  // 单元数量变化后的重排（手动模式也按目标风道重排一次，避免新单元无处可放）
+  function reflowAfterCount() {
+    var order = byPos();
+    if (order.length < 2) return;
+    if (state.estop) {
+      render();
+      updateStatus();
+      return;
+    }
+    if (state.mode === 'collect') {
+      runCollect();
+      updateAlerts();
+      return;
+    }
+    var gaps;
+    if (state.mode === 'smart') {
+      var weights = [];
+      for (var i = 0; i < order.length - 1; i++) {
+        weights.push((humidityWeight(order[i]) + humidityWeight(order[i + 1])) / 2);
+      }
+      var base = smartBaseGap();
+      gaps = distribute(weights, base * (order.length - 1), MIN_CLEAR, MAX_CLEAR);
+    } else {
+      gaps = order.slice(0, -1).map(function () {
+        return clamp(state.targetGap, MIN_CLEAR, MAX_CLEAR);
+      });
+    }
+    var targets = layoutTargets(order, gaps, state.rodCm / 2);
+    log('布局重算 · ' + items.length + ' 个单元' +
+      (state.mode === 'manual' ? '（手动模式按目标风道排布）' : ''), 'info');
+    startMotion(targets, {
+      duration: 850,
+      onDone: function () { updateAlerts(); updateUnitMeta(); }
+    });
+    updateAlerts();
+    updateUnitMeta();
+  }
+
+  // 增删单元：2–8 个；新增自动编号；删除只移除最后一个，已有单元数据保留
+  function changeUnitCount(delta) {
+    if (state.estop) {
+      log('急停锁定中 · 无法变更单元数量', 'warn');
+      shake(delta > 0 ? unitPlus : unitMinus);
+      return;
+    }
+    if (state.countBusy) return;
+    if (delta > 0 && items.length >= UNIT_MAX) {
+      log('已达上限 ' + UNIT_MAX + ' 个单元', 'info');
+      return;
+    }
+    if (delta < 0 && items.length <= UNIT_MIN) {
+      log('至少保留 ' + UNIT_MIN + ' 个单元', 'info');
+      return;
+    }
+    stopMotion();
+
+    if (delta > 0) {
+      var id = items.length + 1;
+      var p = PROFILES[id - 1];
+      items.push({
+        id: id, name: p.name, bulk: p.bulk, humidity: p.humidity,
+        battery: p.battery,
+        pos: state.rodCm - EDGE_CM - p.bulk / 2 // 从右侧墙边进入
+      });
+      log('新增单元 ' + pad2(id) + ' · ' + p.name + '（自动重排）', 'gold');
+      syncDom(id);
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          var e = els.get(id);
+          if (e) e.root.classList.remove('unit-enter');
+        });
+      });
+      reflowAfterCount();
+      updateUnitMeta();
+      updateCountUI();
+      updateBatteryUI();
+      updateStatus();
+    } else {
+      var gone = items[items.length - 1];
+      var goneEl = els.get(gone.id);
+      state.countBusy = true;
+      updateCountUI();
+      if (goneEl) goneEl.root.classList.add('unit-leaving');
+      log('移除单元 ' + pad2(gone.id) + ' · ' + gone.name, 'info');
+      setTimeout(function () {
+        items.pop();
+        state.countBusy = false;
+        syncDom();
+        reflowAfterCount();
+        updateUnitMeta();
+        updateCountUI();
+        updateBatteryUI();
+        updateStatus();
+      }, 260);
+    }
   }
 
   // P2 概念开关的视觉状态：默认关闭，开启后杆视图右上角出现角标
@@ -1875,6 +2369,39 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
       if (state.running && !state.estop && state.mode === 'smart') scheduleApply();
     });
 
+    // 杆长（mm，800–2400）：标尺、墙体、风道计算都跟着变
+    rodRange.addEventListener('input', function () {
+      setRod(Number(rodRange.value));
+    });
+    rodRange.addEventListener('change', function () {
+      var alerts = computeAlerts();
+      log('杆长设为 ' + Math.round(state.rodCm * 10) + ' mm · 端部余量 50 mm', 'gold');
+      if (alerts.length) {
+        log((alerts[0].level === 'error' ? '⚠ ' : '提示：') + alerts[0].title,
+          alerts[0].level === 'error' ? 'err' : 'warn');
+      }
+    });
+
+    // 杆离墙（mm）：只影响衣摆蹭墙提醒，与端部余量无关
+    wallRange.addEventListener('input', function () {
+      if (state.estop) {
+        wallRange.value = String(state.dWall);
+        return;
+      }
+      state.dWall = clamp(Number(wallRange.value), D_WALL_MIN_MM, D_WALL_MAX_MM);
+      updateRodUI();
+      updateAlerts();
+    });
+    wallRange.addEventListener('change', function () {
+      log('杆离墙设为 ' + state.dWall + ' mm' +
+        (state.dWall < WALL_NEAR_MM ? ' · 低于 120 mm，衣摆可能蹭墙' : ''), 
+        state.dWall < WALL_NEAR_MM ? 'warn' : 'gold');
+    });
+
+    // 单元数量（2–8）
+    unitPlus.addEventListener('click', function () { changeUnitCount(1); });
+    unitMinus.addEventListener('click', function () { changeUnitCount(-1); });
+
     // P2 概念开关：默认关闭；开启后才演示"抬升越障"换序
     p2Toggle.addEventListener('change', function () {
       if (state.estop) {
@@ -1917,7 +2444,7 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
       state.running = false;
       stopMotion();
       stage.classList.add('estop');
-      log('⛔ 急停触发 · 全部模块立即锁定，需人工复位', 'err');
+      log('⛔ 急停触发 · 全部单元立即锁定，需人工复位', 'err');
       render();
       updateStatus();
     });
@@ -1935,15 +2462,19 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
     if (!w) return;
     view.w = w;
     view.pad = w < 520 ? 14 : 24;
-    view.scale = (w - view.pad * 2) / ROD_CM;
+    view.scale = (w - view.pad * 2) / state.rodCm;
     stage.style.setProperty('--rod-pad', view.pad + 'px');
+    var marginPx = EDGE_CM * view.scale;
+    marginLeft.style.width = marginPx + 'px';
+    marginRight.style.width = marginPx + 'px';
     render();
   }
 
   function initLogs() {
     log('HangFlow 演示模式启动 · 前端模拟，未连接硬件', 'gold');
     log('MQTT 已连接（模拟）· RDK X5 中枢在线', 'ok');
-    log('4 个套挂单元上线 · 电量正常', 'info');
+    log(items.length + ' 个套挂单元上线 · 每件衣服挂在一个单元上', 'info');
+    log('杆长 ' + Math.round(state.rodCm * 10) + ' mm · 两端端部余量 50 mm', 'info');
     log('目标净风道 ' + fmt(state.targetGap) + ' cm · 安全下限 ' + MIN_CLEAR + ' cm（g_min）', 'info');
 
     // 用当前真实排布生成提示，保证日志与画面一致
@@ -1959,25 +2490,20 @@ input[type="range"]:focus-visible { outline: 1px solid rgba(214,177,115,.7); out
         log('检测到 ' + tag(order[0]) + '–' + tag(order[1]) + ' 净风道 ' + fmt(narrow) +
           ' cm 未达目标 · 建议执行智能分配', 'warn');
       } else {
-        log('手动模式 · 拖拽模块或点「智能分配」看风道打开', 'info');
+        log('手动模式 · 拖拽单元或点「智能分配」看风道打开', 'info');
       }
     }
   }
 
   // ---- 初始化 ----
-  buildUnits();
-  buildDims();
-  buildFlows();
-  buildChannels();
-  buildRows();
   buildRuler();
-  bindDrag();
+  syncDom();
   bindControls();
   updateModeUI();
   updateControlUI();
   updateP2UI();
+  updateRodUI();
   updateBatteryUI();
-  measure();
   initLogs();
   updateStatus();
 

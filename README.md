@@ -15,7 +15,7 @@
 2. 📱 **交互演示**：双击 [`app/index.html`](app/index.html)（离线可用，手机竖屏也行）
 3. 📄 **一页纸方案**：[docs/00-执行摘要.md](docs/00-执行摘要.md)
 4. 🖨️ **展台卡**：[deck/衣序-展台卡-A4.pdf](deck/衣序-展台卡-A4.pdf)（A4 打印，放在展台）
-5. 📚 **完整方案书**：[deck/衣序-完整方案书.pdf](deck/衣序-完整方案书.pdf)（142 页，README + 全部文档合并，可打印/提交）
+5. 📚 **完整方案书**：[deck/衣序-完整方案书.pdf](deck/衣序-完整方案书.pdf)（152 页，README + 全部文档合并，可打印/提交）
 
 ---
 
@@ -74,7 +74,9 @@
 
 | 指标 | 目标 | 说明 |
 |---|---|---|
-| 单元数量 | 4（现场）/ 8（产品） | 1.2m 演示杆挂 4 件 |
+| 单元数量 | **2—8 个**（现场 4 个） | 按杆长和需求增删；每个单元独立地址 01—08 |
+| 适配杆长 | **0.8—2.4 m**（端部各留 50mm） | 伸缩杆/顶天立地杆/两端墙都支持；>1.8m 建议加中间吊撑 |
+| 杆中心到墙 | ≥120 mm（建议 150） | 低于 80mm 时衣摆可能蹭墙，界面会提示 |
 | 单模块承重 | 5 kg | 湿羽绒服约 2–3kg，留 2× 余量 |
 | 移动速度 | 4–6 cm/s | 20cm 约 4–5 秒，安静 |
 | 定位精度 | ±5 mm（AS5600 + 视觉校正后 ±3 mm） | 间隙误差 <1cm 即可感知 |
@@ -98,6 +100,7 @@
 | 视觉与算法 | [docs/06-视觉与算法.md](docs/06-视觉与算法.md) · [sim](sim) |
 | 软件架构/协议 | [docs/07-软件架构与通信协议.md](docs/07-软件架构与通信协议.md) |
 | 交互与 App | [docs/08-交互与App设计.md](docs/08-交互与App设计.md) · [app](app) |
+| **安装场景 / 两端墙 / 伸缩杆 / 增删单元** | [docs/18-安装场景与墙体适配.md](docs/18-安装场景与墙体适配.md) |
 | 成本 | [docs/09-BOM与成本.md](docs/09-BOM与成本.md) |
 | 赛前 12 天怎么准备 | [docs/10-赛前12天准备计划.md](docs/10-赛前12天准备计划.md) |
 | 现场 48 小时怎么打 | [docs/11-现场48小时执行计划.md](docs/11-现场48小时执行计划.md) |
@@ -108,7 +111,7 @@
 | AI 怎么用的（赛中必交） | [docs/16-AI辅助开发与过程证据.md](docs/16-AI辅助开发与过程证据.md) |
 | **RDK 平台与开发环境** | [docs/17-RDK平台与开发环境.md](docs/17-RDK平台与开发环境.md) |
 | 路演 PPT（10 页 / PDF） | [deck/](deck) · [衣序-HangFlow-DDC2026.pdf](deck/衣序-HangFlow-DDC2026.pdf) |
-| 完整方案书（142 页 PDF） | [deck/衣序-完整方案书.pdf](deck/衣序-完整方案书.pdf) · 源文件 [deck/book.html](deck/book.html) |
+| 完整方案书（152 页 PDF） | [deck/衣序-完整方案书.pdf](deck/衣序-完整方案书.pdf) · 源文件 [deck/book.html](deck/book.html) |
 | 展台卡（A4） | [deck/衣序-展台卡-A4.pdf](deck/衣序-展台卡-A4.pdf) |
 | 固件（ESP32-C3） | [firmware/esp32-module](firmware/esp32-module) |
 | 中枢软件 / 无硬件 mock | [software/hub](software/hub) |
@@ -118,7 +121,7 @@
 
 ## 快速体验（不用硬件）
 
-1. **看交互**：双击打开 [`app/index.html`](app/index.html)（单文件，离线可用）。拖模块、点"一键等距"、调湿度，看它怎么排。真实 390×844 手机视口验证截图在 [`app/.verify/`](app/.verify)。
+1. **看交互**：双击打开 [`app/index.html`](app/index.html)（单文件，离线可用）。拖模块、改杆长（0.8—2.4m）、增删单元（2—8）、点"一键等距"、调湿度，看它怎么排。真实 390×844 手机视口验证截图在 [`app/.verify/`](app/.verify)。
 2. **跑算法**：`python sim/run_all.py`（12 秒），生成 7 张 300dpi 图 + `docs/_data/algorithm-results.md`。
 3. **跑中枢 mock**：`python -m software.hub.mock_demo`（4 个虚拟单元，串行下发、到位校验、写 JSONL 日志）。
 4. **验视觉链路**：`python sim/vision_demo.py`（合成图 ArUco 检测 6/6，输出误差图）。
@@ -134,9 +137,9 @@
 | 项 | 验证方式 | 结果 |
 |---|---|---|
 | 间距规划 + 重排 + 控制 + 视觉误差仿真 | `python sim/run_all.py` | 17/17 单测通过，7 张图，12 秒 |
-| 中枢 mock 端到端（4 虚拟单元） | `python -m software.hub.mock_demo` | PASS，串行 36.2s（≤45s），净空 98.9—103mm |
+| 中枢 mock 端到端（4 虚拟单元） | `python -m software.hub.mock_demo` | PASS，串行 36.2s（≤45s），净空 98.9—103mm；`--rod/--n` 可改（6 单元/2m 为 72s） |
 | 视觉链路合成验证 | `python sim/vision_demo.py` | 6/6 标记检出，系统偏移 0.82mm |
-| 手机/桌面交互页 | Edge headless 截图 + DevTools 390×844 | 无 console 报错，390 视口零越界 |
+| 手机/桌面交互页 | Edge headless 截图 + DevTools 390×844 | 无 console 报错，390 视口零越界；杆长/单元数/杆离墙可调，两端墙与端部余量已画，拥挤/离墙告警分开 |
 | 路演 deck | 逐页截图检查 + PDF 导出 | 10 页，16:9 |
 | A4 展台卡 | Edge 打印导出 | 1 页 A4 |
 | CI（GitHub Actions） | `.github/workflows/ci.yml` | push 时跑单测/仿真/mock/链接检查 |
@@ -179,3 +182,6 @@
 - RDK X5 规格引用官方/代理页面（40PIN 保守按 3.3V 800mA / 5V 500mA 设计；板卡供电 5V/5A），现场以实际板卡为准。
 - RDK 的系统、40PIN、相机、BPU 与现场流程整理在 [docs/17](docs/17-RDK平台与开发环境.md)，含官方来源链接。
 - 项目归属：仓库所有者 theVivia；AI 辅助开发过程按要求留痕，见 [docs/16](docs/16-AI辅助开发与过程证据.md)。
+
+
+

@@ -44,6 +44,7 @@ CHAPTERS = [
     ("docs/15-产品化与商业化.md", "产品化与商业化"),
     ("docs/16-AI辅助开发与过程证据.md", "AI 辅助开发与过程证据"),
     ("docs/17-RDK平台与开发环境.md", "RDK 平台与开发环境"),
+    ("docs/18-安装场景与墙体适配.md", "安装场景与墙体适配"),
     ("docs/_data/algorithm-results.md", "附录 A · 算法仿真结果"),
 ]
 
@@ -172,5 +173,6 @@ def build() -> None:
 
 if __name__ == "__main__":
     build()
+
 
 

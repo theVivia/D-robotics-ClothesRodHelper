@@ -56,7 +56,7 @@
       </div>
     </section>
     
-    <section class="toc"><h2>目录</h2><ol><li><a href="#ch-0">总览</a></li><li><a href="#ch-1">执行摘要</a></li><li><a href="#ch-2">赛题解读与参赛策略</a></li><li><a href="#ch-3">产品定义与用户研究</a></li><li><a href="#ch-4">系统总体方案</a></li><li><a href="#ch-5">机械结构设计</a></li><li><a href="#ch-6">硬件与电控设计</a></li><li><a href="#ch-7">视觉与算法</a></li><li><a href="#ch-8">软件架构与通信协议</a></li><li><a href="#ch-9">交互与 App 设计</a></li><li><a href="#ch-10">BOM 与成本</a></li><li><a href="#ch-11">赛前 12 天准备计划</a></li><li><a href="#ch-12">现场 48 小时执行计划</a></li><li><a href="#ch-13">演示脚本与答辩</a></li><li><a href="#ch-14">风险与 Plan B</a></li><li><a href="#ch-15">测试与验收</a></li><li><a href="#ch-16">产品化与商业化</a></li><li><a href="#ch-17">AI 辅助开发与过程证据</a></li><li><a href="#ch-18">RDK 平台与开发环境</a></li><li><a href="#ch-19">附录 A · 算法仿真结果</a></li></ol></section>
+    <section class="toc"><h2>目录</h2><ol><li><a href="#ch-0">总览</a></li><li><a href="#ch-1">执行摘要</a></li><li><a href="#ch-2">赛题解读与参赛策略</a></li><li><a href="#ch-3">产品定义与用户研究</a></li><li><a href="#ch-4">系统总体方案</a></li><li><a href="#ch-5">机械结构设计</a></li><li><a href="#ch-6">硬件与电控设计</a></li><li><a href="#ch-7">视觉与算法</a></li><li><a href="#ch-8">软件架构与通信协议</a></li><li><a href="#ch-9">交互与 App 设计</a></li><li><a href="#ch-10">BOM 与成本</a></li><li><a href="#ch-11">赛前 12 天准备计划</a></li><li><a href="#ch-12">现场 48 小时执行计划</a></li><li><a href="#ch-13">演示脚本与答辩</a></li><li><a href="#ch-14">风险与 Plan B</a></li><li><a href="#ch-15">测试与验收</a></li><li><a href="#ch-16">产品化与商业化</a></li><li><a href="#ch-17">AI 辅助开发与过程证据</a></li><li><a href="#ch-18">RDK 平台与开发环境</a></li><li><a href="#ch-19">安装场景与墙体适配</a></li><li><a href="#ch-20">附录 A · 算法仿真结果</a></li></ol></section>
     <section class="chapter" id="ch-0"><div class="ch-label">00</div><h1 id="hangflow">衣序 · HangFlow</h1>
 <blockquote>
 <p><strong>不换晾衣杆，让衣服自己让出风道。</strong></p>
@@ -70,7 +70,8 @@
 1. 🎬 <strong>路演 deck</strong>：<a href="file:///E:/D-robotics-ClothesRodHelper/deck/%E8%A1%A3%E5%BA%8F-HangFlow-DDC2026.pdf">deck/衣序-HangFlow-DDC2026.pdf</a>（10 页，直接能讲）
 2. 📱 <strong>交互演示</strong>：双击 <a href="file:///E:/D-robotics-ClothesRodHelper/app/index.html"><code>app/index.html</code></a>（离线可用，手机竖屏也行）
 3. 📄 <strong>一页纸方案</strong>：<a href="#ch-1">docs/00-执行摘要.md</a>
-4. 🖨️ <strong>展台卡</strong>：<a href="file:///E:/D-robotics-ClothesRodHelper/deck/%E8%A1%A3%E5%BA%8F-%E5%B1%95%E5%8F%B0%E5%8D%A1-A4.pdf">deck/衣序-展台卡-A4.pdf</a>（A4 打印，放在展台）</p>
+4. 🖨️ <strong>展台卡</strong>：<a href="file:///E:/D-robotics-ClothesRodHelper/deck/%E8%A1%A3%E5%BA%8F-%E5%B1%95%E5%8F%B0%E5%8D%A1-A4.pdf">deck/衣序-展台卡-A4.pdf</a>（A4 打印，放在展台）
+5. 📚 <strong>完整方案书</strong>：<a href="file:///E:/D-robotics-ClothesRodHelper/deck/%E8%A1%A3%E5%BA%8F-%E5%AE%8C%E6%95%B4%E6%96%B9%E6%A1%88%E4%B9%A6.pdf">deck/衣序-完整方案书.pdf</a>（151 页，README + 全部文档合并，可打印/提交）</p>
 <hr />
 <h2 id="30">30 秒看懂</h2>
 <table>
@@ -147,8 +148,18 @@
 <tbody>
 <tr>
 <td>单元数量</td>
-<td>4（现场）/ 8（产品）</td>
-<td>1.2m 演示杆挂 4 件</td>
+<td><strong>2—8 个</strong>（现场 4 个）</td>
+<td>按杆长和需求增删；每个单元独立地址 01—08</td>
+</tr>
+<tr>
+<td>适配杆长</td>
+<td><strong>0.8—2.4 m</strong>（端部各留 50mm）</td>
+<td>伸缩杆/顶天立地杆/两端墙都支持；&gt;1.8m 建议加中间吊撑</td>
+</tr>
+<tr>
+<td>杆中心到墙</td>
+<td>≥120 mm（建议 150）</td>
+<td>低于 80mm 时衣摆可能蹭墙，界面会提示</td>
 </tr>
 <tr>
 <td>单模块承重</td>
@@ -234,6 +245,10 @@
 <td><a href="#ch-9">docs/08-交互与App设计.md</a> · app</td>
 </tr>
 <tr>
+<td><strong>安装场景 / 两端墙 / 伸缩杆 / 增删单元</strong></td>
+<td><a href="#ch-19">docs/18-安装场景与墙体适配.md</a></td>
+</tr>
+<tr>
 <td>成本</td>
 <td><a href="#ch-10">docs/09-BOM与成本.md</a></td>
 </tr>
@@ -274,6 +289,14 @@
 <td>deck/ · <a href="file:///E:/D-robotics-ClothesRodHelper/deck/%E8%A1%A3%E5%BA%8F-HangFlow-DDC2026.pdf">衣序-HangFlow-DDC2026.pdf</a></td>
 </tr>
 <tr>
+<td>完整方案书（151 页 PDF）</td>
+<td><a href="file:///E:/D-robotics-ClothesRodHelper/deck/%E8%A1%A3%E5%BA%8F-%E5%AE%8C%E6%95%B4%E6%96%B9%E6%A1%88%E4%B9%A6.pdf">deck/衣序-完整方案书.pdf</a> · 源文件 <a href="file:///E:/D-robotics-ClothesRodHelper/deck/book.html">deck/book.html</a></td>
+</tr>
+<tr>
+<td>展台卡（A4）</td>
+<td><a href="file:///E:/D-robotics-ClothesRodHelper/deck/%E8%A1%A3%E5%BA%8F-%E5%B1%95%E5%8F%B0%E5%8D%A1-A4.pdf">deck/衣序-展台卡-A4.pdf</a></td>
+</tr>
+<tr>
 <td>固件（ESP32-C3）</td>
 <td>firmware/esp32-module</td>
 </tr>
@@ -290,7 +313,7 @@
 <hr />
 <h2 id="_4">快速体验（不用硬件）</h2>
 <ol>
-<li><strong>看交互</strong>：双击打开 <a href="file:///E:/D-robotics-ClothesRodHelper/app/index.html"><code>app/index.html</code></a>（单文件，离线可用）。拖模块、点"一键等距"、调湿度，看它怎么排。真实 390×844 手机视口验证截图在 <code>app/.verify/</code>。</li>
+<li><strong>看交互</strong>：双击打开 <a href="file:///E:/D-robotics-ClothesRodHelper/app/index.html"><code>app/index.html</code></a>（单文件，离线可用）。拖模块、改杆长（0.8—2.4m）、增删单元（2—8）、点"一键等距"、调湿度，看它怎么排。真实 390×844 手机视口验证截图在 <code>app/.verify/</code>。</li>
 <li><strong>跑算法</strong>：<code>python sim/run_all.py</code>（12 秒），生成 7 张 300dpi 图 + <code>docs/_data/algorithm-results.md</code>。</li>
 <li><strong>跑中枢 mock</strong>：<code>python -m software.hub.mock_demo</code>（4 个虚拟单元，串行下发、到位校验、写 JSONL 日志）。</li>
 <li><strong>验视觉链路</strong>：<code>python sim/vision_demo.py</code>（合成图 ArUco 检测 6/6，输出误差图）。</li>
@@ -319,7 +342,7 @@
 <tr>
 <td>中枢 mock 端到端（4 虚拟单元）</td>
 <td><code>python -m software.hub.mock_demo</code></td>
-<td>PASS，串行 36.2s（≤45s），净空 98.9—103mm</td>
+<td>PASS，串行 36.2s（≤45s），净空 98.9—103mm；<code>--rod/--n</code> 可改（6 单元/2m 为 72s）</td>
 </tr>
 <tr>
 <td>视觉链路合成验证</td>
@@ -329,7 +352,7 @@
 <tr>
 <td>手机/桌面交互页</td>
 <td>Edge headless 截图 + DevTools 390×844</td>
-<td>无 console 报错，390 视口零越界</td>
+<td>无 console 报错，390 视口零越界；杆长/单元数可调、两端墙与端部余量已画</td>
 </tr>
 <tr>
 <td>路演 deck</td>
@@ -423,7 +446,7 @@
 <ul>
 <li>中文名：衣序（让衣物有序）</li>
 <li>英文名：HangFlow</li>
-<li>形态：3–8 个套挂单元 + 1 台 RDK X5 中枢 + 手机网页</li>
+<li>形态：<strong>2—8 个</strong>套挂单元（可增删）+ 1 台 RDK X5 中枢 + 手机网页；适配 <strong>0.8—2.4m</strong> 杆长、20—35mm 杆径、两端墙/伸缩杆</li>
 </ul>
 <hr />
 <h2 id="2">2. 问题：不是"晾不干"，是"风进不去"</h2>
@@ -558,7 +581,7 @@
 <hr />
 <h2 id="6-48">6. 48 小时怎么交付（敢承诺的完成度）</h2>
 <ul>
-<li><strong>P0（必须）</strong>：4 个单元在 1.2m 杆上完成"手动移动 + 一键等距 + 收衣"，网页可控，急停有效，视觉给出间距读数。</li>
+<li><strong>P0（必须）</strong>：4 个单元在 1.2m 杆上完成"手动移动 + 一键等距 + 收衣"，网页可控，急停有效，视觉给出间距读数；同一套软件支持改杆长/增删单元（2—8）。</li>
 <li><strong>P1（争取）</strong>：智能分配（按湿度权重）、视觉闭环校准、断电/低电提示。</li>
 <li><strong>P2（锦上添花）</strong>：BPU 上的衣物检测/湿度估计、语音控制、第二根杆联动。</li>
 </ul>
@@ -1092,6 +1115,24 @@
 </tr>
 <tr>
 <td></td>
+<td><strong>适配杆长</strong></td>
+<td><strong>0.8—2.4 m</strong>（端部余量 50mm 可调）</td>
+<td>伸缩杆/两端墙都支持；&gt;1.8m 建议吊撑</td>
+</tr>
+<tr>
+<td></td>
+<td><strong>单元数量</strong></td>
+<td><strong>2—8 个</strong>（可增删）</td>
+<td>按杆长与需求买/加购</td>
+</tr>
+<tr>
+<td></td>
+<td><strong>杆中心到墙</strong></td>
+<td><strong>≥120 mm（建议 150）</strong></td>
+<td>&lt;80mm 时衣摆蹭墙，界面提示</td>
+</tr>
+<tr>
+<td></td>
 <td>单模块承重</td>
 <td>5 kg</td>
 <td>湿羽绒服约 2—3kg</td>
@@ -1201,7 +1242,7 @@
 <li><strong>不做户外淋雨防护</strong>：不承诺 IPX5，户外长期暴露需选配罩（P2）。</li>
 <li><strong>不做自动挂取</strong>：挂衣/收衣仍需人手，我们只解决"挂上之后"。</li>
 <li><strong>不碰重载</strong>：单件 &gt;5kg（湿棉被）不适用，会提示"请手动"。</li>
-<li><strong>不做多杆联动</strong>（这版）：一根杆 4—8 单元。</li>
+<li><strong>不做多杆联动</strong>（这版）：一根杆 2—8 单元，杆长 0.8—2.4m；两端有墙时按"端部挡块 + 单侧收衣"设计（见 <a href="#ch-19">docs/18</a>）。</li>
 </ul>
 <blockquote>
 <p>明确"不做什么"是产品定义的一部分，也避免评委问"那被子呢"时答不上来。</p>
@@ -1290,7 +1331,7 @@
 <tbody>
 <tr>
 <td>4 个单元在 1.2m 杆上协同</td>
-<td>48 小时内可装配、可调试</td>
+<td>支持 2—8 单元、0.8—2.4m 杆（现场 4 单元/1.2m）；48 小时内可装配、可调试</td>
 </tr>
 <tr>
 <td>手动 + 自动两种控制</td>
@@ -1505,7 +1546,8 @@
 <h2 id="6">6. 坐标系与标定</h2>
 <h3 id="61">6.1 坐标定义</h3>
 <ul>
-<li><strong>杆坐标 x</strong>：沿杆，左端挡块 = 0，向右为正，单位 mm，范围 <code>[0, L]</code>。</li>
+<li><strong>杆坐标 x</strong>：沿杆，左端挡块 = 0，向右为正，单位 mm，范围 <code>[0, L]</code>；可用段为 <code>[m, L−m]</code>（端部余量 <code>m</code> 默认 50mm，可按墙支架厚度调）。</li>
+<li><strong>两端有墙</strong>时 <code>L</code> = 两墙净距，单元不越过挡块；收衣方向可选（见 <a href="#ch-19">docs/18</a>）。</li>
 <li><strong>相机坐标</strong>：OpenCV 相机系（右 x、下 y、前 z）。</li>
 <li><strong>标定参照</strong>：杆两端各贴一个固定 ArUco（ID 100/101，边长 30mm），已知间距 L；由此解出"杆轴在相机系中的直线方程 + 尺度"。</li>
 <li><strong>单元标记</strong>：每个单元顶部贴 ArUco（ID 1—4，边长 30mm），PnP 得到位姿，取标记中心投影到杆轴 → x。</li>
@@ -3069,6 +3111,42 @@ openscad -D 'PART=&quot;print_layout&quot;' -o plate.3mf clip_unit.scad
 </tr>
 </tbody>
 </table>
+<hr />
+<h2 id="105">10.5 墙体 / 伸缩杆 / 长杆的机械适配</h2>
+<blockquote>
+<p>场景细节见 <a href="#ch-19">docs/18-安装场景与墙体适配.md</a>；这里只写结构上必须满足的几条。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>结构要求</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>两端是墙（壁龛阳台）</td>
+<td>端部挡块用<strong>抱箍 + 尼龙块</strong>固定，不钻墙；归零靠堵转判据，不依赖磁铁；单元不越过挡块，收衣只向有空间一侧</td>
+</tr>
+<tr>
+<td>伸缩杆（Ø25+Ø22，2—3mm 台阶）</td>
+<td>摩擦轮弹簧预压行程 ≥8mm（现设计可调）；过缝降速 20mm/s；接缝设为禁停区；演示优先用等径杆</td>
+</tr>
+<tr>
+<td>杆中心距墙 &lt;80mm</td>
+<td>结构上无法避免衣摆蹭墙 → 说明书明确"该侧不建议挂大件"；挂钩偏置 20mm 为 P1 件</td>
+</tr>
+<tr>
+<td>杆长 &gt;1.8m</td>
+<td>中间挠度会吃掉牵引余量 → 建议加"上方吊撑"（吊点在杆上方，不挡轮面）；&gt;2.4m 必须加</td>
+</tr>
+<tr>
+<td>方杆/细杆</td>
+<td>C 形夹爪换 V 形/小径夹爪（P1，SCAD 参数可改）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>演示口径</strong>：现场用 <strong>1.2m 等径 Ø25 杆 + 两端挡块</strong>，避开伸缩杆接缝与长杆挠度这两个变量；产品说明里再讲适配范围。</p>
 <hr />
 <h2 id="11">11. 设计参数表（给软件/电控同事直接抄）</h2>
 <table>
@@ -4808,17 +4886,17 @@ for marker_id, corner in zip(ids, corners):
 <tr>
 <td><code>L</code></td>
 <td>杆有效长度（两端挡块之间）</td>
-<td>1200 mm（演示）/ 1800—2400 mm（家用）</td>
+<td>0.8—2.4 m（演示 1.2m）/ 家用 1.5—2.4m</td>
 </tr>
 <tr>
 <td><code>m</code></td>
-<td>两端留白</td>
+<td>两端留白（可按墙支架厚度调 30—80mm）</td>
 <td>50 mm</td>
 </tr>
 <tr>
 <td><code>N</code></td>
-<td>衣物/模块数</td>
-<td>4</td>
+<td>衣物/模块数（可增删）</td>
+<td>2—8 个（演示 4）</td>
 </tr>
 <tr>
 <td><code>t_i</code></td>
@@ -4922,6 +5000,9 @@ x_i = x_{i-1} + t_{i-1}/2 + g_{i-1} + t_i/2
 <p><strong>现场口径</strong>：如果评委问"能不能让湿的排在一起"，回答：<em>"P0 用加权间隙解决 90% 的问题；换序需要抬升越障，我们做了算法和机械方案，放在下一版。"</em></p>
 </blockquote>
 <h3 id="34">3.4 不可行时的降级（很重要，评委爱问）</h3>
+<blockquote>
+<p><strong>杆长和单元数是变量</strong>：<code>L</code> 取 0.8—2.4m，<code>N</code> 取 2—8 个。任何一组 <code>(L, N, t)</code> 进来，先算 <code>Σt + (N−1)·g_min</code> 是否超过 <code>L − 2m</code>；超过就告警，不允许静默重叠。两端有墙时 <code>L</code> = 两墙净距，<code>m</code> = 法兰座厚度 + 10mm（见 <a href="#ch-19">docs/18</a>）。</p>
+</blockquote>
 <table>
 <thead>
 <tr>
@@ -5626,7 +5707,7 @@ firmware/esp32-module/          # PlatformIO
 <td>POST</td>
 <td><code>/api/calibrate</code></td>
 <td>重新标定杆轴</td>
-<td><code>{"L_mm":1200}</code></td>
+<td><code>{"L_mm":1200,"end_margin_mm":50}</code></td>
 </tr>
 <tr>
 <td>GET</td>
@@ -5637,8 +5718,26 @@ firmware/esp32-module/          # PlatformIO
 <tr>
 <td>PUT</td>
 <td><code>/api/config</code></td>
-<td>改配置（间距/速度/阈值）</td>
+<td>改配置（杆长/端部余量/墙距/间距/速度/阈值）</td>
+<td><code>{"rod_mm":1800,"end_margin_mm":50,"wall_mm":150}</code></td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/units</code></td>
+<td>登记新单元（或加购）</td>
+<td><code>{"id":"05"}</code></td>
+</tr>
+<tr>
+<td>DELETE</td>
+<td><code>/api/units/{id}</code></td>
+<td>移除单元（二次确认后）</td>
 <td>—</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/mode</code></td>
+<td>收衣方向</td>
+<td><code>{"mode":"gather","side":"right"}</code></td>
 </tr>
 <tr>
 <td>GET</td>
@@ -5976,6 +6075,56 @@ http://192.168.4.1:8000
 <li>触发后所有单元立刻停，网页显示"已急停 / 检查后复位"。</li>
 <li>复位需二次确认（"确定周围安全？"）。</li>
 </ul>
+<h3 id="56">5.6 杆长 / 单元数 / 墙体设置（用户反馈后新增）</h3>
+<table>
+<thead>
+<tr>
+<th>控件</th>
+<th>范围/默认</th>
+<th>行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>杆长</strong></td>
+<td>0.8—2.4m，默认 1.2m；滑杆 + 数字输入 + 预设（1.2/1.5/1.8/2.0/2.4）</td>
+<td>杆视图与标尺按比例变；重算目标位置；变短挤不下时告警</td>
+</tr>
+<tr>
+<td><strong>单元数量</strong></td>
+<td>2—8，默认 4；<code>+ / -</code> 步进器</td>
+<td>增删有动画；新增自动分配编号；删除后其余单元重新规划；已有衣物数据保留</td>
+</tr>
+<tr>
+<td><strong>端部余量 m</strong></td>
+<td>30—80mm，默认 50</td>
+<td>靠墙时按法兰座厚度填；标尺上画出两端余量</td>
+</tr>
+<tr>
+<td><strong>杆中心到墙</strong></td>
+<td>默认 150mm</td>
+<td>&lt;80mm 时提示"衣摆可能蹭墙"；&lt;120mm 黄色提醒</td>
+</tr>
+<tr>
+<td><strong>收衣方向</strong></td>
+<td>左 / 右（默认有空间的一侧）</td>
+<td>两端墙时只能向一侧收；按钮文案变"收向左侧/右侧"</td>
+</tr>
+<tr>
+<td><strong>接缝位置</strong>（P1）</td>
+<td>距左端 mm，可留空</td>
+<td>标出伸缩杆接缝，规划时设为禁停区、过缝降速</td>
+</tr>
+</tbody>
+</table>
+<p><strong>编号说明（避免误解）</strong>：<code>01—08</code> 是<strong>套挂单元的地址</strong>，不是衣服编号。界面写"单元 01"，下面再写"速干 T 恤（挂在这个单元上）"；删除单元后编号可以不连续，中枢按地址识别。</p>
+<p><strong>增删流程</strong>：</p>
+<pre><code>+ 添加单元 → 提示&quot;给新单元上电，编号 05&quot; → 中枢收到 unit/05/state → 自动登记 → 重新规划
+- 移除单元 → 二次确认（&quot;确认 03 已从杆上取下？&quot;）→ 停止给它发指令 → 重新规划
+</code></pre>
+<blockquote>
+<p>增删是"产品能力"，不是"演示彩蛋"：杆多长、挂几件由用户决定，软件不能写死 4。挤不下时给"减少 k 个"的建议，而不是强行重叠。</p>
+</blockquote>
 <hr />
 <h2 id="6">6. 老人模式</h2>
 <ul>
@@ -6123,6 +6272,26 @@ http://192.168.4.1:8000
 <td>前端模拟权重</td>
 <td><code>POST /api/mode {smart}</code></td>
 </tr>
+<tr>
+<td>杆长 / 端部余量 / 墙距</td>
+<td>滑杆 + 数字输入</td>
+<td><code>POST /api/config {rod_mm, end_margin_mm, wall_mm}</code></td>
+</tr>
+<tr>
+<td>单元数量 2—8</td>
+<td><code>+ / -</code> 步进器</td>
+<td><code>POST /api/units/add</code>、<code>POST /api/units/{id}/remove</code>（或前端重算 + 中枢登记）</td>
+</tr>
+<tr>
+<td>编号说明</td>
+<td>"单元 01" 标签</td>
+<td>单元地址 = 固件 <code>UNIT_ID</code> / MQTT topic</td>
+</tr>
+<tr>
+<td>收衣方向</td>
+<td>左/右切换</td>
+<td><code>POST /api/mode {gather, side}</code></td>
+</tr>
 </tbody>
 </table>
 <blockquote>
@@ -6139,6 +6308,9 @@ http://192.168.4.1:8000
 <li>[ ] 断网时页面显示"离线"，不白屏</li>
 <li>[ ] 老人模式可一键切换</li>
 <li>[ ] 二维码可扫（对比度、尺寸 ≥3cm）</li>
+<li>[ ] 改杆长后标尺/间距/告警同步；改单元数后布局不重叠</li>
+<li>[ ] 两端墙时端部余量与墙距有标注；离墙过近有提示</li>
+<li>[ ] 编号写"单元 01"而不是裸 <code>01</code>（避免误解成衣服编号）</li>
 </ul></section><section class="chapter" id="ch-10"><div class="ch-label">10</div><h1 id="hangflow-bom">衣序 HangFlow · BOM 与成本</h1>
 <blockquote>
 <p>这份文档回答一个问题：<strong>做一套能上台演示的东西要花多少钱、钱花在哪、卖多少钱才不亏。</strong></p>
@@ -7438,7 +7610,7 @@ RDK X5（参考价）     = ¥549
 <li>你一般多久洗一次衣服？一次几件？</li>
 <li>晾的时候会遇到衣服挤在一起吗？怎么处理？</li>
 <li>有没有衣服晾了两天还有味道/没干透的情况？</li>
-<li>你家的晾衣杆多粗？多长？阳台朝哪？</li>
+<li>你家的晾衣杆多粗？多长？两端是墙吗？杆离墙多远？是伸缩杆吗（中间有没有接缝）？</li>
 <li>如果有个东西夹在杆上能自动把衣服分开，你会买吗？多少钱觉得贵？</li>
 </ol>
 <p><strong>记录模板</strong>：<code>assets/interviews/YYYY-MM-DD-N.md</code>（原话 + 场景 + 价格反应）。</p>
@@ -8260,7 +8432,7 @@ L5 静态展示：实物 + 视频 + 网页 mock（不现场运动）
 </tbody>
 </table>
 <hr />
-<h2 id="7-qa25-12">7. 评委 Q&amp;A（25 问，背前 12 个）</h2>
+<h2 id="7-qa26-12">7. 评委 Q&amp;A（26 问，背前 12 个）</h2>
 <h3 id="_4">技术与产品</h3>
 <p><strong>Q1：这跟电动晾衣架有什么区别？</strong></p>
 <blockquote>
@@ -8360,7 +8532,11 @@ L5 静态展示：实物 + 视频 + 网页 mock（不现场运动）
 <blockquote>
 <p>我会告诉评委"它触发了安全保护"，然后展示它刚才跑通的视频/日志——<strong>这比假装没发生更可信</strong>。</p>
 </blockquote>
-<p><strong>Q25：下一步做什么？</strong></p>
+<p><strong>Q25：杆很长 / 两边是墙 / 想多挂几件怎么办？</strong></p>
+<blockquote>
+<p>杆长 0.8—2.4m、单元 2—8 个都支持，界面上直接改，规划器重算；单元是"按地址认"的，加一个自动上线，拔掉一个自动下线。两端有墙时用抱箍挡块、不换序、收衣只往有空间的一侧收；&gt;1.8m 建议加中间吊撑；伸缩杆过接缝会降速。这些都在 docs/18 写了。</p>
+</blockquote>
+<p><strong>Q26：下一步做什么？</strong></p>
 <blockquote>
 <p>三个月：把视觉换成"衣物识别 + 湿度估计"；六个月：多杆联动 + 接入升降晾衣架；一年：小批量众筹验证。</p>
 </blockquote>
@@ -9167,6 +9343,24 @@ L5 静态展示：实物 + 视频 + 网页 mock（不现场运动）
 <td>关热点，看单元</td>
 <td>500ms 内停</td>
 <td>看门狗没生效</td>
+</tr>
+<tr>
+<td><strong>杆长/单元数可变</strong></td>
+<td>设 L=2000mm、N=6，再设 L=900mm、N=6</td>
+<td>布局不重叠；挤不下时给出"减少 k 个"告警；耗时 ≤15s/单元；界面标尺与实际一致</td>
+<td>规划器写死 4 单元/1.2m</td>
+</tr>
+<tr>
+<td><strong>两端有墙</strong></td>
+<td>L=两墙净距，m=法兰厚度+10</td>
+<td>左端归零成功、右端不撞墙、收衣方向可选、离墙 &lt;80mm 有提示</td>
+<td>没考虑端部占位/衣摆蹭墙</td>
+</tr>
+<tr>
+<td><strong>伸缩杆接缝</strong></td>
+<td>Ø25+Ø22 杆，接缝处停一次再走</td>
+<td>连续 10 次过缝不丢步、不异响</td>
+<td>弹簧行程不够/未降速</td>
 </tr>
 </tbody>
 </table>
@@ -11177,7 +11371,336 @@ python3 -m software.hub.main                            # 再真机
 </table>
 <blockquote>
 <p>一句话：<strong>P0 把 RDK 当"视觉 + 规划 + Web 服务器"用，P2 才用它最贵的 BPU。</strong> 这不是浪费，是把不确定性留到有数据的时候。</p>
-</blockquote></section><section class="chapter" id="ch-19"><div class="ch-label">19</div><h1 id="hangflow">算法仿真结果（衣序 HangFlow）</h1>
+</blockquote></section><section class="chapter" id="ch-19"><div class="ch-label">19</div><h1 id="_1">安装场景与墙体适配</h1>
+<blockquote>
+<p><strong>这份文档回答四个问题：</strong>
+1. 界面上的 <code>01 / 02 / 03 / 04</code> 到底是什么？
+2. 晾衣杆长度、单元数量能不能变？
+3. 两端是墙（壁龛式阳台）怎么装？
+4. 伸缩杆、细杆、长杆、栏杆这些"不标准"的杆怎么办？</p>
+<p>结论先行：<strong>单元编号是物理模块的地址，不是衣服编号；杆长和单元数都做成可配置（0.8—2.4m / 2—8 个）；两端有墙时按"端部挡块 + 单侧收衣"设计，不假设能越过墙。</strong></p>
+</blockquote>
+<hr />
+<h2 id="0-0104">0. 先把 <code>01—04</code> 说清楚</h2>
+<p><strong><code>01 / 02 / 03 / 04</code> 是"套挂单元"的编号，也就是模块的物理地址</strong>，不是衣服的编号。</p>
+<ul>
+<li>每个单元里有 ESP32-C3，固件里烧一个 <code>UNIT_ID=01…08</code>；MQTT 主题是 <code>hangflow/unit/01/...</code>，中枢靠这个地址区分"谁是谁"。</li>
+<li>一件衣服挂在对应的单元上，所以"单元 01 上挂的是速干 T 恤"——但<strong>衣服本身没有 ID</strong>（没有 RFID，也不值得加）。</li>
+<li>界面上的正确读法是：<strong>单元 01（模块）+ 速干 T 恤（挂在它上面的衣服）</strong>。之前的原型只显示 <code>01</code>，容易让人以为是"第 1 件衣服"，这是 UI 表达问题，已经改成"单元 01"。</li>
+<li>增删单元时，编号只是地址；删掉 03 之后，剩下的可以是 01/02/04/05，也可以重排成 01/02/03/04——<strong>中枢按地址识别，不要求连续</strong>。</li>
+</ul>
+<blockquote>
+<p>为什么不用衣服编号？因为衣物是软的、会换、会被收走；模块是固定的、有电、有地址。<strong>给"会动的挂点"编号，不给"衣服"编号</strong>，这才是可维护的做法。</p>
+</blockquote>
+<hr />
+<h2 id="1">1. 参数化：杆长和单元数都应该是变量</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>范围</th>
+<th>默认（演示）</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>杆长 <code>L</code></td>
+<td><strong>0.8—2.4 m</strong></td>
+<td>1.2 m</td>
+<td>家用常见 1.2/1.5/1.8/2.0/2.4m；伸缩杆按"完全展开长度"算</td>
+</tr>
+<tr>
+<td>单元数 <code>N</code></td>
+<td><strong>2—8 个</strong></td>
+<td>4</td>
+<td>RDK 带 8 个无压力；超过 8 个建议第二个中枢</td>
+</tr>
+<tr>
+<td>端部余量 <code>m</code></td>
+<td>50 mm（可调 30—80）</td>
+<td>50 mm</td>
+<td>两端挡块/墙支架占位；靠墙时按实际支架厚度设</td>
+</tr>
+<tr>
+<td>最小间隙 <code>g_min</code></td>
+<td>30 mm</td>
+<td>30 mm</td>
+<td>安全下限</td>
+</tr>
+<tr>
+<td>杆径 <code>D</code></td>
+<td>20—35 mm</td>
+<td>25 mm</td>
+<td>夹爪自适应；伸缩杆两节可能不同径</td>
+</tr>
+<tr>
+<td>杆中心到墙 <code>d_wall</code></td>
+<td>≥120 mm（建议 150）</td>
+<td>—</td>
+<td>低于 80mm 时衣摆/衣架会蹭墙</td>
+</tr>
+</tbody>
+</table>
+<p><strong>可行性判据</strong>（中枢在界面上实时算）：</p>
+<pre><code>可用长度 = L − 2m
+需要长度 = Σ t_i + (N−1) × g_min
+若 需要长度 &gt; 可用长度 → 提示&quot;太挤了&quot;：
+   建议 A：减少单元（给出最少要拿掉几个）
+   建议 B：加长杆 / 缩小 m
+   建议 C：把 g_min 降到 20mm（需用户确认，不推荐长期）
+</code></pre>
+<ul>
+<li>该逻辑已在 <code>sim/spacing_planner.py</code> 实现（不可行返回 <code>drop_advice</code>），<code>planner.py</code> 只是加坐标偏移。</li>
+<li>界面必须<strong>显式告警</strong>，不允许静默把间距压到 0 或让模块重叠。</li>
+</ul>
+<h3 id="11">1.1 单元数量变化时的行为</h3>
+<table>
+<thead>
+<tr>
+<th>动作</th>
+<th>中枢行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>加一个单元</td>
+<td>上电 → 归零 → 发 <code>state</code> → 中枢自动登记（<code>unit/+/state</code>）→ 界面出现新卡片 → 重新规划</td>
+</tr>
+<tr>
+<td>删一个单元</td>
+<td>界面移除 → 中枢不再给它发指令 → 该单元原地待机（或长按关机）→ 重新规划</td>
+</tr>
+<tr>
+<td>换编号</td>
+<td>改固件 <code>UNIT_ID</code> 重烧，或界面做"重命名"映射；<strong>不建议现场改</strong>，贴纸写清楚</td>
+</tr>
+<tr>
+<td>超过 8 个</td>
+<td>中枢仍能收，但 Wi-Fi/MQTT 与网页会变慢；建议第二个 RDK 或分区</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>产品上建议<strong>按单元卖</strong>（加购 ¥199），杆多长、挂几件由用户决定；软件不能写死 4。</p>
+</blockquote>
+<hr />
+<h2 id="2">2. 两端是墙：壁龛式阳台怎么装</h2>
+<p>这是中国城市阳台最常见的形态：<strong>左右都是承重墙/瓷砖墙，杆两端固定在不锈钢法兰座上</strong>。</p>
+<h3 id="21">2.1 几何约束（先量再装）</h3>
+<pre><code>墙 ──[法兰座]════════ 晾衣杆 ════════[法兰座]── 墙
+      ↑ m=50mm                          ↑ m=50mm
+      └────────── 可用长度 = L − 2m ─────┘
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>量什么</th>
+<th>怎么量</th>
+<th>影响</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>两墙净距</td>
+<td>卷尺贴墙量 3 个高度</td>
+<td>决定 <code>L</code>（不是杆标称长度）</td>
+</tr>
+<tr>
+<td>法兰座凸出墙面</td>
+<td>直尺量</td>
+<td>决定 <code>m</code>（端部余量）</td>
+</tr>
+<tr>
+<td>杆到墙的距离</td>
+<td>杆中心到墙面</td>
+<td>决定 <code>d_wall</code>，&lt;80mm 要提醒</td>
+</tr>
+<tr>
+<td>杆两端直径</td>
+<td>卡尺/卷尺绕周长</td>
+<td>伸缩杆两节可能 25/22mm</td>
+</tr>
+<tr>
+<td>杆的挠度</td>
+<td>挂 10kg 看中间下垂</td>
+<td>&gt;1.8m 建议加中间吊撑</td>
+</tr>
+</tbody>
+</table>
+<h3 id="22">2.2 两端有墙时的四条设计规则</h3>
+<ol>
+<li><strong>端部挡块 = 归零基准</strong>：左端法兰座上加一个尼龙挡块/抱箍，单元撞到它即"位置 0"（堵转判据，见 docs/05 §11）。右端也加挡块，防止冲出。</li>
+<li><strong>单元不能越过挡块</strong>：所以<strong>换序（P2）在两端有墙时物理上更不可能</strong>；P0/P1 本来就不换序，这条只是再次确认。</li>
+<li><strong>收衣只能往一侧收</strong>：默认收向"有操作空间"的一侧（通常是靠近门/窗的一侧）；两端都顶死时，收衣 = 全部聚到中间或靠一侧，留出取衣空间。界面提供"收衣方向"选项。</li>
+<li><strong>衣摆会蹭墙</strong>：衣架垂直于杆，衣服宽度约 42cm；如果杆离墙只有 5—8cm，衣服会贴墙（不通风、蹭脏）。<strong>建议 <code>d_wall ≥120mm</code></strong>；不够时：
+   - 用薄型衣架/儿童衣架；
+   - 单元挂钩向房间侧偏置 20mm（P1 结构件）；
+   - 或明确告知"该侧不建议挂大件"。</li>
+</ol>
+<h3 id="23">2.3 安装顺序（两端已固定杆的情况）</h3>
+<ol>
+<li>量 <code>L</code>、<code>m</code>、<code>d_wall</code>、两端杆径；</li>
+<li>把左端挡块/归零块装上（抱箍 + 尼龙块，不钻墙）；</li>
+<li>单元从杆下方<strong>斜着卡入</strong>（C 形夹爪开口朝下），逐个夹上；不需要拆杆；</li>
+<li>单元之间先留 15cm，避免上电归零时互相顶；</li>
+<li>上电 → 自动归零（向左撞挡块）→ 网页登记；</li>
+<li>在网页输入实际 <code>L</code>、<code>m</code>、<code>d_wall</code>，重新规划；</li>
+<li>先手动低速走一遍全程，确认不蹭墙、不撞法兰座。</li>
+</ol>
+<blockquote>
+<p><strong>不需要拆杆、不需要打孔</strong>——这是"套挂式"的核心卖点；挡块用抱箍/扎带固定即可。</p>
+</blockquote>
+<h3 id="24">2.4 相机怎么放（有墙反而好办）</h3>
+<ul>
+<li>两端有墙时，相机放<strong>房间侧</strong>（人站的那侧），距杆 1.2—1.5m，正对杆；</li>
+<li>阳台进深不足 1.2m 时：相机贴对面墙、用广角（水平 FOV ≥90°），距离 0.8—1.0m，标定后仍可用（误差会略大，见 docs/06 §2.3）；</li>
+<li>不要把相机放在杆的正上方（俯视会看到衣架顶，标记被挡）；</li>
+<li>相机不要被晾着的衣服挡住——放在杆的一端斜 30° 也可以，只要能看到 4 个标记。</li>
+</ul>
+<hr />
+<h2 id="3">3. 伸缩杆（两节/三节）：最容易翻车的"标准件"</h2>
+<p>家用伸缩晾衣杆通常是 <strong>Ø25 + Ø22</strong> 两节套接，接缝处有一个 <strong>2—3mm 的台阶</strong>。</p>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>影响</th>
+<th>对策</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>台阶处轮子瞬间悬空/撞击</td>
+<td>打滑、丢步、异响</td>
+<td>摩擦轮弹簧行程 ≥8mm；过台阶降速到 20mm/s；接缝位置在界面标出来</td>
+</tr>
+<tr>
+<td>两节直径不同</td>
+<td>夹爪夹持力变化</td>
+<td>夹爪 20—35mm 自适应 + TPU 垫；到货实测两节夹持力</td>
+</tr>
+<tr>
+<td>伸缩杆刚度低</td>
+<td>中间下垂，模块爬坡</td>
+<td>&gt;1.8m 加中间吊撑（从天花板/上沿吊，不挡杆面）；或限制单侧 4 个单元</td>
+</tr>
+<tr>
+<td>接缝处不圆/有毛刺</td>
+<td>刮伤轮面</td>
+<td>装前用砂纸打磨接缝，贴一圈透明胶带过渡</td>
+</tr>
+<tr>
+<td>杆端塑料堵头</td>
+<td>挡块位置不稳</td>
+<td>用抱箍挡块，不依赖堵头</td>
+</tr>
+</tbody>
+</table>
+<p><strong>软件对策</strong>：</p>
+<ul>
+<li>标定时输入"接缝位置"（离左端多少 mm），规划器把接缝当作"禁停区"（模块不停在接缝上）；</li>
+<li>过接缝时速度降到 20mm/s，并允许一次打滑（视觉校正兜底）；</li>
+<li>如果接缝台阶 &gt;3mm，建议换一根等径杆（演示用等径杆）。</li>
+</ul>
+<hr />
+<h2 id="4-18m">4. 长杆（&gt;1.8m）与中间支撑</h2>
+<p>2.4m 杆挂 8 个单元 + 8 件湿衣（约 16kg），中间挠度可能到 2—4cm。<strong>杆一弯，模块就爬坡，摩擦轮牵引力不够</strong>。</p>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>做法</th>
+<th>代价</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>中间吊撑（推荐）</td>
+<td>从阳台顶/晾衣架横梁垂一根吊杆，吊住杆中部；吊杆在杆上方，不挡模块</td>
+<td>需要顶部固定点</td>
+</tr>
+<tr>
+<td>中间抱箍支撑</td>
+<td>抱箍 + 斜撑到墙</td>
+<td>会挡住模块通过（只能在支撑两侧分区）</td>
+</tr>
+<tr>
+<td>降低负载</td>
+<td>单侧 ≤4 个单元、湿衣分两次晾</td>
+<td>体验下降</td>
+</tr>
+<tr>
+<td>换等径加厚杆</td>
+<td>Ø32×1.2mm 不锈钢</td>
+<td>成本 +¥80，但最稳</td>
+</tr>
+</tbody>
+</table>
+<p><strong>产品口径</strong>：<strong>≤1.8m 不需要中间支撑；&gt;1.8m 建议加吊撑；&gt;2.4m 必须加。</strong> 这句话写进说明书。</p>
+<hr />
+<h2 id="5">5. 其它场景</h2>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>关键问题</th>
+<th>适配</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>顶天立地杆（两端顶墙）</td>
+<td>杆会轻微上下弹</td>
+<td>挡块用抱箍；归零用堵转判据，不依赖磁铁</td>
+</tr>
+<tr>
+<td>飘窗/栏杆（圆管 Ø20 以下）</td>
+<td>夹爪夹不紧</td>
+<td>换小径夹爪（P1）；或用转接套（3D 打印）</td>
+</tr>
+<tr>
+<td>方形杆</td>
+<td>C 形夹爪接触面小</td>
+<td>换 V 形夹爪（P1，SCAD 参数可改）</td>
+</tr>
+<tr>
+<td>杆上有挂钩/衣架</td>
+<td>模块过不去</td>
+<td>规划时把障碍位置设为禁停区；或先取下</td>
+</tr>
+<tr>
+<td>阳台柜挡住一端</td>
+<td>端部余量加大</td>
+<td><code>m</code> 设为柜深 + 20mm，收衣方向选另一端</td>
+</tr>
+<tr>
+<td>户外/淋雨</td>
+<td>不防水</td>
+<td>明确"不建议长期户外"，IPX2 只防滴水</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6">6. 数量/长度变化后的验收清单</h2>
+<ul>
+<li>[ ] 改 <code>L</code> 后，界面标尺、间距、告警都更新；杆视图与实际杆比例一致</li>
+<li>[ ] 改 <code>N</code> 后，新增单元能上线；删除的单元不再收到指令</li>
+<li>[ ] 挤不下时出现"建议减少 k 个单元"的提示，且不会重叠</li>
+<li>[ ] 两端墙：左端归零成功；右端不撞墙；收衣方向可选</li>
+<li>[ ] 杆离墙 &lt;80mm 时出现"衣摆可能蹭墙"提示</li>
+<li>[ ] 伸缩杆：接缝处降速通过，不丢步（连续 10 次）</li>
+<li>[ ] &gt;1.8m：有吊撑或明确提示</li>
+</ul>
+<hr />
+<h2 id="7">7. 与其它文档的关系</h2>
+<ul>
+<li>规划器不可行处理：<a href="#ch-7">docs/06</a> §3.4</li>
+<li>机械夹爪/挡块/弹簧行程：<a href="#ch-5">docs/04</a></li>
+<li>归零判据与安全：<a href="#ch-6">docs/05</a> §11</li>
+<li>现场演示杆：1.2m 等径杆（避免伸缩杆接缝，演示更稳）</li>
+<li>界面实现：<a href="#ch-9">docs/08</a>、<code>app/index.html</code></li>
+</ul></section><section class="chapter" id="ch-20"><div class="ch-label">20</div><h1 id="hangflow">算法仿真结果（衣序 HangFlow）</h1>
 <blockquote>
 <p>本文件由 <code>python sim/run_all.py</code> 自动生成（2026-11-23 01:42:02），<strong>请勿手改</strong>。
 环境：Python 3.11.6 / numpy 1.25.1；单元测试 17/17 通过。

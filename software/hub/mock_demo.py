@@ -64,16 +64,18 @@ class FakeUnit:
         return round(self.x_mm - self.x_enc, 2)
 
 
-def run(mode: str = "equalize", n: int = 4, gap_mm: float = 100.0, seed: int = 7):
+def run(mode: str = "equalize", n: int = 4, gap_mm: float = 100.0, seed: int = 7,
+        rod_mm: float = 1200.0):
     random.seed(seed)
-    thickness = [30.0, 45.0, 30.0, 50.0][:n]
-    moisture = [0.78, 0.84, 0.22, 0.46][:n]
+    thickness = ([30.0, 45.0, 30.0, 50.0, 35.0, 40.0, 30.0, 45.0])[:n]
+    moisture = ([0.78, 0.84, 0.22, 0.46, 0.6, 0.3, 0.9, 0.5])[:n]
     # 初始：挤在左侧 0.35m 内
     start = [120 + i * 55.0 for i in range(n)]
     units = [FakeUnit(f"0{i+1}", start[i]) for i in range(n)]
 
-    plan = plan_layout(thickness, moisture, mode=mode, target_gap_mm=gap_mm)
-    print(f"模式: {mode} | 初始位置: {[round(u.x_mm) for u in units]}")
+    plan = plan_layout(thickness, moisture, mode=mode, target_gap_mm=gap_mm,
+                       rod_length_mm=rod_mm)
+    print(f"模式: {mode} | 杆长: {rod_mm:.0f}mm | 单元数: {n} | 初始位置: {[round(u.x_mm) for u in units]}")
     print(f"目标位置: {plan['centers_mm']} | 目标间隙: {plan['gaps_mm']} mm")
     print("-" * 68)
 
@@ -91,12 +93,14 @@ def run(mode: str = "equalize", n: int = 4, gap_mm: float = 100.0, seed: int = 7
     total = sim_total
 
     # 校验
+    # 时间预算随配置缩放：4 单元/1.2m 是 45s，单元更多/杆更长按 15s/单元放宽
+    budget_s = 45.0 if (n <= 4 and rod_mm <= 1300) else 15.0 * n
     gaps = [round(units[i + 1].x_mm - units[i].x_mm
                   - (thickness[i] + thickness[i + 1]) / 2, 1) for i in range(n - 1)]
     print("-" * 68)
     print(f"最终位置: {[round(u.x_mm, 1) for u in units]}")
     print(f"最终间隙(净空): {gaps} mm | 最小 {min(gaps)} mm（要求 ≥ 30）")
-    print(f"总耗时: {total:.2f}s（要求 ≤ 45s，典型 ≤35s）")
+    print(f"总耗时: {total:.2f}s（预算 {budget_s:.0f}s）")
 
     LOG_DIR.mkdir(exist_ok=True)
     logfile = LOG_DIR / f"mock-run-{time.strftime('%Y%m%d-%H%M%S')}.jsonl"
@@ -107,7 +111,7 @@ def run(mode: str = "equalize", n: int = 4, gap_mm: float = 100.0, seed: int = 7
             f.write(json.dumps({"type": "move", **r}, ensure_ascii=False) + "\n")
     print(f"日志: {logfile.relative_to(ROOT)}")
 
-    ok = (min(gaps) >= 30) and (total <= 45)
+    ok = (min(gaps) >= 30) and (total <= budget_s)
     print("结果:", "PASS" if ok else "FAIL")
     return 0 if ok else 1
 
@@ -117,6 +121,7 @@ if __name__ == "__main__":
     ap.add_argument("--mode", default="equalize", choices=["equalize", "smart", "gather"])
     ap.add_argument("--n", type=int, default=4)
     ap.add_argument("--gap", type=float, default=100.0)
+    ap.add_argument("--rod", type=float, default=1200.0, help="杆长 mm，范围 800—2400")
     a = ap.parse_args()
-    raise SystemExit(run(a.mode, a.n, a.gap))
+    raise SystemExit(run(a.mode, a.n, a.gap, rod_mm=a.rod))
 
